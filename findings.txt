@@ -37,3 +37,15 @@ Test performed using Cygnal header analyzer script.
 All results are from real-time HTTP responses.
 
 🖼️ Screenshot: ./screenshots/cygnal-poki-header-analysis.png
+
+--- Phase 2: Redirect Chain Analysis ---
+Target URL: https://bit.ly/3I6ZzrY
+
+Result:
+✅ No redirects. The URL leads directly to its destination.
+
+🖼️ Screenshot: ./screenshots/redirect-trace-bitly-example.png
+
+Significance:
+Some shortened URLs point directly to final destinations without extra hops.
+However, it's still important to scan shortened or suspicious links, as redirection is a common method used in phishing campaigns.

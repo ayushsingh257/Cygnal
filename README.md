@@ -14,6 +14,9 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - X-Frame-Options
 - Referrer-Policy
 - Permissions-Policy
+- Follows redirect chains from shortened or suspicious URLs
+- Reveals the true final destination of phishing/malicious links
+
 
 It then prints a clean report of what's present and what's missing.
 
@@ -40,6 +43,15 @@ Cygnal/
 ├── report-template.md     # Markdown reporting format
 ├── README.md              # This file
 └── requirements.txt       # Dependencies if any (currently not used)
+
+
+---
+
+## 🔗 Phase 2 Output Example
+
+🔗 Tracing redirects for: https://bit.ly/3I6ZzrY
+
+✅ No redirects. This URL leads directly to its destination.
 
 ---
 
@@ -76,3 +88,4 @@ This project is for educational and ethical testing purposes only. Always scan o
 `Cybersecurity Enthusiast | OSINT Explorer | Recon-focused Builder`
 GitHub: [@ayushsingh257](https://github.com/ayushsingh257)
 LinkedIn: [linkedin.com/in/ayush-singh-kshatriya](https://linkedin.com/in/ayush-singh-kshatriya)
+
