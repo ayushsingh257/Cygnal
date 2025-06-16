@@ -4,6 +4,10 @@
 
 Cygnal is more than just a Python script — it's a growing forensic OSINT toolkit built to mimic how real-world investigators assess digital threats. Whether you're a student, ethical hacker, or analyst, Cygnal helps extract valuable intelligence from public domains — fast, clean, and ethically.
 
+
+![Project](https://img.shields.io/badge/Cygnal-Recon_Toolkit-blueviolet)
+![Phase](https://img.shields.io/badge/Phase-9%2F9-complete-brightgreen)
+
 ---
 Why Does Cygnal Matter?
 
@@ -217,3 +221,15 @@ Commercial redistribution without consent is discouraged.
 GitHub: [@ayushsingh257](https://github.com/ayushsingh257)
 LinkedIn: [linkedin.com/in/ayush-singh-kshatriya](https://linkedin.com/in/ayush-singh-kshatriya)
 
+
+---
+
+## 🛣️ What's Next for Cygnal
+
+- 🎯 Add a web-based GUI using Flask or React
+- 📊 Build real-time dashboard with stats & charts
+- 🔗 Integrate threat intel APIs (e.g., VirusTotal, AbuseIPDB)
+- 🔐 Add user authentication for secure team access
+- 📁 Export reports in PDF/HTML
+
+Stay tuned for **Cygnal v2 – Web Edition** 🚀
