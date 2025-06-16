@@ -48,6 +48,17 @@ This email passed key authentication checks, but investigating relay IP and head
 
 ---
 
+## 📸 Web Screenshot Capture
+
+Target: https://cyberpulse.in
+📁 File: cyberpulse-screenshot-20250616-214129.png
+
+💡 Interpretation:
+Capturing real-time screenshots of target websites allows analysts to preserve volatile content before it's removed. This is standard practice in cybercrime investigations and media fact-checking teams.
+
+
+---
+
 ## 🔗 Redirect Chain Analysis
 
 **Input URL:** https://bit.ly/3I6ZzrY

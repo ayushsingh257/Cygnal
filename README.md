@@ -63,6 +63,8 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Reveals the true final destination of phishing/malicious links
 - Performs WHOIS lookups to gather domain ownership, registration, and server details
 - Analyzes raw email headers for SPF/DKIM/DMARC status and origin IP
+- Captures full-page screenshot of live websites using headless browser
+
 
 
 
@@ -128,6 +130,13 @@ Emails: reg_admin@godaddy.com
 ✅ DKIM Check: PASS
 ✅ DMARC Check: PASS
 📩 Claimed Sender: sender@gmail.com
+
+---
+
+## 📸 Phase 5 Output Example
+
+📸 Capturing screenshot of: https://cyberpulse.in
+✅ Screenshot saved to screenshots/cyberpulse-screenshot-20250616-214129.png
 
 ---
 
