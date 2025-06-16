@@ -81,3 +81,17 @@ The target domain is missing multiple critical HTTP security headers. This sugge
 ---
 
 📎 **Evidence Screenshot**: `screenshots/cygnal-[domain]-header-analysis.png`
+
+
+---
+
+## 🖼️ Reverse Image Search
+
+**Image Searched:** elon.jpg
+**Search Engine Used:** Google Lens
+**Screenshot Saved:** screenshots/reverse-search-20250616-230107.png
+
+### 🔍 Analyst Note:
+Reverse image searches are critical in identifying fake profiles, reused images in scam sites, and disinformation campaigns. Google Lens offers reliable matches for public images.
+
+---
