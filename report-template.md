@@ -17,6 +17,19 @@
 | Referrer-Policy            | ✅ / ❌   |
 | Permissions-Policy         | ✅ / ❌   |
 
+
+---
+
+## 🔗 Redirect Chain Analysis
+
+**Input URL:** https://bit.ly/3I6ZzrY
+
+**Result:**
+✅ No redirects. The URL leads directly to its destination.
+
+💡 **Interpretation:**
+Although this specific shortened URL leads directly to a final site, many phishing or scam URLs pass through multiple redirect layers to mask their destination. Always trace these chains to uncover the true endpoint.
+
 ---
 
 ## 🧠 Analyst Interpretation
