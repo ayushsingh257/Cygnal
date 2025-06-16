@@ -1,0 +1,15 @@
+Delivered-To: ayush@example.com
+Received: by 2002:a17:906:7a83:0:0:0:0 with SMTP id df3csp362398ejc;
+        Thu, 15 Jun 2025 12:34:56 -0700 (PDT)
+Received: from mail-io1-f52.google.com (mail-io1-f52.google.com. [209.85.166.52])
+        by mx.google.com with SMTPS id i12sor1382933iog.11.2025.06.15.12.34.55
+        for <ayush@example.com>
+        (Google Transport Security);
+        Thu, 15 Jun 2025 12:34:55 -0700 (PDT)
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b="abcxyz";
+       spf=pass (google.com: domain of sender@gmail.com designates 209.85.166.52 as permitted sender) smtp.mailfrom=sender@gmail.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=gmail.com
+From: "Spoofed Sender" <sender@gmail.com>
+To: <ayush@example.com>
+Subject: Test Email Header
