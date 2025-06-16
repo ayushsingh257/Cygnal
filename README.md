@@ -1,3 +1,48 @@
+---
+
+### ✨ About Cygnal
+
+Cygnal is more than just a Python script — it's a growing forensic OSINT toolkit built to mimic how real-world investigators assess digital threats. Whether you're a student, ethical hacker, or analyst, Cygnal helps extract valuable intelligence from public domains — fast, clean, and ethically.
+
+---
+Why Does Cygnal Matter?
+
+Most people don’t realize this, but every website leaves a trail —
+Security headers, WHOIS data, redirect chains — all of them can reveal whether a site is safe, shady, or secretly harmful.
+
+Cygnal turns those trails into actionable insights.
+
+Think of it like your cyber investigator’s toolkit
+
+Clean reports. Easy commands. No bloat. No noise.
+
+And everything built with forensics & simplicity in mind
+
+### 📍 Where Cygnal Stands Today (Phase 3 Complete)
+
+So far, Cygnal can:
+- Identify missing or misconfigured security headers
+- Trace redirect chains to uncover phishing layers
+- Perform WHOIS lookups to reveal domain ownership and registration trails
+
+It’s already becoming a reliable passive recon kit used in real investigations.
+
+---
+
+### 🚀 Where Cygnal Is Headed
+
+Coming in future phases:
+- Email header forensics
+- Screenshot capture engine
+- Auto-generated PDF reporting
+- Passive IP intelligence lookups
+- Potential future web interface
+
+Cygnal will evolve from a recon script into a field-ready OSINT utility — trusted by investigators, interns, analysts, and agencies alike.
+
+---
+
+
 # 🛡️ Cygnal – Security Header Analyzer
 
 **Cygnal** is a lightweight, Python-based tool that performs HTTP security header analysis on any live website. It helps identify missing or misconfigured headers which can expose users to attacks like clickjacking, MIME sniffing, and cross-site scripting.
