@@ -100,3 +100,13 @@ URL Analyzed: https://cyberpulse.in
 Result: No direct emails found / [X] email(s) found (if any)
 Notes: Simulated basic breach check using keywords like 'admin', 'support'
 Screenshot: screenshots/email-check-cyberpulse.png
+
+📌 Metadata Extraction – Phase 8
+File: samples/test.pdf
+Type: PDF Document
+Metadata Extracted:
+ - Title: Purple White Professional Resume
+ - Author: Ayush Singh
+ - Created via: Canva
+ - Date: 13 June 2025
+Screenshot: screenshots/pdf-metadata-20250616.png
