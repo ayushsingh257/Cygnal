@@ -1,0 +1,39 @@
+=========================
+[HEADER ANALYSIS REPORT]
+=========================
+
+🔍 Target: https://cyberpulse.in
+
+Result:
+[-] Content-Security-Policy: Missing ❌
+[-] Strict-Transport-Security: Missing ❌
+[-] X-Content-Type-Options: Missing ❌
+[-] X-Frame-Options: Missing ❌
+[-] Referrer-Policy: Missing ❌
+[-] Permissions-Policy: Missing ❌
+
+Interpretation:
+This domain lacks basic HTTP security headers, which leaves users more exposed to browser-based attacks such as XSS, clickjacking, and MIME sniffing.
+
+---
+
+🔍 Target: https://poki.com
+
+Result:
+[+] Content-Security-Policy: Present ✅
+[+] Strict-Transport-Security: Present ✅
+[+] X-Content-Type-Options: Present ✅
+[-] X-Frame-Options: Missing ❌
+[+] Referrer-Policy: Present ✅
+[-] Permissions-Policy: Missing ❌
+
+Interpretation:
+This domain is moderately well-configured, though two security headers are still missing. Improvement in `X-Frame-Options` and `Permissions-Policy` is recommended.
+
+---
+
+✅ Analyst Note:
+Test performed using Cygnal header analyzer script.
+All results are from real-time HTTP responses.
+
+🖼️ Screenshot: ./screenshots/cygnal-poki-header-analysis.png
