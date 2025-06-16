@@ -49,3 +49,19 @@ Result:
 Significance:
 Some shortened URLs point directly to final destinations without extra hops.
 However, it's still important to scan shortened or suspicious links, as redirection is a common method used in phishing campaigns.
+
+--- Phase 3: WHOIS Lookup & Domain Intel ---
+Domain Searched: cyberpulse.in
+
+Result:
+- Registrar: GoDaddy
+- Created: 2024-06-24
+- Expires: 2025-06-24
+- Country: IN
+- Name Servers: ns28.domaincontrol.com, ns27.domaincontrol.com
+- Email: reg_admin@godaddy.com
+
+🖼️ Screenshot: ./screenshots/whois-cyberpulse-result.png
+
+Significance:
+WHOIS is often the first digital fingerprint in an investigation. This data helps track domain ownership patterns, assess if a site is a throwaway, and correlate it with scam infrastructure.
