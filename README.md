@@ -167,6 +167,15 @@ This project is for educational and ethical testing purposes only. Always scan o
 
 ---
 
+## 📄 License
+
+This project is licensed under the MIT License © 2025 Ayush Singh Kshatriya.
+You are free to use, share, or adapt it with proper attribution.
+Commercial redistribution without consent is discouraged.
+
+
+---
+
 ## 👤 Author
 
 **Ayush Singh Kshatriya**
