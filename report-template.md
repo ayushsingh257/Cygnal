@@ -17,6 +17,19 @@
 | Referrer-Policy            | ✅ / ❌   |
 | Permissions-Policy         | ✅ / ❌   |
 
+---
+
+## 🌐 WHOIS & Domain Intelligence
+
+**Target Domain:** cyberpulse.in
+
+- Registrar: GoDaddy
+- Creation Date: 2024-06-24
+- Expiry Date: 2025-06-24
+- Country: IN
+- Email: reg_admin@godaddy.com
+
+💡 **Interpretation:** The domain is recently created and hosted by GoDaddy. This info is useful in phishing or scam detection, especially when correlating domain lifetimes with malicious campaigns.
 
 ---
 

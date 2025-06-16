@@ -16,6 +16,8 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Permissions-Policy
 - Follows redirect chains from shortened or suspicious URLs
 - Reveals the true final destination of phishing/malicious links
+- Performs WHOIS lookups to gather domain ownership, registration, and server details
+
 
 
 It then prints a clean report of what's present and what's missing.
@@ -52,6 +54,22 @@ Cygnal/
 🔗 Tracing redirects for: https://bit.ly/3I6ZzrY
 
 ✅ No redirects. This URL leads directly to its destination.
+
+---
+
+## 🌐 Phase 3 Output Example
+
+🌐 Performing WHOIS lookup for: cyberpulse.in
+
+📄 WHOIS Result:
+
+Domain Name: cyberpulse.in
+Registrar: GoDaddy
+Creation Date: 2024-06-24
+Expiration Date: 2025-06-24
+Name Servers: ns28.domaincontrol.com, ns27.domaincontrol.com
+Country: IN
+Emails: reg_admin@godaddy.com
 
 ---
 
