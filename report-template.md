@@ -95,3 +95,16 @@ The target domain is missing multiple critical HTTP security headers. This sugge
 Reverse image searches are critical in identifying fake profiles, reused images in scam sites, and disinformation campaigns. Google Lens offers reliable matches for public images.
 
 ---
+
+---
+
+## 📨 Email Leak Awareness Scan
+
+**Website:** https://cyberpulse.in  
+**Emails Found:** [List them here or write “None found”]  
+**Screenshot:** screenshots/email-check-cyberpulse.png
+
+### 🔍 Analyst Note:
+This phase simulates how OSINT agents gather surface-level emails from websites and assess them for potential breach signals or sensitive roles (admin, support). Useful in early attack surface mapping.
+
+---

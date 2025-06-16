@@ -65,6 +65,7 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Analyzes raw email headers for SPF/DKIM/DMARC status and origin IP
 - Captures full-page screenshot of live websites using headless browser
 - Performs reverse image searches via Google Lens and captures visual matches
+- Extracts emails from webpages and flags potentially sensitive ones (e.g. admin, support)
 
 
 It then prints a clean report of what's present and what's missing.
@@ -142,6 +143,13 @@ Emails: reg_admin@godaddy.com
 Reverse image search for: elon.jpg  
 Result: Screenshot saved at `screenshots/reverse-search-20250616-230107.png`
 
+---
+
+## 📬 Phase 7 Output Example
+
+Email scan for: https://cyberpulse.in  
+Found: 0 or more  
+Screenshot saved: `screenshots/email-check-cyberpulse.png`
 
 ---
 

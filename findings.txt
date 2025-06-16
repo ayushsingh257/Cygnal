@@ -94,3 +94,9 @@ Image: elon.jpg
 Tool Used: Google Lens via Selenium automation
 Result: Screenshot saved as visual evidence of matches/similar images on the web.
 Screenshot: screenshots/reverse-search-20250616-230107.png
+
+📌 Email Extraction & Leak Awareness – Phase 7
+URL Analyzed: https://cyberpulse.in
+Result: No direct emails found / [X] email(s) found (if any)
+Notes: Simulated basic breach check using keywords like 'admin', 'support'
+Screenshot: screenshots/email-check-cyberpulse.png
