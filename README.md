@@ -162,6 +162,18 @@ Screenshot saved: screenshots/pdf-metadata-20250616.png
 
 ---
 
+## 📄 Phase 9: Automated Report Generator
+
+Cygnal now includes a fully automated report generator that compiles all findings, screenshots, and results into a clean Markdown report — ready to be shared, archived, or submitted to security teams.
+
+✔️ All 8 modules integrated
+✔️ Auto-organized with date-stamped filenames
+✔️ Designed for investigators, analysts, and cybercrime teams
+
+🖼️ Screenshot: `screenshots/final-report-generated-20250616.png`
+
+---
+
 ## 🚀 Getting Started
 
 Make sure you have Python 3 installed.

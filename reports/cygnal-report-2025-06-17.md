@@ -1,3 +1,12 @@
+# 🛡️ Cygnal Recon Report
+**Generated on:** 2025-06-17
+**Analyst:** Ayush Singh Kshatriya
+
+---
+
+## 🔍 Findings Summary
+
+```
 =========================
 [HEADER ANALYSIS REPORT]
 =========================
@@ -111,4 +120,32 @@ Metadata Extracted:
  - Date: 13 June 2025
 Screenshot: screenshots/pdf-metadata-20250616.png
 
-✅ Final report generated using Phase 9 automation tool on 16 June 2025
+```
+
+---
+## 📸 Screenshots Used
+
+![cyberpulse-screenshot-20250616-214129.png](screenshots\cyberpulse-screenshot-20250616-214129.png)
+
+![cygnal-poki-header-analysis.png](screenshots\cygnal-poki-header-analysis.png)
+
+![email-check-cyberpulse.png](screenshots\email-check-cyberpulse.png)
+
+![email-header-analysis-sample.png](screenshots\email-header-analysis-sample.png)
+
+![pdf-metadata-20250616.png](screenshots\pdf-metadata-20250616.png)
+
+![redirect-trace-bitly-example.png](screenshots\redirect-trace-bitly-example.png)
+
+![reverse-search-20250616-230107.png](screenshots\reverse-search-20250616-230107.png)
+
+![whois-cyberpulse-result.png](screenshots\whois-cyberpulse-result.png)
+
+---
+## ✅ End of Report
+
+
+---
+
+✅ This report was automatically compiled by the Cygnal toolkit (Phase 9).
+Generated on: 16 June 2025 by Ayush Singh Kshatriya
