@@ -88,3 +88,9 @@ Target: https://cyberpulse.in
 
 Significance:
 Screenshots serve as visual proof in forensic investigations. They help document fraudulent pages before takedown or alteration, and are often attached to cybercrime reports, court documents, or phishing evidence bundles.
+
+📌 Reverse Image Search – Phase 6
+Image: elon.jpg
+Tool Used: Google Lens via Selenium automation
+Result: Screenshot saved as visual evidence of matches/similar images on the web.
+Screenshot: screenshots/reverse-search-20250616-230107.png
