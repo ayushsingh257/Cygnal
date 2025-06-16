@@ -33,6 +33,21 @@
 
 ---
 
+## 📨 Email Header Forensics
+
+Source File: sample-email.txt
+
+- Sender IP: 209.85.166.52
+- SPF: PASS
+- DKIM: PASS
+- DMARC: PASS
+- Claimed Sender: sender@gmail.com
+
+💡 Interpretation:
+This email passed key authentication checks, but investigating relay IP and header hops still helps confirm sender identity — especially in spoofing or targeted fraud.
+
+---
+
 ## 🔗 Redirect Chain Analysis
 
 **Input URL:** https://bit.ly/3I6ZzrY

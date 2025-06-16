@@ -62,6 +62,8 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Follows redirect chains from shortened or suspicious URLs
 - Reveals the true final destination of phishing/malicious links
 - Performs WHOIS lookups to gather domain ownership, registration, and server details
+- Analyzes raw email headers for SPF/DKIM/DMARC status and origin IP
+
 
 
 
@@ -115,6 +117,17 @@ Expiration Date: 2025-06-24
 Name Servers: ns28.domaincontrol.com, ns27.domaincontrol.com
 Country: IN
 Emails: reg_admin@godaddy.com
+
+---
+
+## 📨 Phase 4 Output Example
+📨 Analyzing Email Header...
+
+🔍 Possible Sender IP: 209.85.166.52
+✅ SPF Check: PASS
+✅ DKIM Check: PASS
+✅ DMARC Check: PASS
+📩 Claimed Sender: sender@gmail.com
 
 ---
 

@@ -65,3 +65,18 @@ Result:
 
 Significance:
 WHOIS is often the first digital fingerprint in an investigation. This data helps track domain ownership patterns, assess if a site is a throwaway, and correlate it with scam infrastructure.
+
+--- Phase 4: Email Header Analysis ---
+Source: sample-email.txt
+
+Results:
+- Claimed Sender: sender@gmail.com
+- Sender IP: 209.85.166.52
+- SPF: PASS
+- DKIM: PASS
+- DMARC: PASS
+
+🖼️ Screenshot: ./screenshots/email-header-analysis-sample.png
+
+Significance:
+Analyzing raw headers helps trace spoofed or malicious emails, verify sender authenticity, and identify targeted phishing attempts. Often used by SOC teams and police digital forensics units.
