@@ -1,7 +1,7 @@
 # 📝 Cygnal – Header Analysis Report
 
-**Domain Analyzed:** [https://example.com]  
-**Scan Date:** [16 June 2025]  
+**Domain Analyzed:** [https://example.com]
+**Scan Date:** [16 June 2025]
 **Analyst:** Ayush Singh Kshatriya
 
 ---
@@ -100,11 +100,30 @@ Reverse image searches are critical in identifying fake profiles, reused images 
 
 ## 📨 Email Leak Awareness Scan
 
-**Website:** https://cyberpulse.in  
-**Emails Found:** [List them here or write “None found”]  
+**Website:** https://cyberpulse.in
+**Emails Found:** [List them here or write “None found”]
 **Screenshot:** screenshots/email-check-cyberpulse.png
 
 ### 🔍 Analyst Note:
 This phase simulates how OSINT agents gather surface-level emails from websites and assess them for potential breach signals or sensitive roles (admin, support). Useful in early attack surface mapping.
+
+---
+
+---
+
+## 🗂️ Metadata Extraction Report
+
+**File Analyzed:** test.pdf
+**Type:** PDF Document
+**Screenshot:** screenshots/pdf-metadata-20250616.png
+
+### 📊 Extracted Data:
+- Author: Ayush Singh
+- Tool Used: PyPDF2
+- Created by: Canva
+- Timestamp: 13 June 2025
+
+### 🧠 Analyst Note:
+Metadata can uncover the source of leaked documents, authorship, and device trails — this is a crucial layer in OSINT and forensics.
 
 ---

@@ -66,6 +66,7 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Captures full-page screenshot of live websites using headless browser
 - Performs reverse image searches via Google Lens and captures visual matches
 - Extracts emails from webpages and flags potentially sensitive ones (e.g. admin, support)
+- Extracts hidden metadata from PDF and image files (author, tool used, creation time)
 
 
 It then prints a clean report of what's present and what's missing.
@@ -76,10 +77,10 @@ It then prints a clean report of what's present and what's missing.
 
 Analyzing security headers for: https://poki.com/
 
-[+] Content-Security-Policy: Present ✅  
-[+] Strict-Transport-Security: Present ✅  
-[-] X-Frame-Options: Missing ❌  
-[+] Referrer-Policy: Present ✅  
+[+] Content-Security-Policy: Present ✅
+[+] Strict-Transport-Security: Present ✅
+[-] X-Frame-Options: Missing ❌
+[+] Referrer-Policy: Present ✅
 [-] Permissions-Policy: Missing ❌
 
 Cygnal/
@@ -140,16 +141,24 @@ Emails: reg_admin@godaddy.com
 
 ## 🖼️ Phase 6 Output Example
 
-Reverse image search for: elon.jpg  
+Reverse image search for: elon.jpg
 Result: Screenshot saved at `screenshots/reverse-search-20250616-230107.png`
 
 ---
 
 ## 📬 Phase 7 Output Example
 
-Email scan for: https://cyberpulse.in  
-Found: 0 or more  
+Email scan for: https://cyberpulse.in
+Found: 0 or more
 Screenshot saved: `screenshots/email-check-cyberpulse.png`
+
+---
+
+## 🗂️ Phase 8 Output Example
+
+PDF metadata extraction for: test.pdf
+Result: Author – Ayush Singh, Tool – Canva
+Screenshot saved: screenshots/pdf-metadata-20250616.png
 
 ---
 
