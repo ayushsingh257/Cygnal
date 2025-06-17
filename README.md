@@ -233,3 +233,20 @@ LinkedIn: [linkedin.com/in/ayush-singh-kshatriya](https://linkedin.com/in/ayush-
 - 📁 Export reports in PDF/HTML
 
 Stay tuned for **Cygnal v2 – Web Edition** 🚀
+
+## 🔟 Phase 10: Frontend UI Design + Component Setup
+
+- Transitioned to a Next.js 14 frontend using the App Router.
+- Implemented a **visually rich Hero Section** with rotating logo, animated gradients, and neon glow hover effects.
+- Introduced structured components: `HeaderScanner`, `WhoisLookup`, and `Hero`.
+- Ensured responsive design using Tailwind CSS.
+- Separated `Hero.css` for scalable animation and background customization.
+
+## 🔁 Phase 11: Backend Integration
+
+- Connected the **Flask backend** to the frontend via custom APIs.
+- Developed and tested `/api/header-scan` and `/api/whois-lookup` POST routes.
+- Implemented API calls in the frontend using `fetch()` and `useState`.
+- Displayed scan results in real-time with conditional rendering and improved UX.
+- Added error handling for invalid inputs and backend connectivity.
+

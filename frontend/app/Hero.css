@@ -1,0 +1,59 @@
+
+/* ================================
+   HERO SECTION STYLES
+================================= */
+.hero-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 10rem 0;
+}
+
+.logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rotating-logo {
+  animation: rotate 30s linear infinite;
+  filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.4));
+  transform-style: preserve-3d;
+}
+
+.rotating-logo:hover {
+  animation-play-state: paused;
+}
+
+.logo-tilt {
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1.05);
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #00bfff, #ff7f50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: #ccc;
+  margin-top: 0.5rem;
+}
+
+.glow-hover:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 165, 0, 0.7));
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
