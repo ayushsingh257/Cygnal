@@ -6,6 +6,10 @@ import re
 from urllib.parse import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import base64
+import os
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -96,6 +100,47 @@ def whois_lookup():
     except Exception as e:
         logging.error(f"WHOIS lookup failed for {domain}: {e}")
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
+
+# ========== SCREENSHOT CAPTURE ROUTE ==========
+@app.route("/api/screenshot", methods=["POST"])
+def screenshot():
+    data = request.get_json()
+    url = data.get("url", "").strip()
+
+    if not is_valid_url(url):
+        logging.warning(f"Invalid screenshot URL: {url}")
+        return jsonify({"success": False, "error": "Invalid URL format."}), 400
+
+    logging.info(f"Generating screenshot for: {url}")
+
+    try:
+        os.makedirs("screenshots", exist_ok=True)
+
+        options = Options()
+        options.headless = True
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        driver = webdriver.Chrome(options=options)
+        driver.set_window_size(1280, 800)
+        driver.get(url)
+
+        filename = urlparse(url).netloc.replace('.', '_') + ".png"
+        screenshot_path = os.path.join("screenshots", filename)
+        driver.save_screenshot(screenshot_path)
+        driver.quit()
+
+        with open(screenshot_path, "rb") as img:
+            encoded = base64.b64encode(img.read()).decode("utf-8")
+
+        logging.info(f"Screenshot saved at: {screenshot_path}")
+        return jsonify({
+            "success": True,
+            "image": encoded  # <== match frontend key
+        })
+    except Exception as e:
+        logging.error(f"Screenshot capture failed for {url}: {e}")
+        return jsonify({"success": False, "error": f"Screenshot failed: {str(e)}"}), 500
 
 # ========== MAIN ==========
 if __name__ == "__main__":
