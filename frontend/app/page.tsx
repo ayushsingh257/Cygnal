@@ -4,13 +4,12 @@ import Image from "next/image";
 import logo from "../assets/cygnal-logo.png";
 import HeaderScanner from "../components/HeaderScanner";
 import WhoisLookup from "../components/WhoisLookup";
+import ScreenshotTool from "../components/ScreenshotTool"; // ✅ Add this
 import "./Hero.css";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white font-sans px-6 py-10 relative overflow-hidden">
-      
-
       {/* HERO SECTION */}
       <section className="hero-container text-center relative z-10">
         <div className="logo-wrapper">
@@ -33,6 +32,7 @@ export default function Home() {
       <section className="mt-32 space-y-20 relative z-10">
         <HeaderScanner />
         <WhoisLookup />
+        <ScreenshotTool /> {/* ✅ Add this */}
       </section>
 
       {/* FOOTER */}

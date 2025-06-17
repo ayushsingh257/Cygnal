@@ -56,3 +56,71 @@
 2025-06-17 17:38:08,732 - INFO -  * Restarting with stat
 2025-06-17 17:38:09,209 - WARNING -  * Debugger is active!
 2025-06-17 17:38:09,212 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 19:06:53,136 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 19:06:53,224 - INFO -  * Restarting with stat
+2025-06-17 19:06:54,056 - WARNING -  * Debugger is active!
+2025-06-17 19:06:54,059 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 19:07:28,269 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 19:07:28,319 - INFO -  * Restarting with stat
+2025-06-17 19:07:29,017 - WARNING -  * Debugger is active!
+2025-06-17 19:07:29,019 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 19:10:54,199 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 19:10:54,264 - INFO -  * Restarting with stat
+2025-06-17 19:10:55,268 - WARNING -  * Debugger is active!
+2025-06-17 19:10:55,272 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 19:11:34,907 - INFO - Generating screenshot for: https://example.com
+2025-06-17 19:11:49,026 - INFO - Screenshot generated for: https://example.com
+2025-06-17 19:11:49,029 - INFO - 127.0.0.1 - - [17/Jun/2025 19:11:49] "POST /api/screenshot HTTP/1.1" 200 -
+2025-06-17 19:24:58,734 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 19:24:58,780 - INFO -  * Restarting with stat
+2025-06-17 19:24:59,708 - WARNING -  * Debugger is active!
+2025-06-17 19:24:59,711 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 20:02:52,596 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 20:02:52,596 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 20:02:52,597 - INFO -  * Restarting with stat
+2025-06-17 20:02:53,279 - WARNING -  * Debugger is active!
+2025-06-17 20:02:53,282 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 20:04:38,193 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 20:04:38,193 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 20:04:38,194 - INFO -  * Restarting with stat
+2025-06-17 20:04:38,823 - WARNING -  * Debugger is active!
+2025-06-17 20:04:38,827 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 20:06:29,569 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 20:06:29,569 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 20:06:29,570 - INFO -  * Restarting with stat
+2025-06-17 20:06:30,329 - WARNING -  * Debugger is active!
+2025-06-17 20:06:30,335 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 21:11:47,000 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 21:11:47,001 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 21:11:47,002 - INFO -  * Restarting with stat
+2025-06-17 21:11:47,626 - WARNING -  * Debugger is active!
+2025-06-17 21:11:47,630 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 21:14:14,057 - INFO - 127.0.0.1 - - [17/Jun/2025 21:14:14] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:14:14,310 - INFO - Generating screenshot for: https://cyberpulse.in
+2025-06-17 21:14:22,486 - INFO - Screenshot saved at: screenshots\cyberpulse_in.png
+2025-06-17 21:14:22,487 - INFO - 127.0.0.1 - - [17/Jun/2025 21:14:22] "POST /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:14:55,876 - INFO - 127.0.0.1 - - [17/Jun/2025 21:14:55] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:14:56,199 - INFO - Generating screenshot for: https://poki.com
+2025-06-17 21:15:03,810 - INFO - Screenshot saved at: screenshots\poki_com.png
+2025-06-17 21:15:03,821 - INFO - 127.0.0.1 - - [17/Jun/2025 21:15:03] "POST /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:23:25,078 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:25] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:23:25,342 - WARNING - Invalid screenshot URL: andrew tate
+2025-06-17 21:23:25,344 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:25] "[31m[1mPOST /api/screenshot HTTP/1.1[0m" 400 -
+2025-06-17 21:23:31,018 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:31] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:23:31,338 - WARNING - Invalid screenshot URL: andrew tate
+2025-06-17 21:23:31,339 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:31] "[31m[1mPOST /api/screenshot HTTP/1.1[0m" 400 -
+2025-06-17 21:23:51,394 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:51] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:23:51,702 - WARNING - Invalid screenshot URL: www.gov.in
+2025-06-17 21:23:51,703 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:51] "[31m[1mPOST /api/screenshot HTTP/1.1[0m" 400 -
+2025-06-17 21:23:53,540 - WARNING - Invalid screenshot URL: www.gov.in
+2025-06-17 21:23:53,547 - INFO - 127.0.0.1 - - [17/Jun/2025 21:23:53] "[31m[1mPOST /api/screenshot HTTP/1.1[0m" 400 -
+2025-06-17 21:24:15,694 - INFO - 127.0.0.1 - - [17/Jun/2025 21:24:15] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:24:15,942 - INFO - Generating screenshot for: https://beminimalist.co
+2025-06-17 21:24:26,594 - INFO - Screenshot saved at: screenshots\beminimalist_co.png
+2025-06-17 21:24:26,598 - INFO - 127.0.0.1 - - [17/Jun/2025 21:24:26] "POST /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:43:57,206 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 21:43:57,326 - INFO -  * Restarting with stat
