@@ -127,3 +127,13 @@ This phase simulates how OSINT agents gather surface-level emails from websites 
 Metadata can uncover the source of leaked documents, authorship, and device trails — this is a crucial layer in OSINT and forensics.
 
 ---
+
+Phase 10 – UI/UX Enhancement:
+• Migrated frontend to Next.js with Tailwind CSS.
+• Designed an immersive hero section with animated visuals, rotating logo, and glowing title text.
+• Created compartment-style input tools using modular components.
+
+Phase 11 – Backend Connectivity:
+• Developed and exposed Flask endpoints for security header scan and WHOIS lookup.
+• Ensured real-time integration with the frontend using async `fetch()` calls.
+• Implemented dynamic rendering, result parsing, and error validation for smooth UX.
