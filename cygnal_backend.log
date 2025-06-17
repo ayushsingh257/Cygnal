@@ -1,0 +1,58 @@
+2025-06-17 17:04:37,487 - WARNING -  * Debugger is active!
+2025-06-17 17:04:37,489 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:04:58,481 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 17:04:58,481 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 17:04:58,483 - INFO -  * Restarting with stat
+2025-06-17 17:04:58,930 - WARNING -  * Debugger is active!
+2025-06-17 17:04:58,932 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:05:14,164 - INFO - 127.0.0.1 - - [17/Jun/2025 17:05:14] "OPTIONS /api/header-scan HTTP/1.1" 200 -
+2025-06-17 17:05:14,170 - INFO - Scanning headers for URL: https://github.com
+2025-06-17 17:05:14,333 - INFO - Header scan completed successfully for: https://github.com
+2025-06-17 17:05:14,334 - INFO - 127.0.0.1 - - [17/Jun/2025 17:05:14] "POST /api/header-scan HTTP/1.1" 200 -
+2025-06-17 17:10:16,117 - INFO - 127.0.0.1 - - [17/Jun/2025 17:10:16] "OPTIONS /api/whois-lookup HTTP/1.1" 200 -
+2025-06-17 17:10:16,119 - INFO - Performing WHOIS lookup for: github.com
+2025-06-17 17:10:18,470 - INFO - WHOIS lookup successful for: github.com
+2025-06-17 17:10:18,470 - INFO - 127.0.0.1 - - [17/Jun/2025 17:10:18] "POST /api/whois-lookup HTTP/1.1" 200 -
+2025-06-17 17:15:38,720 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 17:15:38,755 - INFO -  * Restarting with stat
+2025-06-17 17:15:39,262 - WARNING -  * Debugger is active!
+2025-06-17 17:15:39,264 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:17:42,457 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-17 17:17:42,492 - INFO -  * Restarting with stat
+2025-06-17 17:17:43,020 - WARNING -  * Debugger is active!
+2025-06-17 17:17:43,023 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:19:50,919 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-17 17:19:50,919 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-17 17:19:50,920 - INFO -  * Restarting with stat
+2025-06-17 17:19:51,374 - WARNING -  * Debugger is active!
+2025-06-17 17:19:51,377 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:20:19,469 - INFO - 127.0.0.1 - - [17/Jun/2025 17:20:19] "OPTIONS /api/header-scan HTTP/1.1" 200 -
+2025-06-17 17:20:19,473 - INFO - Scanning headers for URL: https://github.com
+2025-06-17 17:20:19,651 - INFO - Header scan completed successfully for: https://github.com
+2025-06-17 17:20:19,653 - INFO - 127.0.0.1 - - [17/Jun/2025 17:20:19] "POST /api/header-scan HTTP/1.1" 200 -
+2025-06-17 17:20:26,358 - INFO - 127.0.0.1 - - [17/Jun/2025 17:20:26] "OPTIONS /api/whois-lookup HTTP/1.1" 200 -
+2025-06-17 17:20:26,363 - INFO - Performing WHOIS lookup for: github.com
+2025-06-17 17:20:28,516 - INFO - WHOIS lookup successful for: github.com
+2025-06-17 17:20:28,516 - INFO - 127.0.0.1 - - [17/Jun/2025 17:20:28] "POST /api/whois-lookup HTTP/1.1" 200 -
+2025-06-17 17:30:19,149 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\tests\\test_validators.py', reloading
+2025-06-17 17:30:19,191 - INFO -  * Restarting with stat
+2025-06-17 17:30:19,716 - WARNING -  * Debugger is active!
+2025-06-17 17:30:19,719 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:30:39,775 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\tests\\test_endpoints.py', reloading
+2025-06-17 17:30:39,827 - INFO -  * Restarting with stat
+2025-06-17 17:30:40,302 - WARNING -  * Debugger is active!
+2025-06-17 17:30:40,304 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:34:42,077 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\__init__.py', reloading
+2025-06-17 17:34:42,108 - INFO -  * Restarting with stat
+2025-06-17 17:34:42,605 - WARNING -  * Debugger is active!
+2025-06-17 17:34:42,608 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:37:52,125 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\tests\\test_endpoints.py', reloading
+2025-06-17 17:37:52,167 - INFO -  * Restarting with stat
+2025-06-17 17:37:52,654 - WARNING -  * Debugger is active!
+2025-06-17 17:37:52,656 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 17:38:08,696 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\tests\\test_validators.py', reloading
+2025-06-17 17:38:08,732 - INFO -  * Restarting with stat
+2025-06-17 17:38:09,209 - WARNING -  * Debugger is active!
+2025-06-17 17:38:09,212 - INFO -  * Debugger PIN: 107-441-297

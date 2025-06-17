@@ -5,16 +5,24 @@ import React, { useState } from "react";
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleScan = async () => {
-    if (!url.startsWith("http")) {
-      setResult("❌ Please enter a valid URL (starting with http or https).");
+    setResult("");
+    setError("");
+
+    if (!url.trim()) {
+      setError("❌ Please enter a URL.");
+      return;
+    }
+
+    if (!/^https?:\/\//i.test(url)) {
+      setError("❌ URL must start with http:// or https://");
       return;
     }
 
     setLoading(true);
-    setResult("");
 
     try {
       const response = await fetch("http://127.0.0.1:5000/api/header-scan", {
@@ -26,22 +34,29 @@ export default function HeaderScanner() {
       });
 
       const data = await response.json();
-      console.log("🔧 Server Response:", data); // Debug log
+      console.log("[HeaderScan] Response:", data);
 
-      if (data && Array.isArray(data.headers)) {
-        const lines = data.headers
-          .map((header: any) => `${header.present ? "✅" : "❌"} ${header.name}`)
-          .join("\n");
+      if (data && data.headers) {
+        const lines = Array.isArray(data.headers)
+          ? data.headers
+              .map(
+                (header: any) =>
+                  `${header.present ? "✅" : "❌"} ${header.name}: ${
+                    header.present ? "Present" : "Missing"
+                  }`
+              )
+              .join("\n")
+          : "⚠️ Unexpected header format.";
 
-        setResult(`🔍 Scan result for ${url}:\n\n${lines}`);
+        setResult(`🔍 Header Scan Results for ${url}:\n\n${lines}`);
       } else if (data.error) {
-        setResult(`❌ ${data.error}`);
+        setError("❌ Server error: " + data.error);
       } else {
-        setResult("❌ Failed to analyze headers.");
+        setError("❌ Unexpected error. Try again.");
       }
     } catch (err) {
-      console.error("❌ Error:", err);
-      setResult("❌ Error connecting to backend.");
+      console.error("Header Scan Fetch Error:", err);
+      setError("❌ Could not connect to backend.");
     } finally {
       setLoading(false);
     }
@@ -65,6 +80,11 @@ export default function HeaderScanner() {
           {loading ? "Scanning..." : "Scan"}
         </button>
       </div>
+
+      {error && (
+        <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>
+      )}
+
       {result && (
         <pre className="mt-4 bg-black/30 p-4 rounded text-sm whitespace-pre-wrap">
           {result}
