@@ -259,3 +259,52 @@ Stay tuned for **Cygnal v2 – Web Edition** 🚀
 - Analyst notes for each file
 - Full session export (ZIP of JSON + CSV)
 
+## Phase 15: Reverse Image Search (CLIP + FAISS)
+
+This phase implements an offline reverse image search feature using OpenAI's CLIP model combined with FAISS for efficient similarity matching. It allows analysts to upload an image and find visually or semantically similar images from a reference dataset — even with angle, lighting, or composition changes.
+
+### Features:
+- 🔍 CLIP ViT-B/32 model for robust visual feature encoding
+- ⚙️ FAISS cosine similarity index (`IndexFlatIP`)
+- 📁 Automatic indexing of all reference images in `reference_images/`
+- 📷 Supports multiple image formats (.jpg, .png, .webp, .bmp, .tiff, etc.)
+- ✅ Normalized cosine similarity used for accurate comparison
+- 📊 Results displayed with **percentage similarity match**
+- 💡 Works entirely offline, ideal for forensic environments
+
+### Example Match Output:
+```json
+{
+  "match_path": "reference_images/shoe.png",
+  "match_percentage": 92.31
+}
+
+---
+
+## 📝 `report_template.md` (Phase 15 entry)
+
+Append this to the project report markdown file:
+
+```markdown
+## Phase 15 - Reverse Image Search
+
+### Objective:
+Enable offline reverse image search using AI to detect image similarities from a given reference dataset.
+
+### Tools & Libraries:
+- OpenAI CLIP (`ViT-B/32`)
+- FAISS (Facebook AI Similarity Search)
+- PIL (Pillow), NumPy
+- React + Flask
+
+### Implementation:
+- CLIP used to generate 512-dimension image embeddings.
+- Vectors normalized and added to FAISS index using cosine similarity.
+- Uploaded image is encoded and compared with stored reference vectors.
+- Results are ranked and shown with similarity percentage.
+
+### Output:
+- Returns top-5 closest matches with similarity %.
+- Matches remain effective even if angle, zoom, or background varies.
+
+### Status: ✅ Completed

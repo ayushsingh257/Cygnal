@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import dynamic from "next/dynamic"; // ✅ Import dynamic
+import dynamic from "next/dynamic";
 import logo from "../assets/cygnal-logo.png";
 import HeaderScanner from "../components/HeaderScanner";
 import WhoisLookup from "../components/WhoisLookup";
@@ -9,6 +9,11 @@ import ScreenshotTool from "../components/ScreenshotTool";
 
 // ✅ Dynamically import MetadataTool with SSR disabled
 const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
+  ssr: false,
+});
+
+// ✅ Dynamically import ReverseImageSearch with SSR disabled
+const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearch"), {
   ssr: false,
 });
 
@@ -40,7 +45,13 @@ export default function Home() {
         <HeaderScanner />
         <WhoisLookup />
         <ScreenshotTool />
-        <MetadataTool /> {/* ✅ SSR-safe version */}
+        <MetadataTool />
+
+        {/* ✅ Reverse Image Search Section */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Reverse Image Search</h2>
+          <ReverseImageSearch />
+        </section>
       </section>
 
       {/* FOOTER */}
@@ -50,3 +61,4 @@ export default function Home() {
     </main>
   );
 }
+

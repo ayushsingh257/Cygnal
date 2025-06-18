@@ -1,3 +1,7 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -9,13 +13,16 @@ from logging.handlers import RotatingFileHandler
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import base64
-import os
+import traceback
 
 # Metadata tools
 from PIL import Image
 from PIL.ExifTags import TAGS
 import fitz  # PyMuPDF
 import docx
+
+# Reverse image search
+from reverse_image_search import perform_reverse_image_search
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -33,7 +40,8 @@ logging.basicConfig(
 
 # ========== FLASK SETUP ==========
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+
 
 # ========== HELPERS ==========
 def is_valid_url(url):
@@ -92,6 +100,7 @@ def extract_docx_metadata(file_path):
         return {"error": f"DOCX metadata extraction failed: {str(e)}"}
 
 # ========== ROUTES ==========
+
 @app.route("/api/header-scan", methods=["POST"])
 def header_scan():
     data = request.get_json()
@@ -184,7 +193,6 @@ def metadata_extraction():
     if filename == "":
         return jsonify({"success": False, "error": "Empty filename."}), 400
 
-    # Size Restriction (e.g., 5MB)
     file.seek(0, os.SEEK_END)
     size_in_mb = file.tell() / (1024 * 1024)
     file.seek(0)
@@ -212,6 +220,29 @@ def metadata_extraction():
     except Exception as e:
         return jsonify({"success": False, "error": f"Failed to extract metadata: {str(e)}"}), 500
 
+
+@app.route('/api/reverse-image-search', methods=['POST'])
+def reverse_image_search():
+    try:
+        file = request.files['file']
+        if not file:
+            return jsonify({"success": False, "error": "No file uploaded"}), 400
+
+        filepath = os.path.join("temp_upload", file.filename)
+        file.save(filepath)
+
+        results = perform_reverse_image_search(filepath)
+
+        return jsonify({"success": True, "results": results})
+    
+    except Exception as e:
+        traceback.print_exc()  # 👈 This will show the REAL error in the terminal
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.errorhandler(500)
+def handle_500_error(e):
+    return jsonify({"success": False, "error": "Internal Server Error"}), 500
+
 # ========== MAIN ==========
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
