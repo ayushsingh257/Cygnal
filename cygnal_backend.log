@@ -124,3 +124,82 @@
 2025-06-17 21:24:26,598 - INFO - 127.0.0.1 - - [17/Jun/2025 21:24:26] "POST /api/screenshot HTTP/1.1" 200 -
 2025-06-17 21:43:57,206 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
 2025-06-17 21:43:57,326 - INFO -  * Restarting with stat
+2025-06-17 21:43:58,394 - WARNING -  * Debugger is active!
+2025-06-17 21:43:58,397 - INFO -  * Debugger PIN: 107-441-297
+2025-06-17 21:44:32,359 - INFO - 127.0.0.1 - - [17/Jun/2025 21:44:32] "OPTIONS /api/screenshot HTTP/1.1" 200 -
+2025-06-17 21:44:32,622 - INFO - Generating screenshot for: https://poki.com
+2025-06-17 21:44:39,670 - INFO - Screenshot saved at: screenshots\poki_com.png
+2025-06-17 21:44:39,675 - INFO - 127.0.0.1 - - [17/Jun/2025 21:44:39] "POST /api/screenshot HTTP/1.1" 200 -
+2025-06-18 08:48:50,739 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 08:48:50,974 - INFO -  * Restarting with stat
+2025-06-18 08:49:40,952 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 08:49:40,953 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 08:49:40,954 - INFO -  * Restarting with stat
+2025-06-18 08:49:41,773 - WARNING -  * Debugger is active!
+2025-06-18 08:49:41,779 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 08:54:54,296 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 08:54:54,399 - INFO -  * Restarting with stat
+2025-06-18 08:54:55,795 - WARNING -  * Debugger is active!
+2025-06-18 08:54:55,798 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:03:15,249 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 09:03:15,439 - INFO -  * Restarting with stat
+2025-06-18 09:03:16,713 - WARNING -  * Debugger is active!
+2025-06-18 09:03:16,717 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:03:55,170 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 09:03:55,171 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 09:03:55,172 - INFO -  * Restarting with stat
+2025-06-18 09:03:56,218 - WARNING -  * Debugger is active!
+2025-06-18 09:03:56,220 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:04:31,370 - INFO - Received file for metadata extraction: Screenshot 2025-02-24 213443.png
+2025-06-18 09:04:31,557 - INFO - 127.0.0.1 - - [18/Jun/2025 09:04:31] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:05:55,790 - INFO - 127.0.0.1 - - [18/Jun/2025 09:05:55] "OPTIONS /api/header-scan HTTP/1.1" 200 -
+2025-06-18 09:05:55,798 - INFO - Scanning headers for URL: https://poki.com
+2025-06-18 09:05:56,142 - INFO - Header scan completed successfully for: https://poki.com
+2025-06-18 09:05:56,146 - INFO - 127.0.0.1 - - [18/Jun/2025 09:05:56] "POST /api/header-scan HTTP/1.1" 200 -
+2025-06-18 09:06:01,965 - INFO - 127.0.0.1 - - [18/Jun/2025 09:06:01] "OPTIONS /api/whois-lookup HTTP/1.1" 200 -
+2025-06-18 09:06:01,969 - INFO - Performing WHOIS lookup for: poki.com
+2025-06-18 09:06:04,997 - INFO - WHOIS lookup successful for: poki.com
+2025-06-18 09:06:04,999 - INFO - 127.0.0.1 - - [18/Jun/2025 09:06:04] "POST /api/whois-lookup HTTP/1.1" 200 -
+2025-06-18 09:06:26,173 - INFO - Received file for metadata extraction: Cisco certification of Intro to Cybersecurity Ayush Singh.pdf
+2025-06-18 09:06:26,239 - INFO - 127.0.0.1 - - [18/Jun/2025 09:06:26] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:09:19,776 - INFO - Received file for metadata extraction: WIN_20250407_14_23_58_Pro.jpg
+2025-06-18 09:09:19,811 - ERROR - Metadata extraction failed: '<' not supported between instances of 'int' and 'str'
+2025-06-18 09:09:19,812 - INFO - 127.0.0.1 - - [18/Jun/2025 09:09:19] "[35m[1mPOST /api/metadata HTTP/1.1[0m" 500 -
+2025-06-18 09:13:19,752 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 09:13:19,881 - INFO -  * Restarting with stat
+2025-06-18 09:13:21,120 - WARNING -  * Debugger is active!
+2025-06-18 09:13:21,123 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:16:07,640 - INFO - Received file for metadata extraction: WIN_20250407_14_23_50_Pro.jpg
+2025-06-18 09:16:07,678 - INFO - 127.0.0.1 - - [18/Jun/2025 09:16:07] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:27:29,335 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 09:27:29,510 - INFO -  * Restarting with stat
+2025-06-18 09:27:30,700 - WARNING -  * Debugger is active!
+2025-06-18 09:27:30,703 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:29:39,668 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 09:29:39,669 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 09:29:39,670 - INFO -  * Restarting with stat
+2025-06-18 09:29:40,427 - WARNING -  * Debugger is active!
+2025-06-18 09:29:40,430 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:30:01,075 - INFO - 127.0.0.1 - - [18/Jun/2025 09:30:01] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:30:26,439 - INFO - 127.0.0.1 - - [18/Jun/2025 09:30:26] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:34:23,671 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 09:34:23,671 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 09:34:23,673 - INFO -  * Restarting with stat
+2025-06-18 09:34:24,408 - WARNING -  * Debugger is active!
+2025-06-18 09:34:24,411 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 09:34:58,785 - INFO - 127.0.0.1 - - [18/Jun/2025 09:34:58] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:34:59,039 - INFO - 127.0.0.1 - - [18/Jun/2025 09:34:59] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 09:55:11,976 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 09:55:11,977 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 09:55:11,978 - INFO -  * Restarting with stat
+2025-06-18 09:55:12,653 - WARNING -  * Debugger is active!
+2025-06-18 09:55:12,657 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 10:07:40,030 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-06-18 10:07:40,030 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-18 10:07:40,031 - INFO -  * Restarting with stat

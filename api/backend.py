@@ -11,6 +11,12 @@ from selenium.webdriver.chrome.options import Options
 import base64
 import os
 
+# Metadata tools
+from PIL import Image
+from PIL.ExifTags import TAGS
+import fitz  # PyMuPDF
+import docx
+
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
@@ -25,7 +31,11 @@ logging.basicConfig(
     handlers=[file_handler, stream_handler]
 )
 
-# ========== HELPER FUNCTIONS ==========
+# ========== FLASK SETUP ==========
+app = Flask(__name__)
+CORS(app)
+
+# ========== HELPERS ==========
 def is_valid_url(url):
     parsed = urlparse(url)
     return parsed.scheme in ("http", "https") and bool(parsed.netloc)
@@ -34,21 +44,61 @@ def is_valid_domain(domain):
     pattern = r"^(?!\-)(?:[a-zA-Z0-9\-]{1,63}\.)+[a-zA-Z]{2,}$"
     return re.match(pattern, domain)
 
-# ========== FLASK SETUP ==========
-app = Flask(__name__)
-CORS(app)
+def extract_image_metadata(file_path):
+    try:
+        img = Image.open(file_path)
+        exif_data = img._getexif()
+        if not exif_data:
+            return {"message": "No EXIF metadata found."}
 
-# ========== HEADER SCAN ROUTE ==========
+        metadata = {}
+        for tag, value in exif_data.items():
+            try:
+                tag_name = TAGS.get(tag, tag)
+                if isinstance(value, bytes):
+                    continue  # skip raw binary
+                metadata[str(tag_name)] = str(value)
+            except Exception as e:
+                logging.warning(f"Error processing EXIF tag {tag}: {e}")
+        return metadata
+    except Exception as e:
+        logging.error(f"Image metadata extraction failed: {e}")
+        return {"error": f"Image metadata extraction failed: {str(e)}"}
+
+def extract_pdf_metadata(file_path):
+    try:
+        doc = fitz.open(file_path)
+        meta = doc.metadata
+        return meta if meta else {"message": "No PDF metadata found."}
+    except Exception as e:
+        logging.error(f"PDF metadata extraction failed: {e}")
+        return {"error": f"PDF metadata extraction failed: {str(e)}"}
+
+def extract_docx_metadata(file_path):
+    try:
+        doc = docx.Document(file_path)
+        core_props = doc.core_properties
+        metadata = {
+            "author": core_props.author,
+            "title": core_props.title,
+            "created": str(core_props.created),
+            "modified": str(core_props.modified),
+            "subject": core_props.subject,
+            "category": core_props.category,
+        }
+        return metadata
+    except Exception as e:
+        logging.error(f"DOCX metadata extraction failed: {e}")
+        return {"error": f"DOCX metadata extraction failed: {str(e)}"}
+
+# ========== ROUTES ==========
 @app.route("/api/header-scan", methods=["POST"])
 def header_scan():
     data = request.get_json()
     url = data.get("url", "").strip()
 
     if not is_valid_url(url):
-        logging.warning(f"Invalid URL received: {url}")
         return jsonify({"success": False, "error": "Invalid URL format."}), 400
-
-    logging.info(f"Scanning headers for URL: {url}")
 
     try:
         response = requests.get(url, timeout=5)
@@ -64,25 +114,17 @@ def header_scan():
         ]
 
         results = [{"name": h, "present": h in headers} for h in expected_headers]
-
-        logging.info(f"Header scan completed successfully for: {url}")
         return jsonify({"success": True, "headers": results})
-
     except requests.exceptions.RequestException as e:
-        logging.error(f"Header scan failed for {url}: {e}")
         return jsonify({"success": False, "error": f"Header scan failed: {str(e)}"}), 500
 
-# ========== WHOIS LOOKUP ROUTE ==========
 @app.route("/api/whois-lookup", methods=["POST"])
 def whois_lookup():
     data = request.get_json()
     domain = data.get("domain", "").strip()
 
     if not is_valid_domain(domain):
-        logging.warning(f"Invalid domain received: {domain}")
         return jsonify({"success": False, "error": "Invalid domain name."}), 400
-
-    logging.info(f"Performing WHOIS lookup for: {domain}")
 
     try:
         w = whois.whois(domain)
@@ -95,23 +137,17 @@ def whois_lookup():
             "emails": str(w.emails),
             "country": str(w.country)
         }
-        logging.info(f"WHOIS lookup successful for: {domain}")
         return jsonify({"success": True, "result": result})
     except Exception as e:
-        logging.error(f"WHOIS lookup failed for {domain}: {e}")
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
 
-# ========== SCREENSHOT CAPTURE ROUTE ==========
 @app.route("/api/screenshot", methods=["POST"])
 def screenshot():
     data = request.get_json()
     url = data.get("url", "").strip()
 
     if not is_valid_url(url):
-        logging.warning(f"Invalid screenshot URL: {url}")
         return jsonify({"success": False, "error": "Invalid URL format."}), 400
-
-    logging.info(f"Generating screenshot for: {url}")
 
     try:
         os.makedirs("screenshots", exist_ok=True)
@@ -133,14 +169,48 @@ def screenshot():
         with open(screenshot_path, "rb") as img:
             encoded = base64.b64encode(img.read()).decode("utf-8")
 
-        logging.info(f"Screenshot saved at: {screenshot_path}")
-        return jsonify({
-            "success": True,
-            "image": encoded  # <== match frontend key
-        })
+        return jsonify({"success": True, "image": encoded})
     except Exception as e:
-        logging.error(f"Screenshot capture failed for {url}: {e}")
         return jsonify({"success": False, "error": f"Screenshot failed: {str(e)}"}), 500
+
+@app.route("/api/metadata", methods=["POST"])
+def metadata_extraction():
+    if "file" not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded."}), 400
+
+    file = request.files["file"]
+    filename = file.filename
+
+    if filename == "":
+        return jsonify({"success": False, "error": "Empty filename."}), 400
+
+    # Size Restriction (e.g., 5MB)
+    file.seek(0, os.SEEK_END)
+    size_in_mb = file.tell() / (1024 * 1024)
+    file.seek(0)
+    if size_in_mb > 5:
+        return jsonify({"success": False, "error": "File size exceeds 5MB limit."}), 400
+
+    try:
+        ext = filename.lower().split(".")[-1]
+        temp_path = os.path.join("temp_upload", filename)
+        os.makedirs("temp_upload", exist_ok=True)
+        file.save(temp_path)
+
+        if ext in ["jpg", "jpeg", "png"]:
+            metadata = extract_image_metadata(temp_path)
+        elif ext == "pdf":
+            metadata = extract_pdf_metadata(temp_path)
+        elif ext == "docx":
+            metadata = extract_docx_metadata(temp_path)
+        else:
+            metadata = {"error": "Unsupported file type."}
+
+        os.remove(temp_path)
+
+        return jsonify({"success": True, "metadata": metadata})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to extract metadata: {str(e)}"}), 500
 
 # ========== MAIN ==========
 if __name__ == "__main__":
