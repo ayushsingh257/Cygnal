@@ -1,10 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic"; // ✅ Import dynamic
 import logo from "../assets/cygnal-logo.png";
 import HeaderScanner from "../components/HeaderScanner";
 import WhoisLookup from "../components/WhoisLookup";
-import ScreenshotTool from "../components/ScreenshotTool"; // ✅ Add this
+import ScreenshotTool from "../components/ScreenshotTool";
+
+// ✅ Dynamically import MetadataTool with SSR disabled
+const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
+  ssr: false,
+});
+
 import "./Hero.css";
 
 export default function Home() {
@@ -32,7 +39,8 @@ export default function Home() {
       <section className="mt-32 space-y-20 relative z-10">
         <HeaderScanner />
         <WhoisLookup />
-        <ScreenshotTool /> {/* ✅ Add this */}
+        <ScreenshotTool />
+        <MetadataTool /> {/* ✅ SSR-safe version */}
       </section>
 
       {/* FOOTER */}

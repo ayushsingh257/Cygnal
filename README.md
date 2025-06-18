@@ -250,3 +250,12 @@ Stay tuned for **Cygnal v2 – Web Edition** 🚀
 - Displayed scan results in real-time with conditional rendering and improved UX.
 - Added error handling for invalid inputs and backend connectivity.
 
+### ✅ Phase 14: Metadata Recon Tool
+- Upload multiple files (JPG, PNG, PDF, DOCX)
+- Extract and prettify metadata
+- Side-by-side comparison with diff viewer
+- Suspicious metadata detection (author mismatch, EXIF location, outdated timestamps)
+- Threat scoring (Low / Medium / High)
+- Analyst notes for each file
+- Full session export (ZIP of JSON + CSV)
+

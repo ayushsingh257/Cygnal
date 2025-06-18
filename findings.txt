@@ -122,3 +122,10 @@ Screenshot: screenshots/pdf-metadata-20250616.png
 - Backend Flask API endpoints `/api/header-scan` and `/api/whois-lookup` implemented.
 - Integrated frontend forms to consume these endpoints and show results dynamically.
 - Full stack communication tested via local server (localhost:5000 + localhost:3000).
+
+Phase 14: Metadata Recon Tool
+- Added advanced metadata parsing and comparison
+- Integrated scoring system for suspicious content
+- Enabled analyst note-taking
+- Export feature for session-wide metadata (JSON & CSV)
+- Successfully tested with PDF, DOCX
