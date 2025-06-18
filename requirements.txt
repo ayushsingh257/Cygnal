@@ -1,0 +1,8 @@
+flask
+requests
+pillow
+exifread
+python-whois
+python-dotenv
+werkzeug
+flask-cors

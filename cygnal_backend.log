@@ -203,3 +203,12 @@
  * Running on http://127.0.0.1:5000
 2025-06-18 10:07:40,030 - INFO - [33mPress CTRL+C to quit[0m
 2025-06-18 10:07:40,031 - INFO -  * Restarting with stat
+2025-06-18 10:07:40,767 - WARNING -  * Debugger is active!
+2025-06-18 10:07:40,772 - INFO -  * Debugger PIN: 107-441-297
+2025-06-18 10:07:50,214 - INFO - 127.0.0.1 - - [18/Jun/2025 10:07:50] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 10:07:50,467 - INFO - 127.0.0.1 - - [18/Jun/2025 10:07:50] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 10:10:21,299 - INFO - 127.0.0.1 - - [18/Jun/2025 10:10:21] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 10:11:37,185 - INFO - 127.0.0.1 - - [18/Jun/2025 10:11:37] "[31m[1mPOST /api/metadata HTTP/1.1[0m" 400 -
+2025-06-18 10:11:56,025 - INFO - 127.0.0.1 - - [18/Jun/2025 10:11:56] "POST /api/metadata HTTP/1.1" 200 -
+2025-06-18 11:41:38,967 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-18 11:41:39,150 - INFO -  * Restarting with stat
