@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 interface SearchResult {
   match_path: string;
   match_percentage: number;
+  image_data?: string; // New field for base64 image data
+  image_url?: string;  // New field for image URL
 }
 
 export default function ReverseImageSearch() {
@@ -79,11 +81,20 @@ export default function ReverseImageSearch() {
             <h2 className="text-lg font-bold">Search Results:</h2>
             {results.map((result, index) => (
               <div key={index} className="border p-4 rounded shadow-sm">
-                <img
-                  src={result.match_path}
-                  alt={`Match ${index}`}
-                  className="w-48 h-auto mb-2"
-                />
+                {result.image_data && (
+                  <img
+                    src={`data:image/jpeg;base64,${result.image_data}`}
+                    alt={`Match ${index}`}
+                    className="w-48 h-auto mb-2 rounded"
+                  />
+                )}
+                {result.image_url && (
+                  <img
+                    src={result.image_url}
+                    alt={`Match ${index}`}
+                    className="w-48 h-auto mb-2 rounded"
+                  />
+                )}
                 <p>
                   <strong>Match:</strong> {result.match_percentage.toFixed(2)}%
                 </p>

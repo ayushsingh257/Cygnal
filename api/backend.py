@@ -1,8 +1,7 @@
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import requests
 import whois
@@ -42,6 +41,10 @@ logging.basicConfig(
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+# ========== ROUTE TO SERVE REFERENCE IMAGES ==========
+@app.route('/reference_images/<path:filename>')
+def serve_reference_images(filename):
+    return send_from_directory('reference_images', filename)
 
 # ========== HELPERS ==========
 def is_valid_url(url):
@@ -220,7 +223,6 @@ def metadata_extraction():
     except Exception as e:
         return jsonify({"success": False, "error": f"Failed to extract metadata: {str(e)}"}), 500
 
-
 @app.route('/api/reverse-image-search', methods=['POST'])
 def reverse_image_search():
     try:
@@ -236,7 +238,7 @@ def reverse_image_search():
         return jsonify({"success": True, "results": results})
     
     except Exception as e:
-        traceback.print_exc()  # 👈 This will show the REAL error in the terminal
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.errorhandler(500)
