@@ -63,7 +63,7 @@ export default function HeaderScanner() {
   };
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg mt-10 max-w-xl mx-auto">
+    <div className="bg-gray-900 text-white p-6 rounded-lg">
       <h3 className="text-xl font-semibold mb-4">🔎 Header Scanner</h3>
       <div className="flex gap-2">
         <input

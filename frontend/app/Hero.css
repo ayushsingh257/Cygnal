@@ -1,4 +1,3 @@
-
 /* ================================
    HERO SECTION STYLES
 ================================= */
@@ -7,53 +6,56 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin: 10rem 0;
+  margin: 2rem 0;
 }
 
-.logo-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
 }
 
-.rotating-logo {
-  animation: rotate 30s linear infinite;
-  filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.4));
-  transform-style: preserve-3d;
+.video-wrapper video {
+  width: 100%;
+  height: auto;
 }
 
-.rotating-logo:hover {
-  animation-play-state: paused;
+.video-text {
+  position: absolute;
+  top: 85%; /* Moved further down (from 70% to 85%, approx half more) */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  color: transparent;
+  z-index: 10;
+  /* Optional: Add slight background for readability if video is busy */
+  /* background: rgba(0, 0, 0, 0.3); */
+}
+
+.hero-title {
+  font-size: 5.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2); /* Pink to purple gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.7), -5px -5px 10px rgba(138, 43, 226, 0.4), 0 0 20px rgba(255, 105, 180, 0.5); /* Enhanced 3D with multiple shadows */
+  letter-spacing: 3px; /* Increased for more depth */
+  transform: perspective(1000px) rotateX(15deg); /* Stronger 3D tilt */
+}
+
+.hero-subtitle {
+  font-size: 2rem;
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2); /* Same gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0.5rem 0 0;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7), -4px -4px 8px rgba(138, 43, 226, 0.4), 0 0 15px rgba(255, 105, 180, 0.5); /* Enhanced 3D */
+  letter-spacing: 2px; /* Increased for depth */
+  transform: perspective(1000px) rotateX(10deg); /* Stronger 3D tilt */
 }
 
 .logo-tilt {
   transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1.05);
-}
-
-.hero-title {
-  font-size: 4.5rem;
-  font-weight: bold;
-  background: linear-gradient(to right, #00bfff, #ff7f50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-top: 1rem;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  color: #ccc;
-  margin-top: 0.5rem;
-}
-
-.glow-hover:hover {
-  filter: drop-shadow(0 0 12px rgba(255, 165, 0, 0.7));
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

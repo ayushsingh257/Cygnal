@@ -1,0 +1,67 @@
+/* ================================
+   SCANNERS SECTION STYLES
+================================= */
+.scanners-section {
+  margin-top: 16px;
+}
+
+.scanners-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Increased spacing */
+}
+
+.tool-item {
+  background: #1a1a1a;
+  border: 2px solid #8A2BE2; /* Purple border */
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6); /* Deeper shadow */
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform: scale(1); /* Base scale for 3x effect */
+}
+
+.tool-item:hover {
+  box-shadow: 0 0 20px #8A2BE2, 0 6px 18px rgba(0, 0, 0, 0.6); /* Purple shine on hover */
+  transform: scale(1.02); /* Slight scale-up on hover */
+}
+
+.tool-toggle {
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  background: transparent;
+  padding: 12px 24px; /* Increased padding for 3x size */
+  font-size: 1.5rem; /* Increased font size */
+}
+
+.tool-toggle:hover {
+  background: #2d2d2d;
+}
+
+.tool-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.tool-content.max-h-screen {
+  max-height: 100vh;
+}
+
+.tool-content > div {
+  padding: 30px; /* Increased padding for 3x size */
+  font-size: 1.2rem; /* Increased text size inside */
+}
+
+.tool-content input,
+.tool-content button,
+.tool-content textarea {
+  font-size: 1.1rem; /* Scale up input/button text */
+  padding: 12px; /* Increase input/button padding */
+}
+
+.tool-content img {
+  max-width: 100%; /* Ensure images scale with content */
+  max-height: 400px; /* Limit image height to fit */
+}

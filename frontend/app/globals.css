@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  background: linear-gradient(to bottom, #230632, #000000);
+  background: #000000; /* Solid black to match video background */
   color: white;
   margin: 0;
   padding: 0;
