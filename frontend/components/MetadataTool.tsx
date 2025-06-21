@@ -18,7 +18,6 @@ export default function MetadataTool() {
   const [files, setFiles] = useState<File[]>([]);
   const [results, setResults] = useState<MetaResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [diffIndexes, setDiffIndexes] = useState<number[]>([]);
   const MAX_FILE_SIZE_MB = 10;
 
   useEffect(() => {
@@ -135,6 +134,10 @@ export default function MetadataTool() {
     saveAs(blob, "Cygnal_Metadata_Export.zip");
   };
 
+  const clearResults = () => {
+    setResults([]);
+  };
+
   return (
     <div className="p-4 bg-gray-900 rounded-xl shadow-md text-white max-w-5xl mx-auto mt-6">
       <h2 className="text-2xl font-bold mb-4">📄 Metadata Recon Tool</h2>
@@ -167,57 +170,34 @@ export default function MetadataTool() {
         </div>
       )}
 
-      <div className="mb-4">
+      <div className="mb-4 flex gap-2">
         <button
           onClick={downloadAllMetadata}
           className="bg-green-600 px-3 py-2 rounded hover:bg-green-700 text-sm"
+          disabled={results.length === 0}
         >
           ⬇ Export All Metadata (JSON + CSV)
         </button>
+        <button
+          onClick={clearResults}
+          className="bg-red-600 px-3 py-2 rounded hover:bg-red-700 text-sm"
+          disabled={results.length === 0}
+        >
+          🗑 Clear Results
+        </button>
       </div>
 
-      {results.length >= 2 && (
-        <div className="mb-4">
-          <h4 className="text-sm text-gray-300 mb-1">🔍 Compare Two Files:</h4>
-          <div className="flex gap-2">
-            {results.map((res, idx) => (
-              <button
-                key={idx}
-                className={`text-xs px-2 py-1 border rounded ${
-                  diffIndexes.includes(idx) ? "bg-blue-700" : "bg-gray-800"
-                }`}
-                onClick={() => {
-                  const selected = diffIndexes.includes(idx)
-                    ? diffIndexes.filter((i) => i !== idx)
-                    : [...diffIndexes, idx].slice(-2);
-                  setDiffIndexes(selected);
-                }}
-              >
-                {res.filename}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {diffIndexes.length === 2 && (
-        <MetadataDiff
-          file1={results[diffIndexes[0]]}
-          file2={results[diffIndexes[1]]}
-        />
-      )}
-
-      <div className="space-y-6">
-        {results.map((res, idx) => (
-          <div key={idx} className="bg-gray-800 p-4 rounded shadow">
-            <div className="flex justify-between">
+      <div className="max-h-[50vh] overflow-y-auto space-y-4 p-2">
+        {results.slice(0, 2).map((res, idx) => (
+          <div key={idx} className="bg-gray-800 p-2 rounded shadow w-full">
+            <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-semibold">{res.filename}</h3>
-                <p className="text-sm text-yellow-400">
+                <p className="text-xs text-yellow-400">
                   Threat Score: {res.score}
                 </p>
                 {res.threats.map((t, i) => (
-                  <p key={i} className="text-yellow-300 text-xs">
+                  <p key={i} className="text-xs text-yellow-300">
                     {t}
                   </p>
                 ))}
@@ -230,13 +210,14 @@ export default function MetadataTool() {
               />
             </div>
 
-            <ul className="text-sm mt-3 space-y-1">
-              {Object.entries(res.metadata).map(([k, v]) => (
-                <li key={k}>
-                  <span className="text-blue-400 font-semibold">{k}:</span>{" "}
-                  <span className="text-gray-300">{JSON.stringify(v)}</span>
-                </li>
-              ))}
+            <ul className="text-xs mt-1 space-y-1">
+              <li><span className="text-blue-400 font-semibold">Author:</span> <span className="text-gray-300">{res.metadata.author || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Title:</span> <span className="text-gray-300">{res.metadata.title || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Created:</span> <span className="text-gray-300">{res.metadata.created || res.metadata.creationDate || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Modified:</span> <span className="text-gray-300">{res.metadata.modified || res.metadata.modDate || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Subject:</span> <span className="text-gray-300">{res.metadata.subject || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Creator:</span> <span className="text-gray-300">{res.metadata.creator || "No result found"}</span></li>
+              <li><span className="text-blue-400 font-semibold">Producer:</span> <span className="text-gray-300">{res.metadata.producer || "No result found"}</span></li>
             </ul>
 
             {res.metadata?.GPSLatitude && res.metadata?.GPSLongitude && (
@@ -247,6 +228,12 @@ export default function MetadataTool() {
             )}
           </div>
         ))}
+        {results.length >= 2 && (
+          <MetadataDiff
+            file1={results[0]}
+            file2={results[1]}
+          />
+        )}
       </div>
     </div>
   );

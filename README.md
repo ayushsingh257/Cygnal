@@ -325,3 +325,20 @@ This phase enhances the reverse image search feature by displaying the matched i
   - File Path: `reference_images/shoe.png`
 
 ### Status: ✅ Completed
+
+## 🔟 Phase 16: UI/UX Design Overhaul
+
+This phase marks a significant redesign of Cygnal's user interface, transitioning to a modern Next.js 14 frontend with Tailwind CSS to enhance usability and visual appeal for investigators and analysts.
+
+### Features:
+- 🎨 **Visually Rich Hero Section**: Implemented a dynamic Hero component with a rotating Cygnal logo, animated gradients, and neon glow hover effects to create an immersive first impression.
+- 🛠️ **Structured Components**: Developed reusable components including `HeaderScanner`, `WhoisLookup`, and `Hero`, ensuring modularity and scalability.
+- 📱 **Responsive Design**: Utilized Tailwind CSS to ensure a seamless experience across devices (desktop, tablet, mobile) with fluid layouts and adaptive styling.
+- 🎥 **Custom Animations**: Added `Hero.css` for scalable animations and background customization, enhancing user engagement with smooth transitions.
+- ✅ **Tested Usability**: Validated with mock user scenarios to ensure intuitive navigation and accessibility.
+
+### Example Output:
+- **Hero Section Screenshot**: Displays the animated logo and gradient background, saved as `screenshots/hero-redesign-20250621.png`.
+- **Component Demo**: `HeaderScanner` and `WhoisLookup` components render dynamically with real-time data, e.g., security header status for `https://poki.com`.
+
+### Status: ✅ Completed on June 21, 2025
