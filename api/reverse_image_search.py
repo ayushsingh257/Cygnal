@@ -5,6 +5,7 @@ from PIL import Image
 import faiss
 import numpy as np
 import logging
+import base64
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -70,9 +71,17 @@ class ClipSearchEngine:
             if path in seen_paths or similarity < 0:
                 continue
             seen_paths.add(path)
+            # Encode the matched image with error handling
+            image_data = None
+            try:
+                with open(path, "rb") as img_file:
+                    image_data = base64.b64encode(img_file.read()).decode("utf-8")
+            except Exception as e:
+                logger.warning(f"Failed to encode image {path}: {e}")
             results.append({
                 "match_path": path,
-                "match_percentage": round(similarity * 100, 2)  # ✅ As percentage
+                "match_percentage": round(similarity * 100, 2),  # ✅ As percentage
+                "image_data": image_data  # Include even if None for error cases
             })
         return results
 

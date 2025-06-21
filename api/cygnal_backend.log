@@ -1,0 +1,36 @@
+2025-06-21 13:05:38,471 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.60:5000
+2025-06-21 13:05:38,472 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-21 13:05:38,473 - INFO -  * Restarting with stat
+2025-06-21 13:05:43,941 - WARNING -  * Debugger is active!
+2025-06-21 13:05:43,946 - INFO -  * Debugger PIN: 107-441-297
+2025-06-21 13:05:56,750 - INFO - 127.0.0.1 - - [21/Jun/2025 13:05:56] "POST /api/reverse-image-search HTTP/1.1" 200 -
+2025-06-21 13:11:39,684 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\reverse_image_search.py', reloading
+2025-06-21 13:11:40,341 - INFO -  * Restarting with stat
+2025-06-21 13:11:48,049 - WARNING -  * Debugger is active!
+2025-06-21 13:11:48,058 - INFO -  * Debugger PIN: 107-441-297
+2025-06-21 13:14:11,182 - INFO -  * Detected change in 'C:\\Users\\Ayush\\OneDrive\\Desktop\\Cygnal\\api\\backend.py', reloading
+2025-06-21 13:14:11,789 - INFO -  * Restarting with stat
+2025-06-21 13:14:17,324 - WARNING -  * Debugger is active!
+2025-06-21 13:14:17,326 - INFO -  * Debugger PIN: 107-441-297
+2025-06-21 13:15:42,514 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.60:5000
+2025-06-21 13:15:42,515 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-21 13:15:42,518 - INFO -  * Restarting with stat
+2025-06-21 13:15:49,916 - WARNING -  * Debugger is active!
+2025-06-21 13:15:49,924 - INFO -  * Debugger PIN: 107-441-297
+2025-06-21 13:15:51,359 - INFO - 127.0.0.1 - - [21/Jun/2025 13:15:51] "[31m[1mPOST /api/reverse-image-search HTTP/1.1[0m" 400 -
+2025-06-21 13:19:15,317 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.60:5000
+2025-06-21 13:19:15,320 - INFO - [33mPress CTRL+C to quit[0m
+2025-06-21 13:19:15,323 - INFO -  * Restarting with stat
+2025-06-21 13:19:22,168 - WARNING -  * Debugger is active!
+2025-06-21 13:19:22,179 - INFO -  * Debugger PIN: 107-441-297
+2025-06-21 13:19:22,221 - ERROR - Reverse image search failed: reverse_image_search_logic() takes 0 positional arguments but 1 was given
+2025-06-21 13:19:22,231 - INFO - 127.0.0.1 - - [21/Jun/2025 13:19:22] "[35m[1mPOST /api/reverse-image-search HTTP/1.1[0m" 500 -

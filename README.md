@@ -308,3 +308,20 @@ Enable offline reverse image search using AI to detect image similarities from a
 - Matches remain effective even if angle, zoom, or background varies.
 
 ### Status: ✅ Completed
+
+## Phase 15.5: Reverse Image Search UI Enhancement
+
+This phase enhances the reverse image search feature by displaying the matched images directly on the UI, improving analyst efficiency. Building on the offline CLIP + FAISS implementation, the frontend now renders the top matches alongside their similarity percentages.
+
+### Features:
+- 📷 Displays matched images (e.g., `shoe.png`) on the UI using base64-encoded data.
+- 🎨 Preserves the existing percentage similarity calculation without changes.
+- 🔄 Seamless integration with the existing Next.js frontend and Flask backend.
+- ✅ Tested with various reference images to ensure accurate rendering.
+
+### Example Output:
+- Upload an image (e.g., `Screenshot_213455.png`) and see a match like:
+  - Match 0: 87.33% with image displayed.
+  - File Path: `reference_images/shoe.png`
+
+### Status: ✅ Completed
