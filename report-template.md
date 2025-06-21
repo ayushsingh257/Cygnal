@@ -1,7 +1,6 @@
-# 📝 Cygnal – Header Analysis Report
+# 📝 Cygnal – Analysis Report
 
-**Domain Analyzed:** [https://example.com]
-**Scan Date:** [16 June 2025]
+**Domain Analyzed:** [e.g., https://example.com]
 **Analyst:** Ayush Singh Kshatriya
 
 ---
@@ -21,171 +20,167 @@
 
 ## 🌐 WHOIS & Domain Intelligence
 
-**Target Domain:** cyberpulse.in
+**Target Domain:** [e.g., cyberpulse.in]
 
-- Registrar: GoDaddy
-- Creation Date: 2024-06-24
-- Expiry Date: 2025-06-24
-- Country: IN
-- Email: reg_admin@godaddy.com
+- Registrar: [e.g., GoDaddy]
+- Creation Date: [e.g., 2024-06-24]
+- Expiry Date: [e.g., 2025-06-24]
+- Country: [e.g., IN]
+- Email: [e.g., reg_admin@godaddy.com]
 
-💡 **Interpretation:** The domain is recently created and hosted by GoDaddy. This info is useful in phishing or scam detection, especially when correlating domain lifetimes with malicious campaigns.
+💡 **Interpretation:** The domain's creation and hosting details can aid in phishing or scam detection, especially when correlating domain age with malicious activity.
 
 ---
 
 ## 📨 Email Header Forensics
 
-Source File: sample-email.txt
+**Source File:** [e.g., sample-email.txt]
 
-- Sender IP: 209.85.166.52
-- SPF: PASS
-- DKIM: PASS
-- DMARC: PASS
-- Claimed Sender: sender@gmail.com
+- Sender IP: [e.g., 209.85.166.52]
+- SPF: [e.g., PASS]
+- DKIM: [e.g., PASS]
+- DMARC: [e.g., PASS]
+- Claimed Sender: [e.g., sender@gmail.com]
 
-💡 Interpretation:
-This email passed key authentication checks, but investigating relay IP and header hops still helps confirm sender identity — especially in spoofing or targeted fraud.
+💡 **Interpretation:** Passing authentication checks is a good sign, but further investigation into relay IPs and header hops is recommended to confirm sender authenticity in cases of spoofing or fraud.
 
 ---
 
 ## 📸 Web Screenshot Capture
 
-Target: https://cyberpulse.in
-📁 File: cyberpulse-screenshot-20250616-214129.png
+**Target:** [e.g., https://cyberpulse.in]
+**File:** [e.g., cyberpulse-screenshot.png]
 
-💡 Interpretation:
-Capturing real-time screenshots of target websites allows analysts to preserve volatile content before it's removed. This is standard practice in cybercrime investigations and media fact-checking teams.
-
+💡 **Interpretation:** Real-time screenshots preserve volatile website content, a standard practice in cybercrime investigations and media fact-checking.
 
 ---
 
 ## 🔗 Redirect Chain Analysis
 
-**Input URL:** https://bit.ly/3I6ZzrY
+**Input URL:** [e.g., https://bit.ly/3I6ZzrY]
 
-**Result:**
-✅ No redirects. The URL leads directly to its destination.
+**Result:** [e.g., ✅ No redirects. The URL leads directly to its destination.]
 
-💡 **Interpretation:**
-Although this specific shortened URL leads directly to a final site, many phishing or scam URLs pass through multiple redirect layers to mask their destination. Always trace these chains to uncover the true endpoint.
+💡 **Interpretation:** While this URL has no redirects, phishing or scam URLs often use multiple layers to mask destinations, requiring full chain tracing.
 
 ---
 
 ## 🧠 Analyst Interpretation
 
-(Write your 2–3 line expert interpretation here.)
+[Write your 2–3 line expert interpretation here.]
 
-The target domain is missing multiple critical HTTP security headers. This suggests poor web server hardening and could expose users to risks like clickjacking, MIME-type attacks, or data leakage. Immediate improvements in header configuration are recommended.
-
+The target domain lacks critical HTTP security headers, indicating poor server hardening. This exposes users to risks like clickjacking or data leakage, necessitating immediate configuration improvements.
 
 ---
 
-📎 **Evidence Screenshot**: `screenshots/cygnal-[domain]-header-analysis.png`
-
+📎 **Evidence Screenshot:** `screenshots/cygnal-[domain]-header-analysis.png`
 
 ---
 
 ## 🖼️ Reverse Image Search
 
-**Image Searched:** elon.jpg
-**Search Engine Used:** Google Lens
-**Screenshot Saved:** screenshots/reverse-search-20250616-230107.png
+**Image Searched:** [e.g., elon.jpg]
+**Search Engine Used:** [e.g., Google Lens]
+**Screenshot Saved:** [e.g., screenshots/reverse-search.png]
 
 ### 🔍 Analyst Note:
-Reverse image searches are critical in identifying fake profiles, reused images in scam sites, and disinformation campaigns. Google Lens offers reliable matches for public images.
-
----
+Reverse image searches are vital for detecting fake profiles, reused scam images, and disinformation, with tools like Google Lens providing reliable public matches.
 
 ---
 
 ## 📨 Email Leak Awareness Scan
 
-**Website:** https://cyberpulse.in
+**Website:** [e.g., https://cyberpulse.in]
 **Emails Found:** [List them here or write “None found”]
-**Screenshot:** screenshots/email-check-cyberpulse.png
+**Screenshot:** [e.g., screenshots/email-check-cyberpulse.png]
 
 ### 🔍 Analyst Note:
-This phase simulates how OSINT agents gather surface-level emails from websites and assess them for potential breach signals or sensitive roles (admin, support). Useful in early attack surface mapping.
-
----
+This scan mimics OSINT email gathering, assessing breach signals or sensitive roles (e.g., admin, support) for early attack surface mapping.
 
 ---
 
 ## 🗂️ Metadata Extraction Report
 
-**File Analyzed:** test.pdf
-**Type:** PDF Document
-**Screenshot:** screenshots/pdf-metadata-20250616.png
+**File Analyzed:** [e.g., test.pdf]
+**Type:** [e.g., PDF Document]
+**Screenshot:** [e.g., screenshots/pdf-metadata.png]
 
 ### 📊 Extracted Data:
-- Author: Ayush Singh
-- Tool Used: PyPDF2
-- Created by: Canva
-- Timestamp: 13 June 2025
+- Author: [e.g., Ayush Singh]
+- Tool Used: [e.g., PyPDF2]
+- Created by: [e.g., Canva]
+- Timestamp: [e.g., Recent]
 
 ### 🧠 Analyst Note:
-Metadata can uncover the source of leaked documents, authorship, and device trails — this is a crucial layer in OSINT and forensics.
+Metadata reveals document sources, authorship, and device trails, making it a key layer in OSINT and forensic analysis.
 
 ---
 
-Phase 10 – UI/UX Enhancement:
-• Migrated frontend to Next.js with Tailwind CSS.
-• Designed an immersive hero section with animated visuals, rotating logo, and glowing title text.
-• Created compartment-style input tools using modular components.
+## Phase 10 – UI/UX Enhancement
+- **Description**: Migrated frontend to Next.js with Tailwind CSS and enhanced the UI.
+- **What I Did**:
+  - Migrated the frontend to Next.js with Tailwind CSS.
+  - Designed an immersive hero section with animated visuals, rotating logo, and glowing title text.
+  - Created compartment-style input tools using modular components.
+  - Improved navigation and layout consistency.
+  - Tested UI responsiveness across devices.
+- **Status**: ✅ Completed
 
-Phase 11 – Backend Connectivity:
-• Developed and exposed Flask endpoints for security header scan and WHOIS lookup.
-• Ensured real-time integration with the frontend using async `fetch()` calls.
-• Implemented dynamic rendering, result parsing, and error validation for smooth UX.
+## Phase 11 – Backend Connectivity
+- **Description**: Developed and connected Flask endpoints for tool integration.
+- **What I Did**:
+  - Developed Flask endpoints for security header scan and WHOIS lookup.
+  - Ensured real-time integration with the frontend using async `fetch()` calls.
+  - Implemented dynamic rendering, result parsing, and error validation.
+  - Debugged API response issues for smooth UX.
+  - Documented endpoint functionality.
+- **Status**: ✅ Completed
 
 ## Metadata Recon Tool - Analyst Report
-
-### Files Reviewed:
-- Resume_Ayush.pdf
-- Resume_Soumya.docx
-
-### Observations:
-- File 1: Author-creator mismatch (Canva), keywords look autogenerated
-- File 2: Clean metadata, no suspicious entries
-
-### Threat Score Summary:
-- File 1: Medium
-- File 2: Low
-
-### Analyst Notes:
-- Recommend further investigation into Canva-generated metadata patterns.
+- **Description**: Analyzed metadata from uploaded files.
+- **Files Reviewed:** [e.g., Resume_Ayush.pdf, Resume_Soumya.docx]
+- **Observations:**
+  - File 1: Author-creator mismatch (e.g., Canva), keywords look autogenerated.
+  - File 2: Clean metadata, no suspicious entries.
+- **Threat Score Summary:**
+  - File 1: Medium
+  - File 2: Low
+- **Analyst Notes:** Recommend further investigation into Canva-generated metadata patterns.
 
 ## 🖼️ Phase 15.5 - Reverse Image Search UI Enhancement
-
-**Image Searched:** [e.g., Screenshot_213455.png]
-**Search Engine Used:** CLIP + FAISS (Offline)
-**Screenshot Saved:** [e.g., screenshots/reverse-search-ui-20250621.png]
-
-### 🔍 Analyst Note:
-This enhancement allows analysts to view matched images directly on the interface, streamlining the process of verifying visual similarities. The UI now displays the matched image (e.g., `shoe.png`) alongside its 87.33% similarity score, preserving the offline capability and enhancing usability for forensic analysis.
-
+- **Description**: Enhanced the Reverse Image Search UI for better analysis.
+- **Image Searched:** [e.g., Screenshot_213455.png]
+- **Search Engine Used:** [e.g., CLIP + FAISS (Offline)]
+- **Screenshot Saved:** [e.g., screenshots/reverse-search-ui.png]
+- **What I Did**:
+  - Added UI to display matched images directly.
+  - Integrated similarity scores (e.g., 87.33% for `shoe.png`).
+  - Preserved offline capability with CLIP + FAISS.
+  - Enhanced usability for forensic analysis.
+  - Tested with sample images.
+- **Status**: ✅ Completed
 
 ## 🎨 Phase 16: UI/UX Design Overhaul
+- **Description**: Overhauled the UI/UX with a modern, responsive design.
+- **What I Did**:
+  - Migrated to Next.js 14 with Tailwind CSS.
+  - Designed a Hero Section with animated logo and gradients.
+  - Reorganized tools into an accordion layout.
+  - Applied purple borders with neon glow hover effects.
+  - Tested responsiveness across devices.
+- **Status**: ✅ Completed
 
-**Completion Date:** 21 June 2025
-**Analyst:** Ayush Singh Kshatriya
-
-### 📊 Design Summary
-- **Framework**: Migrated to Next.js 14 with Tailwind CSS.
-- **Key Components**:
-  - Hero Section with animated logo and gradients.
-  - `HeaderScanner` for security header analysis.
-  - `WhoisLookup` for domain intelligence.
-
-### 🎥 Visual Enhancements
-- Rotating Cygnal logo with neon glow hover effects.
-- Animated gradients for background customization via `Hero.css`.
-- Responsive layout tested across desktop, tablet, and mobile devices.
-
-### 🧠 Analyst Note
-The UI redesign significantly improves user experience by providing an engaging Hero section and modular components, reducing navigation complexity. The responsive design ensures accessibility for field analysts using various devices. Testing on June 21, 2025, showed a 30% faster task completion rate compared to the previous interface.
+## Phase 17.1 – PDF Export Setup
+- **Description**: Set up the foundation for exporting analysis reports as PDFs.
+- **What I Did**:
+  - Installed MiKTeX on Windows to support LaTeX-based PDF generation.
+  - Created a `test.tex` file to verify the LaTeX environment.
+  - Copied `cygnal-logo.png` from `public` to `api/static` for PDF inclusion.
+  - Updated `test.tex` to include the logo at the top.
+  - Documented the setup for future template design.
+- **Status**: In Progress
+- **Next**: Design a full LaTeX template in Phase 17.2 to generate structured PDF reports.
 
 ---
 
-📎 **Evidence Screenshot**: `screenshots/hero-redesign-20250621.png`
-📎 **Evidence Screenshot**: `screenshots/component-demo-20250621.png`
+📎 **Evidence Screenshot:** [e.g., screenshots/phase-17.1-setup.png]

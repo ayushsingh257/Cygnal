@@ -1,15 +1,21 @@
+# Cygnal - Open-Source Intelligence Toolkit
+
+Cygnal is an OSINT (Open-Source Intelligence) toolkit designed to uncover hidden insights from publicly available data. Built by Ayush Singh Kshatriya, a second-year BCA (Hons) student at Manipal University Jaipur, this project combines web development, cybersecurity, and API integration to empower investigators, researchers, and security enthusiasts.
+
+- **GitHub**: [https://github.com/ayushsingh257/Cygnal](https://github.com/ayushsingh257/Cygnal)
+- **LinkedIn**: [https://www.linkedin.com/in/ayush-singh-kshatriya/](https://www.linkedin.com/in/ayush-singh-kshatriya/)
+- **Medium**: [https://medium.com/@ayushsinghkshatriya](https://medium.com/@ayushsinghkshatriya)
+- **Last Updated**: Recent
+
 ---
 
 ### ✨ About Cygnal
 
 Cygnal is more than just a Python script — it's a growing forensic OSINT toolkit built to mimic how real-world investigators assess digital threats. Whether you're a student, ethical hacker, or analyst, Cygnal helps extract valuable intelligence from public domains — fast, clean, and ethically.
 
-
-![Project](https://img.shields.io/badge/Cygnal-Recon_Toolkit-blueviolet)
-![Phase](https://img.shields.io/badge/Phase-9%2F9-complete-brightgreen)
-
 ---
-Why Does Cygnal Matter?
+
+### Why Does Cygnal Matter?
 
 Most people don’t realize this, but every website leaves a trail —
 Security headers, WHOIS data, redirect chains — all of them can reveal whether a site is safe, shady, or secretly harmful.
@@ -22,12 +28,18 @@ Clean reports. Easy commands. No bloat. No noise.
 
 And everything built with forensics & simplicity in mind
 
-### 📍 Where Cygnal Stands Today (Phase 3 Complete)
+---
+
+### 📍 Where Cygnal Stands Today (Phase 16 Complete)
 
 So far, Cygnal can:
 - Identify missing or misconfigured security headers
 - Trace redirect chains to uncover phishing layers
 - Perform WHOIS lookups to reveal domain ownership and registration trails
+- Capture full-page screenshots of live websites
+- Extract hidden metadata from PDF and image files
+- Perform reverse image searches via API integration
+- Present tools in an enhanced UI/UX with accordion layout and about section
 
 It’s already becoming a reliable passive recon kit used in real investigations.
 
@@ -37,41 +49,203 @@ It’s already becoming a reliable passive recon kit used in real investigations
 
 Coming in future phases:
 - Email header forensics
-- Screenshot capture engine
-- Auto-generated PDF reporting
+- Auto-generated PDF reporting (Phase 17)
+- Authentication and user login
 - Passive IP intelligence lookups
-- Potential future web interface
+- Integration with Shodan/Censys
+- Docker deployment and public release
 
 Cygnal will evolve from a recon script into a field-ready OSINT utility — trusted by investigators, interns, analysts, and agencies alike.
 
 ---
 
+## Technologies
+- **Frontend**: Next.js, Tailwind CSS, React
+- **Backend**: Flask, Python
+- **Tools**: Nmap, Burp Suite, LaTeX (Phase 17 onward)
+- **Deployment**: Planned for Vercel and PythonAnywhere (Phase 30)
 
-# 🛡️ Cygnal – Security Header Analyzer
+## Phase Updates
+### Phase 1: Project Planning & Repo Setup
+- **Description**: Initialized the GitHub repository and planned the 31-phase roadmap.
+- **What I Did**:
+  - Created the initial repository structure on GitHub.
+  - Outlined the 31-phase plan for Cygnal’s development.
+  - Set up basic folders for frontend and backend.
+  - Documented initial project goals and tools.
+  - Established version control with Git.
+- **Status**: ✅ Completed
 
-**Cygnal** is a lightweight, Python-based tool that performs HTTP security header analysis on any live website. It helps identify missing or misconfigured headers which can expose users to attacks like clickjacking, MIME sniffing, and cross-site scripting.
+### Phase 2: UI Design Concept, Logo
+- **Description**: Designed the initial UI concept and created the Cygnal 3D logo.
+- **What I Did**:
+  - Sketched the UI layout using Figma.
+  - Designed the Cygnal 3D logo with creative elements.
+  - Incorporated a dark theme with neon accents.
+  - Tested logo compatibility with video formats.
+  - Finalized the hero section concept.
+- **Status**: ✅ Completed
 
----
+### Phase 3: Tailwind & Base Styling
+- **Description**: Implemented Tailwind CSS for base styling with a consistent theme.
+- **What I Did**:
+  - Integrated Tailwind CSS into the project.
+  - Applied a dark theme with neon highlights.
+  - Styled basic components like buttons and inputs.
+  - Ensured responsive design across devices.
+  - Optimized CSS for performance.
+- **Status**: ✅ Completed
 
-## 🔧 What It Does
+### Phase 4: Header Scanner UI
+- **Description**: Developed the UI for the Header Scanner tool.
+- **What I Did**:
+  - Built the Header Scanner interface with Next.js.
+  - Added input fields for URL scanning.
+  - Styled the component with Tailwind.
+  - Implemented basic error handling.
+  - Tested the UI for usability.
+- **Status**: ✅ Completed
 
-Cygnal fetches response headers from any domain and checks for the presence of:
+### Phase 5: WHOIS UI
+- **Description**: Built the WHOIS Lookup UI, integrating with the design system.
+- **What I Did**:
+  - Created the WHOIS Lookup interface.
+  - Aligned styling with the Header Scanner UI.
+  - Added a domain input field.
+  - Incorporated loading states.
+  - Ensured consistent layout.
+- **Status**: ✅ Completed
 
-- Content-Security-Policy
-- Strict-Transport-Security
-- X-Content-Type-Options
-- X-Frame-Options
-- Referrer-Policy
-- Permissions-Policy
-- Follows redirect chains from shortened or suspicious URLs
-- Reveals the true final destination of phishing/malicious links
-- Performs WHOIS lookups to gather domain ownership, registration, and server details
-- Analyzes raw email headers for SPF/DKIM/DMARC status and origin IP
-- Captures full-page screenshot of live websites using headless browser
-- Performs reverse image searches via Google Lens and captures visual matches
-- Extracts emails from webpages and flags potentially sensitive ones (e.g. admin, support)
-- Extracts hidden metadata from PDF and image files (author, tool used, creation time)
+### Phase 6: Header → Backend Connection
+- **Description**: Connected the Header Scanner to a Flask backend.
+- **What I Did**:
+  - Set up a Flask API endpoint for scanning.
+  - Integrated the frontend with the backend API.
+  - Handled HTTP requests for header data.
+  - Debugged API response issues.
+  - Tested end-to-end functionality.
+- **Status**: ✅ Completed
 
+### Phase 7: WHOIS → Backend Connection
+- **Description**: Linked the WHOIS tool to the backend.
+- **What I Did**:
+  - Created a WHOIS API endpoint in Flask.
+  - Connected the UI to fetch domain data.
+  - Managed API response parsing.
+  - Resolved connection timeouts.
+  - Validated data display.
+- **Status**: ✅ Completed
+
+### Phase 8: Initial UI Polish
+- **Description**: Refined the UI with additional styling and responsiveness.
+- **What I Did**:
+  - Enhanced button hover effects.
+  - Improved mobile responsiveness.
+  - Adjusted spacing and alignment.
+  - Added subtle animations.
+  - Tested across browsers.
+- **Status**: ✅ Completed
+
+### Phase 9: Writeup & Slide Prep
+- **Description**: Prepared documentation and slides for project presentation.
+- **What I Did**:
+  - Wrote a detailed project overview.
+  - Created slides for key features.
+  - Included screenshots and diagrams.
+  - Practiced the presentation flow.
+  - Shared with peers for feedback.
+- **Status**: ✅ Completed
+
+### Phase 10: Transition to Next.js
+- **Description**: Migrated the project to Next.js for better performance.
+- **What I Did**:
+  - Converted React components to Next.js.
+  - Set up server-side rendering (SSR).
+  - Configured routing with Next.js.
+  - Migrated CSS to Tailwind.
+  - Tested page loading speed.
+- **Status**: ✅ Completed
+
+### Phase 11: Hero Section + Glow/Animation
+- **Description**: Added a hero section with a 3D logo video and glow effects.
+- **What I Did**:
+  - Integrated the 3D logo video.
+  - Added glow animations with CSS.
+  - Styled the hero text and subtitle.
+  - Ensured video autoplay and mute.
+  - Optimized for performance.
+- **Status**: ✅ Completed
+
+### Phase 12: Input Validation, Tests, Logs
+- **Description**: Implemented input validation, unit tests, and logging.
+- **What I Did**:
+  - Added validation for URL inputs.
+  - Wrote unit tests for tools.
+  - Implemented logging for errors.
+  - Debugged test failures.
+  - Documented test cases.
+- **Status**: ✅ Completed
+
+### Phase 13: Screenshot Tool
+- **Description**: Developed the Screenshot Tool with API integration.
+- **What I Did**:
+  - Built the Screenshot Tool UI.
+  - Integrated a screenshot API.
+  - Handled image display.
+  - Added loading states.
+  - Tested with various URLs.
+- **Status**: ✅ Completed
+
+### Phase 14: Metadata Recon Tool
+- **Description**: Created the Metadata Recon Tool for file analysis.
+- **What I Did**:
+  - Developed the metadata UI.
+  - Implemented file upload parsing.
+  - Extracted metadata fields.
+  - Added error handling.
+  - Tested with sample files.
+- **Status**: ✅ Completed
+
+### Phase 15: Reverse Image Search UI/API
+- **Description**: Built the Reverse Image Search feature.
+- **What I Did**:
+  - Created the image search UI.
+  - Integrated a reverse image API.
+  - Handled image uploads.
+  - Displayed search results.
+  - Optimized API calls.
+- **Status**: ✅ Completed
+
+### Phase 16: UI/UX Redesign
+- **Description**: Redesigning the UI/UX with a vertical tool stack and enhancements.
+- **What I Did**:
+  - Reorganized tools into an accordion layout.
+  - Added an about section for OSINT.
+  - Increased tool card sizes (3x).
+  - Applied purple borders with hover shine.
+  - Centered the layout with gaps.
+- **Status**: ✅ Completed
+
+### Phase 17.1: Set Up LaTeX Environment and Prepare Logo
+- **Description**: Set up a LaTeX environment using MiKTeX for PDF report generation and prepared the Cygnal logo.
+- **What I Did**:
+  - Installed MiKTeX on Windows for LaTeX support.
+  - Created a `test.tex` file to verify setup.
+  - Copied `cygnal-logo.png` from `public` to `api/static`.
+  - Updated `test.tex` to include the logo.
+  - Documented the setup in project files.
+- **Status**: In Progress
+- **Next Steps**: Design a LaTeX template in Phase 17.2.
+
+## Future Phases
+- **Phase 17-31**: Planned features include PDF exports, authentication, deployment, and advanced OSINT integrations (e.g., Shodan, IP tracking).
+- **Target Completion**: End of degree timeline
+
+## Contributions
+- Open to feedback and collaboration. Contact me via LinkedIn or email (a.s.kshatriya99@gmail.com).
+
+## License
+[MIT License](LICENSE) - Free to use and modify.
 
 It then prints a clean report of what's present and what's missing.
 

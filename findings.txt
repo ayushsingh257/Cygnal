@@ -174,3 +174,11 @@ streamlining workflows with intuitive components and dynamic visuals.
 This redesign sets the stage for future feature integrations.
 
 Status: COMPLETED ✅
+
+# Findings for Phase 17.1 (June 21, 2025)
+- Successfully installed MiKTeX on Windows to support LaTeX-based PDF generation.
+- Copied `cygnal-logo.png` from `public` to `api/static` for PDF inclusion.
+- Created `test.tex` to verify LaTeX setup; logo integration confirmed feasible.
+- No issues encountered; setup integrates with existing backend without disruption.
+
+Status: COMPLETED ✅
