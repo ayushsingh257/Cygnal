@@ -1,0 +1,103 @@
+/* auth.css */
+.auth-container {
+  max-width: 500px; /* Increased from 450px for larger boxes */
+  margin: 0 auto;
+  background-color: rgba(39, 39, 39, 0.8);
+  border: 1px solid #8A2BE2;
+  border-radius: 10px;
+  padding: 3rem; /* Increased padding for more space */
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.5), 0 0 30px rgba(255, 105, 180, 0.3);
+  text-align: center; /* Center-align content */
+  min-height: 450px; /* Uniform minimum height for both forms */
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Increased gap for better spacing */
+  height: 100%; /* Ensure form takes full container height */
+}
+
+.auth-input {
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1.25rem; /* Increased padding for larger inputs */
+  color: white;
+  font-size: 1.125rem; /* Increased font size for readability */
+  width: 100%;
+  text-align: center; /* Center text within inputs */
+  display: block; /* Ensure proper block behavior */
+  box-sizing: border-box; /* Include padding in width calculation */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-input:focus {
+  border-color: #8A2BE2;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+  outline: none;
+}
+
+.auth-button {
+  padding: 1rem 2.5rem; /* Increased padding for larger button */
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(to right, #8A2BE2, #C71585, #FF69B4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.4), 0 0 24px rgba(138, 43, 226, 0.5);
+  transition: all 0.3s ease;
+  width: auto;
+  margin: 0 auto;
+  display: inline-block;
+}
+
+.auth-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(255, 105, 180, 0.6), 0 0 36px rgba(138, 43, 226, 0.7);
+}
+
+.auth-toggle {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(to right, #8A2BE2, #C71585, #FF69B4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(255, 105, 180, 0.4), 0 0 16px rgba(138, 43, 226, 0.5);
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.auth-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.6), 0 0 24px rgba(138, 43, 226, 0.7);
+}
+
+.auth-title {
+  color: #FF69B4;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-text {
+  color: #A0A0A0;
+  text-align: center;
+  margin-top: 1.75rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auth-text a {
+  color: #FF69B4;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-text a:hover {
+  color: #C71585;
+  text-decoration: underline;
+}

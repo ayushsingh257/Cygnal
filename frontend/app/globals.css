@@ -22,6 +22,7 @@ body {
   box-shadow: 0 0 12px rgba(255, 105, 180, 0.4), 0 0 24px rgba(138, 43, 226, 0.5);
   transition: all 0.3s ease;
   text-align: center;
+  display: inline-block; /* Ensure button is not full-width */
 }
 .btn-cygnal:hover {
   transform: scale(1.05);
@@ -36,6 +37,25 @@ body {
   font-weight: bold;
 }
 
+/* New style for toggle link buttons */
+.btn-cygnal-link {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(to right, #8A2BE2, #C71585, #FF69B4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(255, 105, 180, 0.4), 0 0 16px rgba(138, 43, 226, 0.5);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block; /* Ensure button is not full-width */
+}
+.btn-cygnal-link:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.6), 0 0 24px rgba(138, 43, 226, 0.7);
+}
+
 /* Pre/code block beautification */
 pre {
   font-family: 'Fira Code', monospace;
@@ -47,4 +67,18 @@ pre {
   color: #eaeaea;
   white-space: pre-wrap;
   overflow-x: auto;
+}
+
+/* Custom CSS to enforce design */
+.custom-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+.custom-form input {
+  width: 100%;
+}
+.custom-form button {
+  width: auto !important;
+  margin: 0 auto;
+  display: block;
 }
