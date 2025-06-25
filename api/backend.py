@@ -13,6 +13,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import base64
 import traceback
+from auth_utils import init_db, add_user, verify_user  # ✅ Add this
+
 
 # Metadata tools
 from PIL import Image
@@ -302,4 +304,5 @@ def handle_500_error(e):
 
 # ========== MAIN ==========
 if __name__ == "__main__":
+    init_db()  # ✅ Ensure DB is ready
     app.run(debug=True, host="0.0.0.0", port=5000)
