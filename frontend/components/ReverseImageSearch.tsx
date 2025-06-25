@@ -2,12 +2,13 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useReportStore } from "@/store/useReportStore";
 
 interface SearchResult {
   match_path: string;
   match_percentage: number;
-  image_data?: string; // New field for base64 image data
-  image_url?: string;  // New field for image URL
+  image_data?: string;
+  image_url?: string;
 }
 
 export default function ReverseImageSearch() {
@@ -15,6 +16,8 @@ export default function ReverseImageSearch() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { setToolUsed, addToHistory } = useReportStore();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);
@@ -42,7 +45,6 @@ export default function ReverseImageSearch() {
       });
 
       const text = await response.text();
-
       let data;
       try {
         data = JSON.parse(text);
@@ -55,6 +57,23 @@ export default function ReverseImageSearch() {
       }
 
       setResults(data.results);
+      setToolUsed("reverseImageUsed");
+      addToHistory({
+  tool: "Reverse Image Search",
+  input: selectedFile.name,
+  result: JSON.stringify(data.results.slice(0, 3), null, 2),
+});
+
+
+      await fetch("/api/log-scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tool: "Reverse Image Search",
+          input: selectedFile.name,
+          result: data.results,
+        }),
+      });
     } catch (err: any) {
       setError(err.message || "Failed to perform reverse image search.");
     } finally {

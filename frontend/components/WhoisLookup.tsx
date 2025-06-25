@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import { useReportStore } from "@/store/useReportStore";
 
 export default function WhoisLookup() {
   const [domain, setDomain] = useState("");
   const [result, setResult] = useState<Record<string, string | string[] | null> | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { setToolUsed, addToHistory } = useReportStore();
 
   const handleLookup = async () => {
     setError("");
@@ -33,6 +36,16 @@ export default function WhoisLookup() {
 
       if (data.success) {
         setResult(data.result);
+        setToolUsed("whoisUsed");
+        addToHistory({ tool: "WHOIS Lookup", input: domain, result: JSON.stringify(data.result, null, 2) });
+
+
+        // Backend log
+        await fetch("http://127.0.0.1:5000/api/log-scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "WHOIS Lookup", input: domain, result: data.result }),
+        });
       } else {
         setError("❌ WHOIS lookup failed: " + (data.error || "Unknown error"));
       }
@@ -71,9 +84,7 @@ export default function WhoisLookup() {
           {Object.entries(result).map(([key, val]) => (
             <div key={key}>
               <strong>{key}</strong>:{" "}
-              {Array.isArray(val)
-                ? val.join(", ")
-                : val ?? "N/A"}
+              {Array.isArray(val) ? val.join(", ") : val ?? "N/A"}
             </div>
           ))}
         </div>

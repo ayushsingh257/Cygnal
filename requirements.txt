@@ -1,8 +1,11 @@
 flask
+flask-cors
 requests
 pillow
-exifread
 python-whois
+docx
+fitz
+selenium
 python-dotenv
 werkzeug
-flask-cors
+file-saver

@@ -5,6 +5,7 @@ import MapDisplay from "./MapDisplay";
 import MetadataDiff from "./MetadataDiff";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { useReportStore } from "@/store/useReportStore";
 
 type MetaResult = {
   filename: string;
@@ -19,6 +20,8 @@ export default function MetadataTool() {
   const [results, setResults] = useState<MetaResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const MAX_FILE_SIZE_MB = 10;
+
+  const { setToolUsed, addToHistory } = useReportStore();
 
   useEffect(() => {
     const logs = sessionStorage.getItem("metaLogs");
@@ -83,6 +86,7 @@ export default function MetadataTool() {
         method: "POST",
         body: form,
       });
+
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -96,13 +100,41 @@ export default function MetadataTool() {
       }
 
       const { issues, score } = analyzeThreats(data.metadata);
-
-      newResults.push({
+      const result: MetaResult = {
         filename: file.name,
         metadata: data.metadata,
         threats: issues,
         score,
+      };
+
+      // ⏺ Log result to session history + store
+addToHistory({
+  tool: "Metadata",
+  input: file.name,
+  result: JSON.stringify({
+    score,
+    threats: issues.slice(0, 3),
+    keys: Object.keys(data.metadata).slice(0, 3),
+  }, null, 2),
+});
+
+      setToolUsed("metadataUsed");
+
+      await fetch("http://localhost:5000/api/log-scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tool: "Metadata Extraction",
+          input: file.name,
+          result: {
+            score,
+            threats: issues,
+            fields: Object.keys(data.metadata),
+          },
+        }),
       });
+
+      newResults.push(result);
     }
 
     setResults((prev) => [...prev, ...newResults]);
@@ -193,13 +225,9 @@ export default function MetadataTool() {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-semibold">{res.filename}</h3>
-                <p className="text-xs text-yellow-400">
-                  Threat Score: {res.score}
-                </p>
+                <p className="text-xs text-yellow-400">Threat Score: {res.score}</p>
                 {res.threats.map((t, i) => (
-                  <p key={i} className="text-xs text-yellow-300">
-                    {t}
-                  </p>
+                  <p key={i} className="text-xs text-yellow-300">{t}</p>
                 ))}
               </div>
               <textarea

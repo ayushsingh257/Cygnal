@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import { useReportStore } from "@/store/useReportStore";
 
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { setToolUsed, addToHistory } = useReportStore();
 
   const handleScan = async () => {
     setResult("");
@@ -37,18 +40,27 @@ export default function HeaderScanner() {
       console.log("[HeaderScan] Response:", data);
 
       if (data && data.headers) {
-        const lines = Array.isArray(data.headers)
-          ? data.headers
-              .map(
-                (header: any) =>
-                  `${header.present ? "✅" : "❌"} ${header.name}: ${
-                    header.present ? "Present" : "Missing"
-                  }`
-              )
-              .join("\n")
-          : "⚠️ Unexpected header format.";
+        const lines = data.headers
+          .map(
+            (header: any) =>
+              `${header.present ? "✅" : "❌"} ${header.name}: ${
+                header.present ? "Present" : "Missing"
+              }`
+          )
+          .join("\n");
 
-        setResult(`🔍 Header Scan Results for ${url}:\n\n${lines}`);
+        const finalOutput = `🔍 Header Scan Results for ${url}:\n\n${lines}`;
+        setResult(finalOutput);
+        setToolUsed("headerUsed");
+        addToHistory({ tool: "Header Scanner", input: url, result: JSON.stringify(data, null, 2) });
+
+
+        // Send log to backend
+        await fetch("http://127.0.0.1:5000/api/log-scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "Header Scanner", input: url, result: data }),
+        });
       } else if (data.error) {
         setError("❌ Server error: " + data.error);
       } else {

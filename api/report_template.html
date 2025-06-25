@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cygnal Scan Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 1in; }
+        h1 { text-align: center; }
+        h2 { margin-top: 20px; }
+        h3 { margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        img { max-width: 30%; height: auto; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>Cygnal Scan Report</h1>
+    <img src="static/cygnal-logo.png" alt="Cygnal Logo">
+    <h2>Report Details</h2>
+    <p><strong>Generated On:</strong> {{ scan_date | default('N/A') }}</p>
+    <p><strong>Scan Type:</strong> {{ scan_type | default('N/A') }}</p>
+    <h2>Scan Results</h2>
+    {% if scan_type == "Full Report" and results is sequence %}
+        {% for tool in results if tool is mapping %}
+            <h3>{{ tool.type | default('Unknown') }}</h3>
+            {% if tool.type == "Header Scanner" and tool.results is sequence %}
+                <table>
+                    <tr><th>Header</th><th>Status</th></tr>
+                    {% for header in tool.results if header is mapping %}
+                        <tr>
+                            <td>{{ header.name | default('N/A') }}</td>
+                            <td>{{ "Present" if header.present else "Missing" }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% elif tool.type == "WHOIS Lookup" and tool.results is mapping %}
+                <table>
+                    <tr><th>Field</th><th>Value</th></tr>
+                    {% for key, value in tool.results.items() %}
+                        <tr>
+                            <td>{{ key | default('N/A') }}</td>
+                            <td>{{ value | default('N/A') }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% elif tool.type == "Website Screenshot" %}
+                <img src="temp_screenshot.png" alt="Screenshot">
+            {% elif tool.type == "Metadata Recon Tool" and tool.results is sequence %}
+                {% for result in tool.results if result is mapping %}
+                    <h4>Metadata for {{ result.filename | default('Unknown') }}</h4>
+                    <table>
+                        <tr><th>Field</th><th>Value</th></tr>
+                        <tr><td>Filename</td><td>{{ result.filename | default('N/A') }}</td></tr>
+                        <tr><td>Threat Score</td><td>{{ result.score | default('N/A') }}</td></tr>
+                        <tr><td>Threats</td><td>{{ result.threats | join(", ") | default('None') }}</td></tr>
+                        {% for key, value in result.metadata.items() if result.metadata is mapping %}
+                            <tr><td>{{ key | default('N/A') }}</td><td>{{ value | default('N/A') }}</td></tr>
+                        {% endfor %}
+                    </table>
+                {% endfor %}
+            {% elif tool.type == "Reverse Image Search" and tool.results is sequence %}
+                <table>
+                    <tr><th>File Path</th><th>Match Percentage</th></tr>
+                    {% for result in tool.results if result is mapping %}
+                        <tr>
+                            <td>{{ result.match_path | default('N/A') }}</td>
+                            <td>{{ result.match_percentage | default(0) | round(2) }}%</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No results available for {{ tool.type | default('Unknown') }}.</p>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% if results and results|length > 0 and results[0] is mapping %}
+            {% if scan_type == "Header Scanner" and results[0].results is sequence %}
+                <table>
+                    <tr><th>Header</th><th>Status</th></tr>
+                    {% for header in results[0].results if header is mapping %}
+                        <tr>
+                            <td>{{ header.name | default('N/A') }}</td>
+                            <td>{{ "Present" if header.present else "Missing" }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% elif scan_type == "WHOIS Lookup" and results[0].results is mapping %}
+                <table>
+                    <tr><th>Field</th><th>Value</th></tr>
+                    {% for key, value in results[0].results.items() %}
+                        <tr>
+                            <td>{{ key | default('N/A') }}</td>
+                            <td>{{ value | default('N/A') }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% elif scan_type == "Website Screenshot" %}
+                <img src="temp_screenshot.png" alt="Screenshot">
+            {% elif scan_type == "Metadata Recon Tool" and results[0].results is sequence %}
+                {% for result in results[0].results if result is mapping %}
+                    <h4>Metadata for {{ result.filename | default('Unknown') }}</h4>
+                    <table>
+                        <tr><th>Field</th><th>Value</th></tr>
+                        <tr><td>Filename</td><td>{{ result.filename | default('N/A') }}</td></tr>
+                        <tr><td>Threat Score</td><td>{{ result.score | default('N/A') }}</td></tr>
+                        <tr><td>Threats</td><td>{{ result.threats | join(", ") | default('None') }}</td></tr>
+                        {% for key, value in result.metadata.items() if result.metadata is mapping %}
+                            <tr><td>{{ key | default('N/A') }}</td><td>{{ value | default('N/A') }}</td></tr>
+                        {% endfor %}
+                    </table>
+                {% endfor %}
+            {% elif scan_type == "Reverse Image Search" and results[0].results is sequence %}
+                <table>
+                    <tr><th>File Path</th><th>Match Percentage</th></tr>
+                    {% for result in results[0].results if result is mapping %}
+                        <tr>
+                            <td>{{ result.match_path | default('N/A') }}</td>
+                            <td>{{ result.match_percentage | default(0) | round(2) }}%</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No results available.</p>
+            {% endif %}
+        {% else %}
+            <p>No results available.</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
