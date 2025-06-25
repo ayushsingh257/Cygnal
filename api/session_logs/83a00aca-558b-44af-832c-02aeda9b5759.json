@@ -1,0 +1,15 @@
+{
+  "id": "83a00aca-558b-44af-832c-02aeda9b5759",
+  "timestamp": "2025-06-25T03:38:42.437247",
+  "tool": "WHOIS Lookup",
+  "input": "github.com",
+  "result": {
+    "country": "US",
+    "creation_date": "[datetime.datetime(2007, 10, 9, 18, 20, 50), datetime.datetime(2007, 10, 9, 18, 20, 50, tzinfo=datetime.timezone.utc)]",
+    "domain_name": "GITHUB.COM",
+    "emails": "['abusecomplaints@markmonitor.com', 'whoisrequest@markmonitor.com']",
+    "expiration_date": "[datetime.datetime(2026, 10, 9, 18, 20, 50), datetime.datetime(2026, 10, 9, 0, 0, tzinfo=datetime.timezone.utc)]",
+    "name_servers": "['DNS1.P08.NSONE.NET', 'DNS2.P08.NSONE.NET', 'DNS3.P08.NSONE.NET', 'DNS4.P08.NSONE.NET', 'NS-1283.AWSDNS-32.ORG', 'NS-1707.AWSDNS-21.CO.UK', 'NS-421.AWSDNS-52.COM', 'NS-520.AWSDNS-01.NET']",
+    "registrar": "MarkMonitor, Inc."
+  }
+}

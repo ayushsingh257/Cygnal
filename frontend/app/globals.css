@@ -9,3 +9,42 @@ body {
   padding: 0;
   font-family: 'Inter', sans-serif;
 }
+
+/* Neon gradient button matching Hero style */
+.btn-cygnal {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(to right, #8A2BE2, #C71585, #FF69B4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.4), 0 0 24px rgba(138, 43, 226, 0.5);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.btn-cygnal:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(255, 105, 180, 0.6), 0 0 36px rgba(138, 43, 226, 0.7);
+}
+
+/* Gradient-style text titles */
+.gradient-title {
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+}
+
+/* Pre/code block beautification */
+pre {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background-color: #111;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #333;
+  color: #eaeaea;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}

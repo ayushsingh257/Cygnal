@@ -17,8 +17,13 @@ const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearc
   ssr: false,
 });
 
+// ✅ Dynamically import ScanHistory with SSR disabled
+const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
+  ssr: false,
+});
+
 import "./Hero.css";
-import "./Scanners.css"; // Updated CSS for tools
+import "./Scanners.css";
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<number | null>(null);
@@ -82,6 +87,11 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* SESSION HISTORY TOGGLE & VIEWER */}
+      <section className="mt-6 text-center"> {/* Adjusted mt-20 to mt-6 to match tool spacing */}
+        <ScanHistory />
       </section>
 
       {/* FOOTER */}

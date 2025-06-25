@@ -1,5 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import axios from "axios";
+import { useReportStore } from "@/store/useReportStore";
 
 interface ScreenshotResponse {
   success: boolean;
@@ -12,6 +15,8 @@ export default function ScreenshotTool() {
   const [image, setImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { setToolUsed, addToHistory } = useReportStore();
 
   const handleScreenshot = async () => {
     if (!url.trim()) return;
@@ -26,7 +31,21 @@ export default function ScreenshotTool() {
       });
 
       if (response.data.success && response.data.image) {
-        setImage(`data:image/png;base64,${response.data.image}`);
+        const imageBase64 = `data:image/png;base64,${response.data.image}`;
+        setImage(imageBase64);
+        setToolUsed("screenshotUsed");
+        addToHistory({ tool: "Screenshot", input: url, result: "Screenshot captured" });
+
+
+        await fetch("http://localhost:5000/api/log-scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tool: "Screenshot",
+            input: url,
+            result: "Screenshot captured successfully",
+          }),
+        });
       } else {
         setError(response.data.error || "Failed to take screenshot");
       }

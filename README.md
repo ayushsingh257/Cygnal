@@ -71,6 +71,9 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Performs reverse image searches via Google Lens and captures visual matches
 - Extracts emails from webpages and flags potentially sensitive ones (e.g. admin, support)
 - Extracts hidden metadata from PDF and image files (author, tool used, creation time)
+- Logs all analyst actions (tool used, input, result, timestamp)
+- Allows full session export as JSON or CSV for forensic tracking
+
 
 
 It then prints a clean report of what's present and what's missing.
@@ -342,3 +345,23 @@ This phase marks a significant redesign of Cygnal's user interface, transitionin
 - **Component Demo**: `HeaderScanner` and `WhoisLookup` components render dynamically with real-time data, e.g., security header status for `https://poki.com`.
 
 ### Status: ✅ Completed on June 21, 2025
+
+## ✅ Phase 18: Session Log Tracking + Export
+
+This phase introduces session-wide logging of all scans performed by the analyst. Each tool invocation (header scan, WHOIS, metadata, image search) is stored with:
+
+- Tool name
+- Input used
+- Timestamp of execution
+- Full result (JSON or raw)
+
+### Features:
+- 🕒 Real-time session log stored in in-memory state
+- 📤 Export as `cygnal_session_log.json` or `cygnal_session_log.csv`
+- 🧠 Analyst can review, archive, or submit logs with reports
+- 🧾 Supports long sessions with multiple tools in use
+
+### Screenshot:
+🖼️ `screenshots/session-logging-ui-20250625.png`
+
+### Status: ✅ Completed

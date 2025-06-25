@@ -9,12 +9,24 @@ type ToolKeys =
   | "metadataUsed"
   | "reverseImageUsed";
 
+interface ScanEntry {
+  tool: string;
+  input: string;
+  result?: any;
+  timestamp: string;
+}
+
 interface ReportState {
   headerUsed: boolean;
   whoisUsed: boolean;
   screenshotUsed: boolean;
   metadataUsed: boolean;
   reverseImageUsed: boolean;
+
+  scanHistory: ScanEntry[];
+  addToHistory: (entry: Omit<ScanEntry, "timestamp">) => void;
+  clearHistory: () => void;
+
   setToolUsed: (tool: ToolKeys) => void;
   resetAll: () => void;
 }
@@ -26,13 +38,26 @@ export const useReportStore = create<ReportState>((set) => ({
   metadataUsed: false,
   reverseImageUsed: false,
 
+  scanHistory: [],
+
+  addToHistory: (entry) =>
+    set((state) => ({
+      scanHistory: [
+        {
+          ...entry,
+          timestamp: new Date().toISOString(),
+        },
+        ...state.scanHistory.slice(0, 49), // keep max 50 entries
+      ],
+    })),
+
+  clearHistory: () => set(() => ({ scanHistory: [] })),
+
   setToolUsed: (tool: ToolKeys) =>
-    set((state) => {
-      return {
-        ...state,
-        [tool]: true,
-      };
-    }),
+    set((state) => ({
+      ...state,
+      [tool]: true,
+    })),
 
   resetAll: () =>
     set(() => ({

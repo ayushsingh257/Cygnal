@@ -174,3 +174,30 @@ streamlining workflows with intuitive components and dynamic visuals.
 This redesign sets the stage for future feature integrations.
 
 Status: COMPLETED ✅
+
+--- Phase 18: Session Logging & Export (Cygnal Forensics Log) ---
+
+Overview:
+This phase introduces analyst session logging in Cygnal. All actions performed using the tools (Header Scan, WHOIS, Metadata, Reverse Image Search, Screenshot) are recorded and timestamped. Analysts can now:
+
+- View all scans done during a session
+- Export the session log as JSON or CSV
+- Automatically track which tools were used, with input + output
+- Maintain forensic trail for investigations
+
+🧪 Test Output:
+Tool: Metadata
+Input: Soumya Resume.docx
+Timestamp: 2025-06-25 09:57:48
+Result (Summary): Low threat score, keys found: author, created
+
+Tool: Reverse Image Search
+Input: Screenshot_2025-02-24_213455.png
+Match: reference_images/shoe.png with 87.33% similarity
+
+🖼️ Screenshot: screenshots/session-logging-ui-20250625.png
+
+Significance:
+Session tracking boosts forensic accountability, reproducibility, and collaboration in investigative teams. Logs can be shared, analyzed, or archived. Useful for SOC analysts, journalists, threat researchers, and law enforcement.
+
+Status: ✅ Completed

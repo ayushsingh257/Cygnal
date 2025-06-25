@@ -23,6 +23,11 @@ import docx
 # Reverse image search
 from reverse_image_search import perform_reverse_image_search
 
+# Phase 18 logging dependencies
+from datetime import datetime
+import uuid
+import json
+
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
@@ -67,7 +72,7 @@ def extract_image_metadata(file_path):
             try:
                 tag_name = TAGS.get(tag, tag)
                 if isinstance(value, bytes):
-                    continue  # skip raw binary
+                    continue
                 metadata[str(tag_name)] = str(value)
             except Exception as e:
                 logging.warning(f"Error processing EXIF tag {tag}: {e}")
@@ -240,6 +245,56 @@ def reverse_image_search():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
+
+# ========== NEW: PHASE 18 – SCAN LOGGING ==========
+@app.route("/api/log-scan", methods=["POST"])
+def log_scan():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No scan data provided."}), 400
+
+        os.makedirs("session_logs", exist_ok=True)
+
+        session_id = str(uuid.uuid4())
+        timestamp = datetime.utcnow().isoformat()
+        log_data = {
+            "id": session_id,
+            "timestamp": timestamp,
+            **data
+        }
+
+        log_path = os.path.join("session_logs", f"{session_id}.json")
+        with open(log_path, "w") as f:
+            json.dump(log_data, f, indent=2)
+
+        return jsonify({"success": True, "session_id": session_id})
+    except Exception as e:
+        logging.error(f"Failed to log scan session: {e}")
+        return jsonify({"success": False, "error": "Failed to log scan session"}), 500
+    
+    # ========== OPTIONAL: HISTORY LOG VIEW ==========
+@app.route("/api/history", methods=["GET"])
+def fetch_all_logs():
+    try:
+        log_dir = "session_logs"
+        if not os.path.exists(log_dir):
+            return jsonify({"success": True, "logs": []})
+        
+        logs = []
+        for file in os.listdir(log_dir):
+            if file.endswith(".json"):
+                path = os.path.join(log_dir, file)
+                with open(path) as f:
+                    logs.append(json.load(f))
+
+        # Sort by timestamp descending
+        logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        return jsonify({"success": True, "logs": logs})
+    except Exception as e:
+        logging.error(f"Failed to load history logs: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.errorhandler(500)
 def handle_500_error(e):

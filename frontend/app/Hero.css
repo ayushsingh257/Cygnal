@@ -59,3 +59,27 @@
 .logo-tilt {
   transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1.05);
 }
+/* ================================
+   ABOUT SECTION STYLES
+================================= */
+.about-section {
+  margin: 2rem 0; /* Added consistent margin */
+}
+
+.about-section p {
+  font-size: 1.25rem; /* Increased font size for better readability */
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2); /* Matching gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Subtle shadow */
+  animation: glow 2s ease-in-out infinite alternate; /* Added animation */
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7), 0 0 5px #FF69B4;
+  }
+  to {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7), 0 0 10px #8A2BE2;
+  }
+}
