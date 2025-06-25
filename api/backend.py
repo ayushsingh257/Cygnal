@@ -300,7 +300,48 @@ def fetch_all_logs():
 
 @app.errorhandler(500)
 def handle_500_error(e):
-    return jsonify({"success": False, "error": "Internal Server Error"}), 500
+    return jsonify({"success": False, "error": "Internal Server Error"}), 
+
+# ========== PHASE 19: AUTH API ROUTES ==========
+
+@app.route("/api/register", methods=["POST"])
+def register_user():
+    try:
+        data = request.get_json()
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "").strip()
+
+        if not email or not password:
+            return jsonify({"success": False, "error": "Email and password are required."}), 400
+
+        added = add_user(email, password)
+        if not added:
+            return jsonify({"success": False, "error": "User already exists."}), 409
+
+        return jsonify({"success": True, "message": "Registration successful."})
+    except Exception as e:
+        logging.error(f"Registration error: {e}")
+        return jsonify({"success": False, "error": "Registration failed."}), 500
+
+@app.route("/api/login", methods=["POST"])
+def login_user():
+    try:
+        data = request.get_json()
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "").strip()
+
+        if not email or not password:
+            return jsonify({"success": False, "error": "Email and password are required."}), 400
+
+        valid = verify_user(email, password)
+        if not valid:
+            return jsonify({"success": False, "error": "Invalid credentials."}), 401
+
+        return jsonify({"success": True, "message": "Login successful.", "email": email})
+    except Exception as e:
+        logging.error(f"Login error: {e}")
+        return jsonify({"success": False, "error": "Login failed."}), 500
+
 
 # ========== MAIN ==========
 if __name__ == "__main__":
