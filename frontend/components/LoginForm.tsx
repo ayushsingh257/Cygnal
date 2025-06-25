@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import "../app/auth/auth.css"; // Import the new CSS file
+import { useRouter } from "next/navigation";
+import "../app/auth/auth.css";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,7 +15,25 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in:", form);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Login failed.");
+        return;
+      }
+
+      router.push("/"); // ✅ Redirect to homepage
+    } catch (err) {
+      setError("Network error or server is offline.");
+    }
   };
 
   return (
@@ -40,6 +61,7 @@ export default function LoginForm() {
         <button type="submit" className="auth-button">
           🔓 Login
         </button>
+        {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
       </form>
     </div>
   );
