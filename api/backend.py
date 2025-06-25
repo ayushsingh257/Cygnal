@@ -327,17 +327,17 @@ def register_user():
 def login_user():
     try:
         data = request.get_json()
-        email = data.get("email", "").strip().lower()
+        username = data.get("username", "").strip().lower()
         password = data.get("password", "").strip()
 
-        if not email or not password:
-            return jsonify({"success": False, "error": "Email and password are required."}), 400
+        if not username or not password:
+            return jsonify({"success": False, "error": "Username and password are required."}), 400
 
-        valid = verify_user(email, password)
+        valid = verify_user(username, password)
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        return jsonify({"success": True, "message": "Login successful.", "email": email})
+        return jsonify({"success": True, "message": "Login successful.", "username": username})
     except Exception as e:
         logging.error(f"Login error: {e}")
         return jsonify({"success": False, "error": "Login failed."}), 500
