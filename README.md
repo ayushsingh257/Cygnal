@@ -82,6 +82,7 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Adds user authentication with secure Register/Login system (JWT-based)
 - Remembers session via local storage and Zustand store (auto-persisted)
 - Enforces strong password rules and prevents duplicate registration
+- Implements role-based access control (RBAC): Only analysts/admins can use tools, viewers will be restricted
 
 It then prints a clean report of what's present and what's missing.
 
@@ -398,7 +399,7 @@ This phase introduces secure authentication to the Cygnal OSINT toolkit. Analyst
 - Restricted access to all tools until user logs in
 - Personalized session with username shown in navbar
 
-### Status: ✅ Completed on June 26, 2025
+### Status: ✅ Completed
 
 ## 🔐 Phase 20: Authentication System + Access Control
 
@@ -415,4 +416,21 @@ Cygnal now includes a full user-based authentication system to restrict tool usa
 - Route blocks tools if token is missing
 - Token removal logs user out on refresh
 
-📎 Screenshot: `screenshots/auth-login-ui-20250626.png`
+### Status: ✅ Completed
+
+
+## 🔐 Phase 21: Role-Based Access Control (RBAC)
+
+This phase introduces role-based permissions across all tools within Cygnal. Each user is assigned a role at registration, and tools are now protected based on that role.
+Key Features:
+Every user is assigned the role analyst by default during registration
+Tool usage is restricted to specific roles (admin, analyst, viewer)
+All major tools (Header Scanner, WHOIS Lookup, Screenshot Tool, Metadata Recon, Reverse Image Search) require analyst or admin roles
+Users with insufficient roles are prevented from accessing gated tools
+Role is embedded in the JWT and used on the frontend for conditional rendering
+Unauthorized access attempts are blocked at the UI level with clear messaging
+This adds an important access control layer in preparation for future collaboration and admin features.
+
+Status: ✅ Completed
+
+

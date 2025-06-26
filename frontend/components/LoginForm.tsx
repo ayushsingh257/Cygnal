@@ -30,7 +30,11 @@ export default function LoginForm() {
         return;
       }
 
-      useAuthStore.getState().setUser({ username: form.username }, data.token);
+      // ✅ Save role too
+      useAuthStore.getState().setUser(
+        { username: data.user.username, role: data.user.role },
+        data.token
+      );
       window.location.href = "/";
     } catch (err) {
       setError("Login failed.");

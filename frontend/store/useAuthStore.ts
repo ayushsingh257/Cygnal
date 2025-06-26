@@ -1,9 +1,9 @@
-import { create } from "zustand";
+import { create } from "zustand"; // ✅ Add this if missing
 
 interface AuthState {
-  user: { username: string } | null;
+  user: { username: string; role: string } | null;
   token: string | null;
-  setUser: (user: { username: string }, token: string) => void;
+  setUser: (user: { username: string; role: string }, token: string) => void;
   logout: () => void;
   loadUserFromStorage: () => void;
 }

@@ -238,3 +238,14 @@ Cygnal now includes a full user-based authentication system to restrict tool usa
 - Route blocks tools if token is missing
 - Token removal logs user out on refresh
 
+## 🔐 Phase 21: Role-Based Access Control (RBAC)
+This phase introduces role-based gating of tools to restrict access based on a user’s assigned role. All tools are now accessible only to users with the analyst or admin role.
+Key Features:
+Each registered user is assigned the analyst role by default
+Roles are stored in the database and included in the JWT token
+Tools such as Header Scanner, WHOIS, Screenshot Tool, Metadata Recon, and Reverse Image Search now check the user’s role before allowing access
+Unauthorized users (e.g. unauthenticated or viewer roles) are shown a message and blocked from using the tools
+Role enforcement is done at the frontend using Zustand and on the backend via token claims
+Analyst Note:
+Role-based control is a foundational security layer for forensic applications. It prepares Cygnal for multi-user environments with tiered permissions (e.g., viewer-only access or admin-only actions).
+

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
-import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7: Auth import
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
@@ -11,10 +11,16 @@ export default function HeaderScanner() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore(); // ✅ Step 7: Check user
+  const { user } = useAuthStore();
 
-  if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7: Gate
- 
+  // 🔐 Check for login + role access
+  if (!user) {
+    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+  }
+
+  if (user.role !== "analyst" && user.role !== "admin") {
+    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+  }
 
   const handleScan = async () => {
     setResult("");
@@ -59,8 +65,6 @@ export default function HeaderScanner() {
         setToolUsed("headerUsed");
         addToHistory({ tool: "Header Scanner", input: url, result: JSON.stringify(data, null, 2) });
 
-
-        // Send log to backend
         await fetch("http://127.0.0.1:5000/api/log-scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -21,7 +21,13 @@ export default function ReverseImageSearch() {
   const { setToolUsed, addToHistory } = useReportStore();
   const { user } = useAuthStore(); // ✅ Step 7
 
-  if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7
+    if (!user) {
+      return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+    }
+
+    if (user.role !== "analyst" && user.role !== "admin") {
+      return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+    }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);
