@@ -1,0 +1,9 @@
+{
+  "id": "6536cf60-2ea5-4456-b646-2ee12a9cf41a",
+  "timestamp": "2025-06-26T15:38:10.555434",
+  "tool": "Email Scanner",
+  "input": "https://vercel.com",
+  "result": [
+    "responsible.disclosure@vercel.com"
+  ]
+}

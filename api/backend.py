@@ -16,9 +16,9 @@ import traceback
 from auth_utils import init_db, add_user, verify_user
 from jwt_utils import create_token
 from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
-
-
-
+import threading
+import time  # ✅ Add this if missing
+from bs4 import BeautifulSoup
 # Metadata tools
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -162,7 +162,7 @@ def whois_lookup():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
-    
+
 @app.route("/api/email-scan", methods=["POST"])
 def email_scan():
     try:
@@ -172,15 +172,53 @@ def email_scan():
         if not is_valid_url(url):
             return jsonify({"success": False, "error": "Invalid URL format."}), 400
 
-        response = requests.get(url, timeout=6)
-        html = response.text
+        visited = set()
+        found_emails = set()
+        max_pages = 10
+        timeout_seconds = 20
+        start_time = time.time()
 
-        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-        found_emails = list(set(re.findall(email_pattern, html)))
+        queue = [url]
+
+        while queue and len(visited) < max_pages and time.time() - start_time < timeout_seconds:
+            page_url = queue.pop(0)
+
+            if page_url in visited:
+                continue
+
+            try:
+                visited.add(page_url)
+                res = requests.get(page_url, timeout=5)
+                html = res.text
+
+                # Extract emails
+                email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                found_emails.update(re.findall(email_pattern, html))
+
+                # Extract subpage links
+                soup = BeautifulSoup(html, "html.parser")
+                links = [a.get("href") for a in soup.find_all("a", href=True)]
+
+                for link in links:
+                    if link.startswith("/"):
+                        full_link = url.rstrip("/") + link
+                    elif link.startswith("http"):
+                        full_link = link
+                    else:
+                        continue
+
+                    # Same domain check
+                    if urlparse(full_link).netloc == urlparse(url).netloc and full_link not in visited:
+                        queue.append(full_link)
+
+                time.sleep(0.5)  # polite crawling
+            except Exception as e:
+                logging.warning(f"Subpage crawl failed for {page_url}: {e}")
+                continue
 
         return jsonify({
             "success": True,
-            "emails": found_emails if found_emails else [],
+            "emails": list(found_emails),
             "count": len(found_emails)
         })
 
