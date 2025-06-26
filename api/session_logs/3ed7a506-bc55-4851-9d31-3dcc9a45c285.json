@@ -1,0 +1,9 @@
+{
+  "id": "3ed7a506-bc55-4851-9d31-3dcc9a45c285",
+  "timestamp": "2025-06-26T13:21:14.711124",
+  "tool": "Email Scanner",
+  "input": "https://poki.com",
+  "result": [
+    "hello@poki.com"
+  ]
+}

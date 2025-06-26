@@ -162,6 +162,32 @@ def whois_lookup():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
+    
+@app.route("/api/email-scan", methods=["POST"])
+def email_scan():
+    try:
+        data = request.get_json()
+        url = data.get("url", "").strip()
+
+        if not is_valid_url(url):
+            return jsonify({"success": False, "error": "Invalid URL format."}), 400
+
+        response = requests.get(url, timeout=6)
+        html = response.text
+
+        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+        found_emails = list(set(re.findall(email_pattern, html)))
+
+        return jsonify({
+            "success": True,
+            "emails": found_emails if found_emails else [],
+            "count": len(found_emails)
+        })
+
+    except Exception as e:
+        logging.error(f"Email scan failed: {e}")
+        return jsonify({"success": False, "error": f"Email scan failed: {str(e)}"}), 500
+
 
 @app.route("/api/screenshot", methods=["POST"])
 def screenshot():
