@@ -14,6 +14,7 @@ from selenium.webdriver.chrome.options import Options
 import base64
 import traceback
 from auth_utils import init_db, add_user, verify_user  # ✅ Add this
+from jwt_utils import create_token  # ✅ NEW
 
 
 # Metadata tools
@@ -315,14 +316,21 @@ def register_user():
         if not email or not password or not username:
             return jsonify({"success": False, "error": "All fields are required."}), 400
 
-        success = add_user(email, username, password)  # ✅ Pass username too
+        success = add_user(email, username, password)
         if not success:
             return jsonify({"success": False, "error": "User already exists."}), 409
 
-        return jsonify({"success": True, "message": "Registration successful.", "user": {"username": username}})
+        token = create_token({"username": username})
+        return jsonify({
+            "success": True,
+            "message": "Registration successful.",
+            "user": {"username": username},
+            "token": token
+        })
     except Exception as e:
         logging.error(f"Registration error: {e}")
         return jsonify({"success": False, "error": "Registration failed."}), 500
+
 
 
 @app.route("/api/login", methods=["POST"])
@@ -339,7 +347,13 @@ def login_user():
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        return jsonify({"success": True, "message": "Login successful.", "user": {"username": username}})
+        token = create_token({"username": username})
+        return jsonify({
+            "success": True,
+            "message": "Login successful.",
+            "user": {"username": username},
+            "token": token
+        })
     except Exception as e:
         logging.error(f"Login error: {e}")
         return jsonify({"success": False, "error": "Login failed."}), 500

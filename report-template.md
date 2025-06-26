@@ -221,3 +221,20 @@ All tools and dashboard hidden until user logs in
 
 🧠 Analyst Note:
 Authentication is critical for forensic platforms. It ensures only authorized analysts access sensitive features, enabling better audit trails, accountability, and compliance with real-world cyber investigation workflows.
+
+
+## 🔐 Phase 20: Authentication System + Access Control
+
+Cygnal now includes a full user-based authentication system to restrict tool usage and protect sensitive analysis features.
+
+### Key Features:
+- User registration + login (email, username, password)
+- JWT token authentication (expires after 3 days)
+- Route-level access control (tools gated behind login)
+- Zustand state store manages session and auto-logout
+
+🧪 Tested via devtools:
+- Token stored in localStorage (`cygnal_token`)
+- Route blocks tools if token is missing
+- Token removal logs user out on refresh
+

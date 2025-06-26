@@ -222,3 +222,18 @@ Significance:
 Authentication is crucial for forensic-grade platforms. This ensures analyst accountability and prevents unauthorized access to investigation tools. The groundwork laid in Phase 19 sets the stage for team collaboration, role-based access control, and audit trails in future versions.
 
 Status: ✅ Completed
+
+
+--- Phase 20: Auth + Route Protection ---
+
+✔️ Login and registration implemented using JWT (secure & stateless)
+✔️ Tools protected with client-side gating
+✔️ All user data stored in SQLite with hashed passwords
+✔️ Zustand store manages user and token state in frontend
+
+Test Case:
+- Logged in as Ayush
+- Ran WHOIS, HeaderScan, Screenshot → worked ✅
+- Deleted token from localStorage → refreshed → blocked from tools as expected ✅
+
+Status: ✅ Completed

@@ -52,8 +52,8 @@ export default function RegisterForm() {
       }
 
       setSuccess(true);
-      if (data.user && data.user.username) {
-        setUser({ username: data.user.username });
+      if (data.user && data.user.username && data.token) {
+        setUser({ username: data.user.username }, data.token);
         router.push("/");
       } else {
         router.push("/auth?mode=login");

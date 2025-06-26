@@ -30,7 +30,7 @@ export default function LoginForm() {
         return;
       }
 
-      useAuthStore.getState().setUser({ username: form.username });
+      useAuthStore.getState().setUser({ username: form.username }, data.token);
       window.location.href = "/";
     } catch (err) {
       setError("Login failed.");
