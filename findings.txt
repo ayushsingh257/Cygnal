@@ -209,5 +209,18 @@ Status: ✅ Completed
 
 ---
 
+---
+
+[Phase 22] – Email Scanner Upgrade: JS Fallback + Subpage Crawling
+Scanner:
+- Performs fast static scan using HTML content
+- Falls back to JavaScript-rendered scan if no emails found
+- Crawls up to 10 internal links from the same domain (e.g. /contact, /about)
+UX:
+- Real-time status messaging (e.g. fallback triggered, JS scan success/fail)
+- Robust error handling and full session logging
+Status: ✅ Completed
+
+
 END OF FINDINGS LOG
 All phases above were successfully implemented and tested under simulated investigation scenarios.

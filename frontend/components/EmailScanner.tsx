@@ -8,13 +8,13 @@ export default function EmailScanner() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<string[] | null>(null);
   const [error, setError] = useState("");
-  const [status, setStatus] = useState(""); // ✅ Scan method status
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [includeSubpages, setIncludeSubpages] = useState(false); // ✅ new toggle
 
   const { setToolUsed, addToHistory } = useReportStore();
   const { user } = useAuthStore();
 
-  // 🔐 Login & Role Access
   if (!user) {
     return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
   }
@@ -45,7 +45,7 @@ export default function EmailScanner() {
       let response = await fetch("http://127.0.0.1:5000/api/email-scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, includeSubpages }),
       });
 
       let data = await response.json();
@@ -72,7 +72,7 @@ export default function EmailScanner() {
         response = await fetch("http://127.0.0.1:5000/api/email-scan-js", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({ url, includeSubpages }),
         });
 
         data = await response.json();
@@ -124,7 +124,18 @@ export default function EmailScanner() {
         </button>
       </div>
 
-      {/* ✅ Scan method info */}
+      {/* ✅ Subpage toggle */}
+      <div className="flex items-center mt-3 text-sm text-gray-300">
+        <input
+          type="checkbox"
+          checked={includeSubpages}
+          onChange={(e) => setIncludeSubpages(e.target.checked)}
+          className="mr-2"
+        />
+        Scan linked subpages (slower, deeper)
+      </div>
+
+      {/* ✅ Status display */}
       {status && <p className="mt-2 text-blue-300 text-sm">{status}</p>}
 
       {error && <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>}

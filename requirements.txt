@@ -6,6 +6,8 @@ python-whois
 docx
 fitz
 selenium
+bs4
+lxml
 python-dotenv
 werkzeug
 file-saver

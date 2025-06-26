@@ -83,6 +83,9 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Remembers session via local storage and Zustand store (auto-persisted)
 - Enforces strong password rules and prevents duplicate registration
 - Implements role-based access control (RBAC): Only analysts/admins can use tools, viewers will be restricted
+- Scans websites for visible emails using both static and JavaScript-rendered content
+- Automatically falls back to JS-based scan if initial scan yields no result
+- Option to crawl subpages like /contact, /about to uncover hidden emails
 
 It then prints a clean report of what's present and what's missing.
 
@@ -433,4 +436,16 @@ This adds an important access control layer in preparation for future collaborat
 
 Status: ✅ Completed
 
+## 📧 Phase 22: Advanced Email Scanner + JS Fallback + Subpage Crawl
 
+This phase introduces an intelligent, multi-layered email scanner to detect exposed emails from webpages more effectively.
+
+### Key Features:
+- Dual-scan approach: HTML-only (fast) and JavaScript-rendered (deep) using headless browser
+- Automatic fallback to JS-based scan if no emails found via normal method
+- Toggle to enable subpage crawling (e.g. `/contact`, `/support`) for deeper OSINT
+- Real-time feedback to analysts on which scan method was used
+- Logs all scan attempts (URL, method used, result) for traceability
+- Enhanced UX: Error handling, loading states, and status indicators
+
+Status: ✅ Completed

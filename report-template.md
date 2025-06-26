@@ -249,3 +249,17 @@ Role enforcement is done at the frontend using Zustand and on the backend via to
 Analyst Note:
 Role-based control is a foundational security layer for forensic applications. It prepares Cygnal for multi-user environments with tiered permissions (e.g., viewer-only access or admin-only actions).
 
+## 📧 Phase 22: Email Scanner with JS Fallback and Subpage Crawling
+
+Cygnal now features a dual-mode Email Scanner that supports both static HTML scans and dynamic JavaScript-rendered scans, significantly increasing accuracy.
+
+### Key Features:
+- Performs primary scan using normal HTTP request for speed
+- Automatically retries with headless browser if no emails found initially
+- Optional toggle to scan up to 10 internal subpages (e.g., /contact, /team)
+- Detects deeply buried emails not visible in raw HTML
+- Clearly indicates which method was used in final scan result
+- Results are logged with input, method, and timestamp for audit trail
+
+🧪 Analyst Note:
+This layered scanning approach ensures higher coverage in real-world OSINT scenarios, especially on SPAs or sites with JavaScript-heavy rendering. The fallback logic mimics human browsing behavior, increasing effectiveness.

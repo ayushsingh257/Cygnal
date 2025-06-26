@@ -168,19 +168,52 @@ def email_scan():
     try:
         data = request.get_json()
         url = data.get("url", "").strip()
+        include_subpages = data.get("includeSubpages", False)
 
         if not is_valid_url(url):
             return jsonify({"success": False, "error": "Invalid URL format."}), 400
 
-        response = requests.get(url, timeout=6)
-        html = response.text
+        # Set to store unique emails
+        found_emails = set()
 
-        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-        found_emails = list(set(re.findall(email_pattern, html)))
+        # Helper function to extract emails from a single page
+        def extract_emails_from_url(page_url):
+            try:
+                response = requests.get(page_url, timeout=6)
+                html = response.text
+                email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                return set(re.findall(email_pattern, html))
+            except Exception as e:
+                logging.warning(f"Failed to fetch {page_url}: {e}")
+                return set()
+
+        # Scan main page
+        found_emails.update(extract_emails_from_url(url))
+
+        # Optional: scan subpages
+        if include_subpages:
+            try:
+                base_domain = urlparse(url).netloc
+                base_response = requests.get(url, timeout=6)
+                soup = BeautifulSoup(base_response.text, "html.parser")
+                internal_links = set()
+
+                for link in soup.find_all("a", href=True):
+                    href = link["href"]
+                    parsed = urlparse(href)
+
+                    if href.startswith("/") or parsed.netloc == base_domain:
+                        full_url = href if href.startswith("http") else f"https://{base_domain}{href}"
+                        internal_links.add(full_url)
+
+                for link in list(internal_links)[:10]:  # Limit to 10 to prevent abuse
+                    found_emails.update(extract_emails_from_url(link))
+            except Exception as e:
+                logging.warning(f"Subpage scan failed: {e}")
 
         return jsonify({
             "success": True,
-            "emails": found_emails,
+            "emails": list(found_emails),
             "count": len(found_emails)
         })
 
