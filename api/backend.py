@@ -13,8 +13,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import base64
 import traceback
-from auth_utils import init_db, add_user, verify_user  # ✅ Add this
-from jwt_utils import create_token  # ✅ NEW
+from auth_utils import init_db, add_user, verify_user
+from jwt_utils import create_token
+from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
+
 
 
 # Metadata tools
@@ -320,11 +322,12 @@ def register_user():
         if not success:
             return jsonify({"success": False, "error": "User already exists."}), 409
 
-        token = create_token({"username": username})
+        role = "analyst"  # hardcoded role for now
+        token = create_token({"username": username, "role": role})
         return jsonify({
             "success": True,
             "message": "Registration successful.",
-            "user": {"username": username},
+            "user": {"username": username, "role": role},
             "token": token
         })
     except Exception as e:
@@ -347,11 +350,12 @@ def login_user():
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        token = create_token({"username": username})
+        role = get_user_role(username)
+        token = create_token({"username": username, "role": role})
         return jsonify({
             "success": True,
             "message": "Login successful.",
-            "user": {"username": username},
+            "user": {"username": username, "role": role},
             "token": token
         })
     except Exception as e:
