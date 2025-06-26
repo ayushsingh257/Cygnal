@@ -1,0 +1,10 @@
+{
+  "id": "1f7b33ef-d8b4-4757-a66b-9ed91156cdfb",
+  "timestamp": "2025-06-26T15:41:40.730616",
+  "tool": "Email Scanner",
+  "input": "https://github.com",
+  "result": [
+    "copilot-safety@github.com",
+    "you@domain.com"
+  ]
+}
