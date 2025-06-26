@@ -1,0 +1,120 @@
+/* navbar.css */
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 1rem 1.5rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow-x: auto; /* Add horizontal scroll as fallback */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+  box-sizing: border-box; /* Ensure padding doesn’t affect width */
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.25rem 0;
+  overflow-x: hidden; /* 🔁 prevent unexpected scrolling */
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+
+.navbar-links a {
+  color: #A0AEC0;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  background: linear-gradient(to right, #FF69B4, #C71585, #8A2BE2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap; /* Prevent wrapping */
+  padding: 0.375rem 0.75rem; /* Consistent padding */
+}
+
+.navbar-links a:hover {
+  color: #FF69B4;
+  -webkit-text-fill-color: #FF69B4;
+}
+
+.navbar-user {
+  color: #A0AEC0;
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.navbar-logout {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(to right, #8A2BE2, #C71585, #FF69B4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(255, 105, 180, 0.4), 0 0 16px rgba(138, 43, 226, 0.5);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap; /* Prevent text wrapping */
+  min-width: 80px; /* Ensure minimum width for visibility */
+}
+
+.navbar-logout:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.6), 0 0 24px rgba(138, 43, 226, 0.7);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+
+  .navbar-links {
+    gap: 1rem;
+  }
+
+  .navbar-links a,
+  .navbar-logout {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .navbar-user {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  .navbar-links {
+    gap: 0.75rem;
+  }
+
+  .navbar-links a,
+  .navbar-logout {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

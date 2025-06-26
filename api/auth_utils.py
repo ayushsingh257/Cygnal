@@ -2,9 +2,9 @@ import sqlite3
 import bcrypt
 from datetime import datetime
 
-DB_PATH = "users.db"
+DB_PATH = "cygnal_users.db"  # consistent with your backend
 
-# Create users.db if it doesn't exist
+# Initialize the user DB with username + email
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -12,6 +12,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
+            username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             created_at TEXT NOT NULL
         )
@@ -19,26 +20,31 @@ def init_db():
     conn.commit()
     conn.close()
 
-def add_user(email, password):
+
+# Register a new user
+def add_user(email, username, password):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     try:
-        c.execute("INSERT INTO users (email, password, created_at) VALUES (?, ?, ?)", 
-                  (email, hashed.decode(), datetime.utcnow().isoformat()))
+        c.execute("INSERT INTO users (email, username, password, created_at) VALUES (?, ?, ?, ?)",
+                  (email, username, hashed.decode(), datetime.utcnow().isoformat()))
         conn.commit()
-        return True
+        return True 
     except sqlite3.IntegrityError:
         return False
     finally:
         conn.close()
 
-def verify_user(email, password):
+
+# Verify user credentials (by username)
+def verify_user(username, password):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT password FROM users WHERE email = ?", (email,))
+    c.execute("SELECT password FROM users WHERE username = ?", (username,))
     row = c.fetchone()
     conn.close()
+
     if row:
         return bcrypt.checkpw(password.encode(), row[0].encode())
     return False

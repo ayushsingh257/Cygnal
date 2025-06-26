@@ -6,6 +6,7 @@ import { useState } from "react";
 import HeaderScanner from "../components/HeaderScanner";
 import WhoisLookup from "../components/WhoisLookup";
 import ScreenshotTool from "../components/ScreenshotTool";
+import Navbar from "../components/Navbar"; // ✅ Added navbar import
 
 // ✅ Dynamically import MetadataTool with SSR disabled
 const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
@@ -24,6 +25,7 @@ const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
 
 import "./Hero.css";
 import "./Scanners.css";
+import "./navbar.css"; // Import the new CSS file
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<number | null>(null);
@@ -38,8 +40,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white font-sans px-6 py-10 relative overflow-hidden">
+      {/* ✅ NAVBAR (Always on top) */}
+      <Navbar />
       {/* HERO SECTION */}
-      <section className="hero-container text-center relative z-10">
+      <section className="hero-container text-center relative z-10 mt-16"> {/* Added margin-top to avoid overlap */}
         <div className="video-wrapper">
           <video
             autoPlay
@@ -90,7 +94,7 @@ export default function Home() {
       </section>
 
       {/* SESSION HISTORY TOGGLE & VIEWER */}
-      <section className="mt-6 text-center"> {/* Adjusted mt-20 to mt-6 to match tool spacing */}
+      <section className="mt-6 text-center">
         <ScanHistory />
       </section>
 

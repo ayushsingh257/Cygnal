@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 import "../app/auth/auth.css";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({ email: "", username: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
+  const { setUser } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,6 +19,7 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
 
     try {
       const res = await fetch("http://localhost:5000/api/register", {
@@ -24,14 +29,21 @@ export default function RegisterForm() {
       });
 
       const data = await res.json();
-      if (!data.success) {
-        setError(data.error || "Registration failed.");
+      if (!res.ok || !data.success) {
+        setError(data.error || `Server error: ${res.status}`);
         return;
       }
 
-      setSuccess(true); // ✅ Registration success
+      setSuccess(true);
+      if (data.user && data.user.username) {
+        setUser({ username: data.user.username });
+        router.push("/"); // redirect to homepage
+      } else {
+        router.push("/auth?mode=login");
+      }
     } catch (err) {
-      setError("Network error or server is offline.");
+      console.error("Register error:", err);
+      setError("Server unreachable or failed.");
     }
   };
 
@@ -39,7 +51,9 @@ export default function RegisterForm() {
     <div className="auth-container">
       <h2 className="auth-title text-2xl font-bold">📝 Register</h2>
       {success ? (
-        <p className="text-green-400 font-semibold mt-4">✅ Registered! You can now log in.</p>
+        <p className="text-green-400 font-semibold mt-4">
+          ✅ Registered! You can now log in.
+        </p>
       ) : (
         <form onSubmit={handleSubmit} className="auth-form">
           <input
