@@ -78,7 +78,10 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Prevents duplicate usernames and emails
 - Remembers login state with local storage and Zustand store
 - Adds secure user authentication (Register / Login / Logout)
-
+- Restricts all tool access until the user is logged in (route protection)
+- Adds user authentication with secure Register/Login system (JWT-based)
+- Remembers session via local storage and Zustand store (auto-persisted)
+- Enforces strong password rules and prevents duplicate registration
 
 It then prints a clean report of what's present and what's missing.
 
@@ -396,3 +399,20 @@ This phase introduces secure authentication to the Cygnal OSINT toolkit. Analyst
 - Personalized session with username shown in navbar
 
 ### Status: ✅ Completed on June 26, 2025
+
+## 🔐 Phase 20: Authentication System + Access Control
+
+Cygnal now includes a full user-based authentication system to restrict tool usage and protect sensitive analysis features.
+
+### Key Features:
+- User registration + login (email, username, password)
+- JWT token authentication (expires after 3 days)
+- Route-level access control (tools gated behind login)
+- Zustand state store manages session and auto-logout
+
+🧪 Tested via devtools:
+- Token stored in localStorage (`cygnal_token`)
+- Route blocks tools if token is missing
+- Token removal logs user out on refresh
+
+📎 Screenshot: `screenshots/auth-login-ui-20250626.png`
