@@ -73,7 +73,11 @@ Cygnal fetches response headers from any domain and checks for the presence of:
 - Extracts hidden metadata from PDF and image files (author, tool used, creation time)
 - Logs all analyst actions (tool used, input, result, timestamp)
 - Allows full session export as JSON or CSV for forensic tracking
-
+- Restricts tools access untill the user is logged in 
+- Enforces strong password policy and email validation
+- Prevents duplicate usernames and emails
+- Remembers login state with local storage and Zustand store
+- Adds secure user authentication (Register / Login / Logout)
 
 
 It then prints a clean report of what's present and what's missing.
@@ -237,6 +241,8 @@ LinkedIn: [linkedin.com/in/ayush-singh-kshatriya](https://linkedin.com/in/ayush-
 
 Stay tuned for **Cygnal v2 – Web Edition** 🚀
 
+
+
 ## 🔟 Phase 10: Frontend UI Design + Component Setup
 
 - Transitioned to a Next.js 14 frontend using the App Router.
@@ -245,6 +251,8 @@ Stay tuned for **Cygnal v2 – Web Edition** 🚀
 - Ensured responsive design using Tailwind CSS.
 - Separated `Hero.css` for scalable animation and background customization.
 
+
+
 ## 🔁 Phase 11: Backend Integration
 
 - Connected the **Flask backend** to the frontend via custom APIs.
@@ -252,6 +260,8 @@ Stay tuned for **Cygnal v2 – Web Edition** 🚀
 - Implemented API calls in the frontend using `fetch()` and `useState`.
 - Displayed scan results in real-time with conditional rendering and improved UX.
 - Added error handling for invalid inputs and backend connectivity.
+
+
 
 ### ✅ Phase 14: Metadata Recon Tool
 - Upload multiple files (JPG, PNG, PDF, DOCX)
@@ -262,10 +272,11 @@ Stay tuned for **Cygnal v2 – Web Edition** 🚀
 - Analyst notes for each file
 - Full session export (ZIP of JSON + CSV)
 
+
+
 ## Phase 15: Reverse Image Search (CLIP + FAISS)
 
 This phase implements an offline reverse image search feature using OpenAI's CLIP model combined with FAISS for efficient similarity matching. It allows analysts to upload an image and find visually or semantically similar images from a reference dataset — even with angle, lighting, or composition changes.
-
 ### Features:
 - 🔍 CLIP ViT-B/32 model for robust visual feature encoding
 - ⚙️ FAISS cosine similarity index (`IndexFlatIP`)
@@ -274,7 +285,6 @@ This phase implements an offline reverse image search feature using OpenAI's CLI
 - ✅ Normalized cosine similarity used for accurate comparison
 - 📊 Results displayed with **percentage similarity match**
 - 💡 Works entirely offline, ideal for forensic environments
-
 ### Example Match Output:
 ```json
 {
@@ -282,13 +292,7 @@ This phase implements an offline reverse image search feature using OpenAI's CLI
   "match_percentage": 92.31
 }
 
----
 
-## 📝 `report_template.md` (Phase 15 entry)
-
-Append this to the project report markdown file:
-
-```markdown
 ## Phase 15 - Reverse Image Search
 
 ### Objective:
@@ -312,6 +316,9 @@ Enable offline reverse image search using AI to detect image similarities from a
 
 ### Status: ✅ Completed
 
+
+
+
 ## Phase 15.5: Reverse Image Search UI Enhancement
 
 This phase enhances the reverse image search feature by displaying the matched images directly on the UI, improving analyst efficiency. Building on the offline CLIP + FAISS implementation, the frontend now renders the top matches alongside their similarity percentages.
@@ -329,6 +336,9 @@ This phase enhances the reverse image search feature by displaying the matched i
 
 ### Status: ✅ Completed
 
+
+
+
 ## 🔟 Phase 16: UI/UX Design Overhaul
 
 This phase marks a significant redesign of Cygnal's user interface, transitioning to a modern Next.js 14 frontend with Tailwind CSS to enhance usability and visual appeal for investigators and analysts.
@@ -345,6 +355,8 @@ This phase marks a significant redesign of Cygnal's user interface, transitionin
 - **Component Demo**: `HeaderScanner` and `WhoisLookup` components render dynamically with real-time data, e.g., security header status for `https://poki.com`.
 
 ### Status: ✅ Completed on June 21, 2025
+
+
 
 ## ✅ Phase 18: Session Log Tracking + Export
 
@@ -365,3 +377,22 @@ This phase introduces session-wide logging of all scans performed by the analyst
 🖼️ `screenshots/session-logging-ui-20250625.png`
 
 ### Status: ✅ Completed
+
+
+
+## 🔐 Phase 19: User Authentication System
+
+This phase introduces secure authentication to the Cygnal OSINT toolkit. Analysts must now log in before using any tools, ensuring personalized access and session tracking.
+
+### Features:
+- Email and username-based registration
+- Secure login with bcrypt-hashed passwords
+- Password strength enforcement (min 8 characters, uppercase, lowercase, number, symbol)
+- Email format validation with regex
+- No duplicate usernames or emails allowed
+- Show/Hide password toggle in forms
+- Persistent auth state using Zustand + localStorage
+- Restricted access to all tools until user logs in
+- Personalized session with username shown in navbar
+
+### Status: ✅ Completed on June 26, 2025

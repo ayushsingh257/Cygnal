@@ -198,3 +198,26 @@ This phase enables session-wide logging and export of analyst actions for audit 
   },
   "timestamp": "2025-06-25T09:57:48Z"
 }
+
+
+## 🔐 Phase 19: User Authentication System
+Overview:
+This phase introduces secure analyst authentication into the Cygnal platform. All tools are now protected behind a login wall to ensure session integrity and prevent unauthorized access.
+
+✅ Key Features:
+Registration with unique email and username enforcement
+
+Password strength validation (min 8 chars, upper, lower, number, symbol)
+
+Real-time email format validation
+
+Prevention of duplicate usernames or email addresses
+
+Password visibility toggle (Show/Hide) for better UX
+
+Zustand-based frontend session store with persistent login
+
+All tools and dashboard hidden until user logs in
+
+🧠 Analyst Note:
+Authentication is critical for forensic platforms. It ensures only authorized analysts access sensitive features, enabling better audit trails, accountability, and compliance with real-world cyber investigation workflows.

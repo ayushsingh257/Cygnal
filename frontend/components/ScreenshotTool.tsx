@@ -3,6 +3,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useReportStore } from "@/store/useReportStore";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
+
 
 interface ScreenshotResponse {
   success: boolean;
@@ -17,6 +19,9 @@ export default function ScreenshotTool() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
+  const { user } = useAuthStore(); // ✅ Step 7
+    if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7
+
 
   const handleScreenshot = async () => {
     if (!url.trim()) return;

@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
+
 
 export default function WhoisLookup() {
   const [domain, setDomain] = useState("");
@@ -10,6 +12,10 @@ export default function WhoisLookup() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
+  const { user } = useAuthStore(); // ✅ Step 7
+
+    if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7
+
 
   const handleLookup = async () => {
     setError("");
