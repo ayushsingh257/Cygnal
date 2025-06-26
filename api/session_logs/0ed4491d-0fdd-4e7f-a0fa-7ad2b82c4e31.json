@@ -1,0 +1,25 @@
+{
+  "id": "0ed4491d-0fdd-4e7f-a0fa-7ad2b82c4e31",
+  "timestamp": "2025-06-26T05:22:49.968787",
+  "tool": "Metadata Extraction",
+  "input": "Ayush Singh Kshatriya Resume.pdf",
+  "result": {
+    "score": "Medium",
+    "threats": [
+      "\u26a0\ufe0f Author and creator mismatch"
+    ],
+    "fields": [
+      "author",
+      "creationDate",
+      "creator",
+      "encryption",
+      "format",
+      "keywords",
+      "modDate",
+      "producer",
+      "subject",
+      "title",
+      "trapped"
+    ]
+  }
+}

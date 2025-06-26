@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7: Auth import
 
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
@@ -10,6 +11,10 @@ export default function HeaderScanner() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
+  const { user } = useAuthStore(); // ✅ Step 7: Check user
+
+  if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7: Gate
+ 
 
   const handleScan = async () => {
     setResult("");

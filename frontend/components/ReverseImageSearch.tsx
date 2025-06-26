@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useReportStore } from "@/store/useReportStore";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
 
 interface SearchResult {
   match_path: string;
@@ -18,6 +19,9 @@ export default function ReverseImageSearch() {
   const [error, setError] = useState("");
 
   const { setToolUsed, addToHistory } = useReportStore();
+  const { user } = useAuthStore(); // ✅ Step 7
+
+  if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);

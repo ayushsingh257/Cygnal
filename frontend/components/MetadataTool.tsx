@@ -6,6 +6,8 @@ import MetadataDiff from "./MetadataDiff";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useReportStore } from "@/store/useReportStore";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
+
 
 type MetaResult = {
   filename: string;
@@ -22,6 +24,10 @@ export default function MetadataTool() {
   const MAX_FILE_SIZE_MB = 10;
 
   const { setToolUsed, addToHistory } = useReportStore();
+  const { user } = useAuthStore(); // ✅ Step 7
+
+  if (!user) return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>; // ✅ Step 7
+
 
   useEffect(() => {
     const logs = sessionStorage.getItem("metaLogs");
