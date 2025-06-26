@@ -9,8 +9,15 @@ export default function RegisterForm() {
   const [form, setForm] = useState({ email: "", username: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { setUser } = useAuthStore();
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const isStrongPassword = (password: string) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(password);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,6 +27,16 @@ export default function RegisterForm() {
     e.preventDefault();
     setError("");
     setSuccess(false);
+
+    if (!isValidEmail(form.email)) {
+      setError("Invalid email format.");
+      return;
+    }
+
+    if (!isStrongPassword(form.password)) {
+      setError("Password must be 8+ characters, with uppercase, lowercase, number, and symbol.");
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/register", {
@@ -37,7 +54,7 @@ export default function RegisterForm() {
       setSuccess(true);
       if (data.user && data.user.username) {
         setUser({ username: data.user.username });
-        router.push("/"); // redirect to homepage
+        router.push("/");
       } else {
         router.push("/auth?mode=login");
       }
@@ -56,6 +73,7 @@ export default function RegisterForm() {
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="text-left text-sm text-gray-400">Email</div>
           <input
             type="email"
             name="email"
@@ -65,6 +83,8 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="auth-input"
           />
+
+          <div className="text-left text-sm text-gray-400">Username</div>
           <input
             type="text"
             name="username"
@@ -74,15 +94,26 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="auth-input"
           />
-          <input
-            type="password"
-            name="password"
-            placeholder="Create a password"
-            required
-            value={form.password}
-            onChange={handleChange}
-            className="auth-input"
-          />
+
+          <div className="text-left text-sm text-gray-400">Password</div>
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Create a password"
+              required
+              value={form.password}
+              onChange={handleChange}
+              className="auth-input"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="password-toggle"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </span>
+          </div>
+
           <button type="submit" className="auth-button">
             🚀 Register
           </button>

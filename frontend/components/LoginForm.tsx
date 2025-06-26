@@ -7,6 +7,7 @@ import "../app/auth/auth.css";
 export default function LoginForm() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,6 +41,7 @@ export default function LoginForm() {
     <div className="auth-container">
       <h2 className="auth-title text-2xl font-bold">🔐 Login</h2>
       <form onSubmit={handleSubmit} className="auth-form">
+        <div className="text-left text-sm text-gray-400">Username</div>
         <input
           type="text"
           name="username"
@@ -49,15 +51,26 @@ export default function LoginForm() {
           onChange={handleChange}
           className="auth-input"
         />
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter your password"
-          required
-          value={form.password}
-          onChange={handleChange}
-          className="auth-input"
-        />
+
+        <div className="text-left text-sm text-gray-400">Password</div>
+        <div className="password-wrapper">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Enter your password"
+            required
+            value={form.password}
+            onChange={handleChange}
+            className="auth-input"
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="password-toggle"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </span>
+        </div>
+
         <button type="submit" className="auth-button">
           🔓 Login
         </button>
