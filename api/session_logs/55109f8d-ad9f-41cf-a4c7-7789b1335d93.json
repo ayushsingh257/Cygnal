@@ -1,0 +1,11 @@
+{
+  "id": "55109f8d-ad9f-41cf-a4c7-7789b1335d93",
+  "timestamp": "2025-06-26T17:24:19.626650",
+  "tool": "Email Scanner (Normal)",
+  "input": "https://w3schools.com/html/html_links.asp",
+  "result": [
+    "someone@example.com",
+    "sales@w3schools.com",
+    "help@w3schools.com"
+  ]
+}

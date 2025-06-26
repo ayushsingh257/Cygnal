@@ -6,9 +6,9 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 export default function EmailScanner() {
   const [url, setUrl] = useState("");
-  const [useJS, setUseJS] = useState(false); // ✅ JS scan toggle
   const [result, setResult] = useState<string[] | null>(null);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState(""); // ✅ Scan method status
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
@@ -26,6 +26,7 @@ export default function EmailScanner() {
   const handleScan = async () => {
     setResult(null);
     setError("");
+    setStatus("");
 
     if (!url.trim()) {
       setError("❌ Please enter a URL.");
@@ -40,30 +41,61 @@ export default function EmailScanner() {
     setLoading(true);
 
     try {
-      const endpoint = useJS ? "email-scan-js" : "email-scan"; // ✅ dynamic endpoint
-      const response = await fetch(`http://127.0.0.1:5000/api/${endpoint}`, {
+      // 🧪 Try normal scan first
+      let response = await fetch("http://127.0.0.1:5000/api/email-scan", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
 
-      const data = await response.json();
-      console.log("[EmailScan] Response:", data);
+      let data = await response.json();
+      console.log("[EmailScan] Normal:", data);
 
-      if (data.success && data.emails) {
+      if (data.success && data.emails.length > 0) {
         setResult(data.emails);
+        setStatus("Scanned with normal method.");
         setToolUsed("emailUsed");
         addToHistory({ tool: "Email Scanner", input: url, result: data.emails });
 
         await fetch("http://127.0.0.1:5000/api/log-scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tool: "Email Scanner", input: url, result: data.emails }),
+          body: JSON.stringify({
+            tool: "Email Scanner (Normal)",
+            input: url,
+            result: data.emails,
+          }),
         });
       } else {
-        setError(data.error || "❌ No emails found.");
+        // 🔁 Fallback to JS scan
+        setStatus("No emails found. Retrying with JS scan...");
+        response = await fetch("http://127.0.0.1:5000/api/email-scan-js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+
+        data = await response.json();
+        console.log("[EmailScan] JS fallback:", data);
+
+        if (data.success && data.emails.length > 0) {
+          setResult(data.emails);
+          setStatus("Scanned with JavaScript-based method.");
+          setToolUsed("emailUsed");
+          addToHistory({ tool: "Email Scanner (JS Fallback)", input: url, result: data.emails });
+
+          await fetch("http://127.0.0.1:5000/api/log-scan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tool: "Email Scanner (JS Fallback)",
+              input: url,
+              result: data.emails,
+            }),
+          });
+        } else {
+          setError(data.error || "❌ No emails found with fallback.");
+        }
       }
     } catch (err) {
       console.error("Email Scan Fetch Error:", err);
@@ -92,16 +124,8 @@ export default function EmailScanner() {
         </button>
       </div>
 
-      {/* ✅ JS Scan Toggle */}
-      <div className="flex items-center mt-3 text-sm text-gray-300">
-        <input
-          type="checkbox"
-          checked={useJS}
-          onChange={(e) => setUseJS(e.target.checked)}
-          className="mr-2"
-        />
-        Use JavaScript-based scan (slower, deeper)
-      </div>
+      {/* ✅ Scan method info */}
+      {status && <p className="mt-2 text-blue-300 text-sm">{status}</p>}
 
       {error && <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>}
 
