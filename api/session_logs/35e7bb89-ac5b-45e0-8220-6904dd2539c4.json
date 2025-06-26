@@ -1,0 +1,9 @@
+{
+  "id": "35e7bb89-ac5b-45e0-8220-6904dd2539c4",
+  "timestamp": "2025-06-26T13:19:38.862506",
+  "tool": "Email Scanner",
+  "input": "https://github.com",
+  "result": [
+    "you@domain.com"
+  ]
+}

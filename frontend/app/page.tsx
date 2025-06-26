@@ -18,6 +18,11 @@ const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearc
   ssr: false,
 });
 
+// ✅ Dynamically import EmailScanner with SSR disabled
+const EmailScanner = dynamic(() => import("../components/EmailScanner"), {
+  ssr: false,
+});
+
 // ✅ Dynamically import ScanHistory with SSR disabled
 const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
   ssr: false,
@@ -36,6 +41,7 @@ export default function Home() {
     { id: 2, name: "Website Screenshot", component: <ScreenshotTool /> },
     { id: 3, name: "Metadata Recon Tool", component: <MetadataTool /> },
     { id: 4, name: "Reverse Image Search", component: <ReverseImageSearch /> },
+    { id: 5, name: "Email Scanner", component: <EmailScanner /> }, // ✅ Added Email Scanner
   ];
 
   return (
