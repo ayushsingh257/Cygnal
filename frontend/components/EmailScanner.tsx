@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 export default function EmailScanner() {
   const [url, setUrl] = useState("");
+  const [useJS, setUseJS] = useState(false); // ✅ JS scan toggle
   const [result, setResult] = useState<string[] | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,8 @@ export default function EmailScanner() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/email-scan", {
+      const endpoint = useJS ? "email-scan-js" : "email-scan"; // ✅ dynamic endpoint
+      const response = await fetch(`http://127.0.0.1:5000/api/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,6 +90,17 @@ export default function EmailScanner() {
         >
           {loading ? "Scanning..." : "Scan"}
         </button>
+      </div>
+
+      {/* ✅ JS Scan Toggle */}
+      <div className="flex items-center mt-3 text-sm text-gray-300">
+        <input
+          type="checkbox"
+          checked={useJS}
+          onChange={(e) => setUseJS(e.target.checked)}
+          className="mr-2"
+        />
+        Use JavaScript-based scan (slower, deeper)
       </div>
 
       {error && <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>}

@@ -162,7 +162,7 @@ def whois_lookup():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
-
+    
 @app.route("/api/email-scan", methods=["POST"])
 def email_scan():
     try:
@@ -172,53 +172,15 @@ def email_scan():
         if not is_valid_url(url):
             return jsonify({"success": False, "error": "Invalid URL format."}), 400
 
-        visited = set()
-        found_emails = set()
-        max_pages = 10
-        timeout_seconds = 20
-        start_time = time.time()
+        response = requests.get(url, timeout=6)
+        html = response.text
 
-        queue = [url]
-
-        while queue and len(visited) < max_pages and time.time() - start_time < timeout_seconds:
-            page_url = queue.pop(0)
-
-            if page_url in visited:
-                continue
-
-            try:
-                visited.add(page_url)
-                res = requests.get(page_url, timeout=5)
-                html = res.text
-
-                # Extract emails
-                email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-                found_emails.update(re.findall(email_pattern, html))
-
-                # Extract subpage links
-                soup = BeautifulSoup(html, "html.parser")
-                links = [a.get("href") for a in soup.find_all("a", href=True)]
-
-                for link in links:
-                    if link.startswith("/"):
-                        full_link = url.rstrip("/") + link
-                    elif link.startswith("http"):
-                        full_link = link
-                    else:
-                        continue
-
-                    # Same domain check
-                    if urlparse(full_link).netloc == urlparse(url).netloc and full_link not in visited:
-                        queue.append(full_link)
-
-                time.sleep(0.5)  # polite crawling
-            except Exception as e:
-                logging.warning(f"Subpage crawl failed for {page_url}: {e}")
-                continue
+        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+        found_emails = list(set(re.findall(email_pattern, html)))
 
         return jsonify({
             "success": True,
-            "emails": list(found_emails),
+            "emails": found_emails,
             "count": len(found_emails)
         })
 
@@ -226,6 +188,62 @@ def email_scan():
         logging.error(f"Email scan failed: {e}")
         return jsonify({"success": False, "error": f"Email scan failed: {str(e)}"}), 500
 
+@app.route("/api/email-scan-js", methods=["POST"])
+def email_scan_js():
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        from bs4 import BeautifulSoup
+
+        data = request.get_json()
+        url = data.get("url", "").strip()
+
+        if not is_valid_url(url):
+            return jsonify({"success": False, "error": "Invalid URL format."}), 400
+
+        options = Options()
+        options.headless = True
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1280,800")
+
+        driver = webdriver.Chrome(options=options)
+        driver.set_page_load_timeout(40)
+
+        try:
+            try:
+                driver.get(url)
+            except Exception as e:
+                logging.error(f"Selenium page load timeout: {e}")
+                return jsonify({"success": False, "error": f"Page load timeout: {str(e)}"}), 500
+
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body"))
+            )
+            time.sleep(5)  # Give extra time for dynamic JS content
+
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+            visible_text = soup.get_text(separator=" ")
+        finally:
+            driver.quit()
+
+        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+        found_emails = list(set(re.findall(email_pattern, visible_text)))
+
+        return jsonify({
+            "success": True,
+            "emails": found_emails,
+            "count": len(found_emails)
+        })
+
+    except Exception as e:
+        logging.error(f"JS email scan failed: {e}")
+        return jsonify({"success": False, "error": f"JS email scan failed: {str(e)}"}), 500
 
 @app.route("/api/screenshot", methods=["POST"])
 def screenshot():
