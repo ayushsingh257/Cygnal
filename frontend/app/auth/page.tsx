@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import "./auth.css"; // Import the new CSS file
+import { useSearchParams, useRouter } from "next/navigation";
+import "./auth.css";
 
-// Dynamically import the form components
 const LoginForm = dynamic(() => import("@/components/LoginForm"), { ssr: false });
 const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: false });
 
 export default function AuthPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    if (mode === "login") setShowLogin(true);
+    else if (mode === "register") setShowLogin(false);
+  }, [searchParams]);
+
+  const handleToggle = (mode: "login" | "register") => {
+    setShowLogin(mode === "login");
+    router.push(`/auth?mode=${mode}`);
+  };
 
   return (
     <main className="min-h-screen bg-black text-white px-4 py-10">
@@ -21,19 +34,30 @@ export default function AuthPage() {
         <div>
           {showLogin ? <LoginForm /> : <RegisterForm />}
 
-          {/* Toggle Link */}
           <div className="auth-text">
             {showLogin ? (
               <>
                 <span>Don't have an account?</span>
-                <a href="/auth#register" onClick={() => setShowLogin(false)}>
+                <a
+                  href="/auth?mode=register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleToggle("register");
+                  }}
+                >
                   /Register
                 </a>
               </>
             ) : (
               <>
                 <span>Already have an account?</span>
-                <a href="/auth#login" onClick={() => setShowLogin(true)}>
+                <a
+                  href="/auth?mode=login"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleToggle("login");
+                  }}
+                >
                   /Login
                 </a>
               </>

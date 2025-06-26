@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 import "../app/auth/auth.css";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,14 +24,15 @@ export default function LoginForm() {
       });
 
       const data = await res.json();
-      if (!data.success) {
+      if (!res.ok || !data.success) {
         setError(data.error || "Login failed.");
         return;
       }
 
-      router.push("/"); // ✅ Redirect to homepage
+      useAuthStore.getState().setUser({ username: form.username });
+      window.location.href = "/";
     } catch (err) {
-      setError("Network error or server is offline.");
+      setError("Login failed.");
     }
   };
 

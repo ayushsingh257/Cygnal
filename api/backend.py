@@ -309,25 +309,27 @@ def register_user():
     try:
         data = request.get_json()
         email = data.get("email", "").strip().lower()
+        username = data.get("username", "").strip()
         password = data.get("password", "").strip()
 
-        if not email or not password:
-            return jsonify({"success": False, "error": "Email and password are required."}), 400
+        if not email or not password or not username:
+            return jsonify({"success": False, "error": "All fields are required."}), 400
 
-        added = add_user(email, password)
-        if not added:
+        success = add_user(email, username, password)  # ✅ Pass username too
+        if not success:
             return jsonify({"success": False, "error": "User already exists."}), 409
 
-        return jsonify({"success": True, "message": "Registration successful."})
+        return jsonify({"success": True, "message": "Registration successful.", "user": {"username": username}})
     except Exception as e:
         logging.error(f"Registration error: {e}")
         return jsonify({"success": False, "error": "Registration failed."}), 500
+
 
 @app.route("/api/login", methods=["POST"])
 def login_user():
     try:
         data = request.get_json()
-        username = data.get("username", "").strip().lower()
+        username = data.get("username", "").strip()
         password = data.get("password", "").strip()
 
         if not username or not password:
@@ -337,10 +339,11 @@ def login_user():
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        return jsonify({"success": True, "message": "Login successful.", "username": username})
+        return jsonify({"success": True, "message": "Login successful.", "user": {"username": username}})
     except Exception as e:
         logging.error(f"Login error: {e}")
         return jsonify({"success": False, "error": "Login failed."}), 500
+
 
 
 # ========== MAIN ==========

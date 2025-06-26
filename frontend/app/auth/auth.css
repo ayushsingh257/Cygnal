@@ -101,3 +101,20 @@
   color: #C71585;
   text-decoration: underline;
 }
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+  .auth-container {
+    max-width: 85%;
+    padding: 2rem;
+  }
+
+  .auth-input {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .auth-button {
+    padding: 0.875rem 2rem;
+    font-size: 1.125rem;
+  }
+}
