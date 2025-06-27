@@ -123,6 +123,28 @@ def get_current_user():
         return "unknown"
 
 
+# ========== NEW: PHASE 23.2 FETCH AUDIT LOGS ==========
+@app.route("/api/get-audit-logs", methods=["GET"])
+def get_audit_logs():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    try:
+        decoded = decode_token(token)
+        if decoded.get("role") != "admin":
+            return jsonify({"success": False, "error": "Access denied. Admins only."}), 403
+
+        audit_path = "audit_logs.json"
+        if not os.path.exists(audit_path):
+            return jsonify({"success": True, "logs": []})
+
+        with open(audit_path, "r") as f:
+            logs = [json.loads(line) for line in f if line.strip()]
+
+        return jsonify({"success": True, "logs": logs})
+    except Exception as e:
+        logging.error(f"Failed to fetch audit logs: {e}")
+        return jsonify({"success": False, "error": "Failed to fetch audit logs"}), 500
+
+
 # ========== ROUTES ==========
 
 @app.route("/api/header-scan", methods=["POST"])
@@ -491,7 +513,7 @@ def login_user():
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        role = get_user_role(username)
+        role = "get_user_role(username)"
         token = create_token({"username": username, "role": role})
         return jsonify({
             "success": True,
