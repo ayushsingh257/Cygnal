@@ -17,6 +17,8 @@ from jwt_utils import create_token
 from jwt_utils import decode_token  # ✅ Required for username extraction
 from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
 from audit_logger import audit_log  # ✅ Phase 23.1
+from database import init_lookup_db  # ✅ Phase 24: DB init
+
 import threading
 import time  # ✅ Add this if missing
 from bs4 import BeautifulSoup
@@ -513,7 +515,7 @@ def login_user():
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
 
-        role = "get_user_role(username)"
+        role = get_user_role(username)
         token = create_token({"username": username, "role": role})
         return jsonify({
             "success": True,
@@ -530,4 +532,5 @@ def login_user():
 # ========== MAIN ==========
 if __name__ == "__main__":
     init_db()  # ✅ Ensure DB is ready
+    init_lookup_db()  # ✅ Phase 24: SQLite Lookup Logging
     app.run(debug=True, host="0.0.0.0", port=5000)

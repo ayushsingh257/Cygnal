@@ -1,451 +1,135 @@
----
+Cygnal OSINT Reconnaissance Framework
 
-### ✨ About Cygnal
+Introduction
+Cygnal is an open-source intelligence (OSINT) platform engineered for deep surface analysis, digital threat investigation, and metadata-driven reconnaissance. The system integrates passive scanning, content inspection, reverse image indexing, and forensic logging to assist analysts in profiling digital assets with precision. Designed for cybersecurity professionals, digital forensics teams, and intelligence analysts, Cygnal prioritizes modularity, ethical compliance, and verifiable reporting.
 
-Cygnal is more than just a Python script — it's a growing forensic OSINT toolkit built to mimic how real-world investigators assess digital threats. Whether you're a student, ethical hacker, or analyst, Cygnal helps extract valuable intelligence from public domains — fast, clean, and ethically.
+Motivation
+In contemporary threat landscapes, adversaries increasingly obfuscate their infrastructure behind ephemeral domains, evasive headers, and minimal WHOIS footprints. Cygnal addresses this challenge by turning surface-level digital exposure—headers, contact data, domain records, images—into actionable intelligence, captured in a reproducible and structured format.
 
+Technical Overview
+Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform follows modular microservice-style principles for each recon tool, supporting separation of concerns, ease of extension, and secure access control via JWT authentication and role-based privileges.
 
-![Project](https://img.shields.io/badge/Cygnal-Recon_Toolkit-blueviolet)
-![Phase](https://img.shields.io/badge/Phase-9%2F9-complete-brightgreen)
-
----
-Why Does Cygnal Matter?
-
-Most people don’t realize this, but every website leaves a trail —
-Security headers, WHOIS data, redirect chains — all of them can reveal whether a site is safe, shady, or secretly harmful.
-
-Cygnal turns those trails into actionable insights.
-
-Think of it like your cyber investigator’s toolkit
-
-Clean reports. Easy commands. No bloat. No noise.
-
-And everything built with forensics & simplicity in mind
-
-### 📍 Where Cygnal Stands Today (Phase 3 Complete)
-
-So far, Cygnal can:
-- Identify missing or misconfigured security headers
-- Trace redirect chains to uncover phishing layers
-- Perform WHOIS lookups to reveal domain ownership and registration trails
-
-It’s already becoming a reliable passive recon kit used in real investigations.
-
----
-
-### 🚀 Where Cygnal Is Headed
-
-Coming in future phases:
-- Email header forensics
-- Screenshot capture engine
-- Auto-generated PDF reporting
-- Passive IP intelligence lookups
-- Potential future web interface
-
-Cygnal will evolve from a recon script into a field-ready OSINT utility — trusted by investigators, interns, analysts, and agencies alike.
-
----
+Current Capabilities (As of Phase 24)
+Cygnal includes the following features:
+Security Header Analysis: Detection of misconfigured or missing HTTP security headers.
+WHOIS Record Extraction: Passive profiling of domain registration, ownership, and expiration.
+Website Screenshot Capture: Full-page rendering via Selenium for visual archiving.
+Metadata Recon Tool: Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
+Reverse Image Search (Offline): AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
+Email Exposure Scanner:
+Static Regex-based scan of visible email addresses.
+Subpage crawler for recursive page scanning.
+JavaScript-rendered extraction using headless Chrome.
+Trust model scoring based on source context.
+PDF Report Generator: Snapshot of analyst sessions and tool results (Phase 17, postponed).
+User Authentication: Role-based access (Admin, Analyst, Viewer) via JWT and bcrypt-secured credentials.
+Analyst Session Logs: Structured session-wide tracking with JSON/CSV export.
+Audit Trail Logging:
+File-based JSON audit history.
+Syslog and AWS CloudWatch forwarding (Phase 23).
+SQLite database mirroring for audit inspection (Phase 24).
+Role Enforcement: Tools are restricted to authenticated users with analyst/admin privileges.
 
 
-# 🛡️ Cygnal – Security Header Analyzer
+System Architecture
+The architecture follows a clear separation of layers:
 
-**Cygnal** is a lightweight, Python-based tool that performs HTTP security header analysis on any live website. It helps identify missing or misconfigured headers which can expose users to attacks like clickjacking, MIME sniffing, and cross-site scripting.
+Frontend: Next.js 14 (React), Zustand state management, TailwindCSS for responsive UI, dynamic module imports for performance.
+Backend: Flask + Python, secured with JWT, modular routes per tool, logging, and tamper-resistant audit trails.
 
----
-
-## 🔧 What It Does
-
-Cygnal fetches response headers from any domain and checks for the presence of:
-
-- Content-Security-Policy
-- Strict-Transport-Security
-- X-Content-Type-Options
-- X-Frame-Options
-- Referrer-Policy
-- Permissions-Policy
-- Follows redirect chains from shortened or suspicious URLs
-- Reveals the true final destination of phishing/malicious links
-- Performs WHOIS lookups to gather domain ownership, registration, and server details
-- Analyzes raw email headers for SPF/DKIM/DMARC status and origin IP
-- Captures full-page screenshot of live websites using headless browser
-- Performs reverse image searches via Google Lens and captures visual matches
-- Extracts emails from webpages and flags potentially sensitive ones (e.g. admin, support)
-- Extracts hidden metadata from PDF and image files (author, tool used, creation time)
-- Logs all analyst actions (tool used, input, result, timestamp)
-- Allows full session export as JSON or CSV for forensic tracking
-- Restricts tools access untill the user is logged in 
-- Enforces strong password policy and email validation
-- Prevents duplicate usernames and emails
-- Remembers login state with local storage and Zustand store
-- Adds secure user authentication (Register / Login / Logout)
-- Restricts all tool access until the user is logged in (route protection)
-- Adds user authentication with secure Register/Login system (JWT-based)
-- Remembers session via local storage and Zustand store (auto-persisted)
-- Enforces strong password rules and prevents duplicate registration
-- Implements role-based access control (RBAC): Only analysts/admins can use tools, viewers will be restricted
-- Scans websites for visible emails using both static and JavaScript-rendered content
-- Automatically falls back to JS-based scan if initial scan yields no result
-- Option to crawl subpages like /contact, /about to uncover hidden emails
-
-It then prints a clean report of what's present and what's missing.
-
----
-
-## 💻 Sample Output
-
-Analyzing security headers for: https://poki.com/
-
-[+] Content-Security-Policy: Present ✅
-[+] Strict-Transport-Security: Present ✅
-[-] X-Frame-Options: Missing ❌
-[+] Referrer-Policy: Present ✅
-[-] Permissions-Policy: Missing ❌
-
-Cygnal/
-│
-├── scripts/               # Python analysis script
-│   └── header_parser.py
-│
-├── screenshots/           # Visual evidence from analysis
-├── sample_headers/        # (Reserved for test data / mock scans)
-├── findings.txt           # Written observations
-├── report-template.md     # Markdown reporting format
-├── README.md              # This file
-└── requirements.txt       # Dependencies if any (currently not used)
+Storage:
+audit_logs.json: Append-only audit file
+lookup_logs.db: SQLite database (Phase 24)
+session_logs/: Tool-wise session artifacts
+screenshots/, temp_upload/: Runtime-generated evidence
 
 
----
+Phase Overview
+Phase 1–16: Core Tools & UI
+Security Header Scanner
+WHOIS Lookup
+Screenshot Tool
+Email Scanner (HTML, JS, Crawler)
+Metadata Recon (EXIF, PDF, DOCX)
+Reverse Image Search (CLIP + FAISS)
+Session Log Export
+UI redesign (Next.js + Tailwind)
+User Authentication
+Role-Based Access Control
 
-## 🔗 Phase 2 Output Example
+Phase 17–20: Reporting and Access Control
+Unified PDF Reporting (Postponed)
+Secure login/register with JWT
+Local session persistence (Zustand)
+Route-level restriction
+Analyst/Admin role enforcement
 
-🔗 Tracing redirects for: https://bit.ly/3I6ZzrY
+Phase 21–24: Logging, Audit & SIEM Prep
+Phase 21: Role-based access enforced via frontend/backend JWT parsing
+Phase 22: Advanced Email Scanner (with fallback, trust scoring, crawl depth)
+Phase 23:
+File-based JSON audit logs
+Syslog UDP export (configurable)
+AWS CloudWatch logging
+Phase 24:
+SQLite database mirroring of audit logs
+Persistent forensic storage of IP, user, tool, input, and result
+Check_logs.py utility for direct inspection (CLI)
 
-✅ No redirects. This URL leads directly to its destination.
+Sample Output (Tool Snapshots)
 
----
+Header Scanner
+[+] Content-Security-Policy: Present
+[-] X-Frame-Options: Missing
+[+] Strict-Transport-Security: Present
 
-## 🌐 Phase 3 Output Example
-
-🌐 Performing WHOIS lookup for: cyberpulse.in
-
-📄 WHOIS Result:
-
-Domain Name: cyberpulse.in
+WHOIS Record
+Domain: cyberpulse.in
 Registrar: GoDaddy
-Creation Date: 2024-06-24
-Expiration Date: 2025-06-24
-Name Servers: ns28.domaincontrol.com, ns27.domaincontrol.com
+Creation: 2024-06-24
 Country: IN
-Emails: reg_admin@godaddy.com
 
----
+Metadata Extraction (test.pdf)
+Author: Ayush Singh
+Created: 2024-06-20T12:44:22Z
+Tool: Canva
 
-## 📨 Phase 4 Output Example
-📨 Analyzing Email Header...
+Reverse Image Search
+Match Path: reference_images/shoe.png
+Match Confidence: 92.31%
 
-🔍 Possible Sender IP: 209.85.166.52
-✅ SPF Check: PASS
-✅ DKIM Check: PASS
-✅ DMARC Check: PASS
-📩 Claimed Sender: sender@gmail.com
+Phase 24 – Persistent Audit Logging (SQLite)
+The current phase introduces long-term, queryable audit storage.
+All tool events (Header, WHOIS, Metadata, Image, Email) are now mirrored into lookup_logs.db.
+The lookups table stores:
+timestamp, user, ip, tool, input, result
+Logs can be accessed via CLI using check_logs.py or queried programmatically for dashboards.
+This ensures tamper-resistant analyst accountability and forensic reproducibility in regulated environments.
 
----
-
-## 📸 Phase 5 Output Example
-
-📸 Capturing screenshot of: https://cyberpulse.in
-✅ Screenshot saved to screenshots/cyberpulse-screenshot-20250616-214129.png
-
-
-## 🖼️ Phase 6 Output Example
-
-Reverse image search for: elon.jpg
-Result: Screenshot saved at `screenshots/reverse-search-20250616-230107.png`
-
----
-
-## 📬 Phase 7 Output Example
-
-Email scan for: https://cyberpulse.in
-Found: 0 or more
-Screenshot saved: `screenshots/email-check-cyberpulse.png`
-
----
-
-## 🗂️ Phase 8 Output Example
-
-PDF metadata extraction for: test.pdf
-Result: Author – Ayush Singh, Tool – Canva
-Screenshot saved: screenshots/pdf-metadata-20250616.png
-
----
-
-## 📄 Phase 9: Automated Report Generator
-
-Cygnal now includes a fully automated report generator that compiles all findings, screenshots, and results into a clean Markdown report — ready to be shared, archived, or submitted to security teams.
-
-✔️ All 8 modules integrated
-✔️ Auto-organized with date-stamped filenames
-✔️ Designed for investigators, analysts, and cybercrime teams
-
-🖼️ Screenshot: `screenshots/final-report-generated-20250616.png`
-
----
-
-## 🚀 Getting Started
-
-Make sure you have Python 3 installed.
-
-1. Clone the repository:
+Installation
+Clone the repository:
 git clone https://github.com/ayushsingh257/Cygnal.git
 cd Cygnal
 
-2. Run the script:
-python scripts/header_parser.py
-
-3. Edit the `url` variable inside `header_parser.py` to test other domains.
-
----
-
-## 🧠 Why I Built This
-
-This is my second cybersecurity project where I’ve gone a level deeper into practical recon. I wanted to understand what makes a website "secure" on a technical HTTP level and how header misconfigurations can leak sensitive data or allow user-side attacks.
-
----
-
-## ⚠️ Disclaimer
-
-This project is for educational and ethical testing purposes only. Always scan only websites you own or have explicit permission to analyze. Misuse of this tool is strictly discouraged.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License © 2025 Ayush Singh Kshatriya.
-You are free to use, share, or adapt it with proper attribution.
-Commercial redistribution without consent is discouraged.
-
-
----
-
-## 👤 Author
-
-**Ayush Singh Kshatriya**
-`Cybersecurity Enthusiast | OSINT Explorer | Recon-focused Builder`
-GitHub: [@ayushsingh257](https://github.com/ayushsingh257)
-LinkedIn: [linkedin.com/in/ayush-singh-kshatriya](https://linkedin.com/in/ayush-singh-kshatriya)
-
-
----
-
-## 🛣️ What's Next for Cygnal
-
-- 🎯 Add a web-based GUI using Flask or React
-- 📊 Build real-time dashboard with stats & charts
-- 🔗 Integrate threat intel APIs (e.g., VirusTotal, AbuseIPDB)
-- 🔐 Add user authentication for secure team access
-- 📁 Export reports in PDF/HTML
-
-Stay tuned for **Cygnal v2 – Web Edition** 🚀
-
-
-
-## 🔟 Phase 10: Frontend UI Design + Component Setup
-
-- Transitioned to a Next.js 14 frontend using the App Router.
-- Implemented a **visually rich Hero Section** with rotating logo, animated gradients, and neon glow hover effects.
-- Introduced structured components: `HeaderScanner`, `WhoisLookup`, and `Hero`.
-- Ensured responsive design using Tailwind CSS.
-- Separated `Hero.css` for scalable animation and background customization.
-
-
-
-## 🔁 Phase 11: Backend Integration
-
-- Connected the **Flask backend** to the frontend via custom APIs.
-- Developed and tested `/api/header-scan` and `/api/whois-lookup` POST routes.
-- Implemented API calls in the frontend using `fetch()` and `useState`.
-- Displayed scan results in real-time with conditional rendering and improved UX.
-- Added error handling for invalid inputs and backend connectivity.
-
-
-
-### ✅ Phase 14: Metadata Recon Tool
-- Upload multiple files (JPG, PNG, PDF, DOCX)
-- Extract and prettify metadata
-- Side-by-side comparison with diff viewer
-- Suspicious metadata detection (author mismatch, EXIF location, outdated timestamps)
-- Threat scoring (Low / Medium / High)
-- Analyst notes for each file
-- Full session export (ZIP of JSON + CSV)
-
-
-
-## Phase 15: Reverse Image Search (CLIP + FAISS)
-
-This phase implements an offline reverse image search feature using OpenAI's CLIP model combined with FAISS for efficient similarity matching. It allows analysts to upload an image and find visually or semantically similar images from a reference dataset — even with angle, lighting, or composition changes.
-### Features:
-- 🔍 CLIP ViT-B/32 model for robust visual feature encoding
-- ⚙️ FAISS cosine similarity index (`IndexFlatIP`)
-- 📁 Automatic indexing of all reference images in `reference_images/`
-- 📷 Supports multiple image formats (.jpg, .png, .webp, .bmp, .tiff, etc.)
-- ✅ Normalized cosine similarity used for accurate comparison
-- 📊 Results displayed with **percentage similarity match**
-- 💡 Works entirely offline, ideal for forensic environments
-### Example Match Output:
-```json
-{
-  "match_path": "reference_images/shoe.png",
-  "match_percentage": 92.31
-}
-
-
-## Phase 15 - Reverse Image Search
-
-### Objective:
-Enable offline reverse image search using AI to detect image similarities from a given reference dataset.
-
-### Tools & Libraries:
-- OpenAI CLIP (`ViT-B/32`)
-- FAISS (Facebook AI Similarity Search)
-- PIL (Pillow), NumPy
-- React + Flask
-
-### Implementation:
-- CLIP used to generate 512-dimension image embeddings.
-- Vectors normalized and added to FAISS index using cosine similarity.
-- Uploaded image is encoded and compared with stored reference vectors.
-- Results are ranked and shown with similarity percentage.
-
-### Output:
-- Returns top-5 closest matches with similarity %.
-- Matches remain effective even if angle, zoom, or background varies.
-
-### Status: ✅ Completed
-
-
-
-
-## Phase 15.5: Reverse Image Search UI Enhancement
-
-This phase enhances the reverse image search feature by displaying the matched images directly on the UI, improving analyst efficiency. Building on the offline CLIP + FAISS implementation, the frontend now renders the top matches alongside their similarity percentages.
-
-### Features:
-- 📷 Displays matched images (e.g., `shoe.png`) on the UI using base64-encoded data.
-- 🎨 Preserves the existing percentage similarity calculation without changes.
-- 🔄 Seamless integration with the existing Next.js frontend and Flask backend.
-- ✅ Tested with various reference images to ensure accurate rendering.
-
-### Example Output:
-- Upload an image (e.g., `Screenshot_213455.png`) and see a match like:
-  - Match 0: 87.33% with image displayed.
-  - File Path: `reference_images/shoe.png`
-
-### Status: ✅ Completed
-
-
-
-
-## 🔟 Phase 16: UI/UX Design Overhaul
-
-This phase marks a significant redesign of Cygnal's user interface, transitioning to a modern Next.js 14 frontend with Tailwind CSS to enhance usability and visual appeal for investigators and analysts.
-
-### Features:
-- 🎨 **Visually Rich Hero Section**: Implemented a dynamic Hero component with a rotating Cygnal logo, animated gradients, and neon glow hover effects to create an immersive first impression.
-- 🛠️ **Structured Components**: Developed reusable components including `HeaderScanner`, `WhoisLookup`, and `Hero`, ensuring modularity and scalability.
-- 📱 **Responsive Design**: Utilized Tailwind CSS to ensure a seamless experience across devices (desktop, tablet, mobile) with fluid layouts and adaptive styling.
-- 🎥 **Custom Animations**: Added `Hero.css` for scalable animations and background customization, enhancing user engagement with smooth transitions.
-- ✅ **Tested Usability**: Validated with mock user scenarios to ensure intuitive navigation and accessibility.
-
-### Example Output:
-- **Hero Section Screenshot**: Displays the animated logo and gradient background, saved as `screenshots/hero-redesign-20250621.png`.
-- **Component Demo**: `HeaderScanner` and `WhoisLookup` components render dynamically with real-time data, e.g., security header status for `https://poki.com`.
-
-### Status: ✅ Completed on June 21, 2025
-
-
-
-## ✅ Phase 18: Session Log Tracking + Export
-
-This phase introduces session-wide logging of all scans performed by the analyst. Each tool invocation (header scan, WHOIS, metadata, image search) is stored with:
-
-- Tool name
-- Input used
-- Timestamp of execution
-- Full result (JSON or raw)
-
-### Features:
-- 🕒 Real-time session log stored in in-memory state
-- 📤 Export as `cygnal_session_log.json` or `cygnal_session_log.csv`
-- 🧠 Analyst can review, archive, or submit logs with reports
-- 🧾 Supports long sessions with multiple tools in use
-
-### Screenshot:
-🖼️ `screenshots/session-logging-ui-20250625.png`
-
-### Status: ✅ Completed
-
-
-
-## 🔐 Phase 19: User Authentication System
-
-This phase introduces secure authentication to the Cygnal OSINT toolkit. Analysts must now log in before using any tools, ensuring personalized access and session tracking.
-
-### Features:
-- Email and username-based registration
-- Secure login with bcrypt-hashed passwords
-- Password strength enforcement (min 8 characters, uppercase, lowercase, number, symbol)
-- Email format validation with regex
-- No duplicate usernames or emails allowed
-- Show/Hide password toggle in forms
-- Persistent auth state using Zustand + localStorage
-- Restricted access to all tools until user logs in
-- Personalized session with username shown in navbar
-
-### Status: ✅ Completed
-
-## 🔐 Phase 20: Authentication System + Access Control
-
-Cygnal now includes a full user-based authentication system to restrict tool usage and protect sensitive analysis features.
-
-### Key Features:
-- User registration + login (email, username, password)
-- JWT token authentication (expires after 3 days)
-- Route-level access control (tools gated behind login)
-- Zustand state store manages session and auto-logout
-
-🧪 Tested via devtools:
-- Token stored in localStorage (`cygnal_token`)
-- Route blocks tools if token is missing
-- Token removal logs user out on refresh
-
-### Status: ✅ Completed
-
-
-## 🔐 Phase 21: Role-Based Access Control (RBAC)
-
-This phase introduces role-based permissions across all tools within Cygnal. Each user is assigned a role at registration, and tools are now protected based on that role.
-Key Features:
-Every user is assigned the role analyst by default during registration
-Tool usage is restricted to specific roles (admin, analyst, viewer)
-All major tools (Header Scanner, WHOIS Lookup, Screenshot Tool, Metadata Recon, Reverse Image Search) require analyst or admin roles
-Users with insufficient roles are prevented from accessing gated tools
-Role is embedded in the JWT and used on the frontend for conditional rendering
-Unauthorized access attempts are blocked at the UI level with clear messaging
-This adds an important access control layer in preparation for future collaboration and admin features.
-
-Status: ✅ Completed
-
-## 📧 Phase 22: Advanced Email Scanner + JS Fallback + Subpage Crawl
-
-This phase introduces an intelligent, multi-layered email scanner to detect exposed emails from webpages more effectively.
-
-### Key Features:
-- Dual-scan approach: HTML-only (fast) and JavaScript-rendered (deep) using headless browser
-- Automatic fallback to JS-based scan if no emails found via normal method
-- Toggle to enable subpage crawling (e.g. `/contact`, `/support`) for deeper OSINT
-- Real-time feedback to analysts on which scan method was used
-- Logs all scan attempts (URL, method used, result) for traceability
-- Enhanced UX: Error handling, loading states, and status indicators
-
-Status: ✅ Completed
+Install backend dependencies:
+cd api
+pip install -r requirements.txt
+
+Start Flask backend:
+python backend.py
+
+Run frontend (in separate terminal):
+cd frontend
+npm install
+npm run dev
+
+
+Licensing & Ethics
+Cygnal is licensed under the MIT License (© 2025 Ayush Singh Kshatriya).
+This software is intended strictly for lawful, ethical use in intelligence, threat research, and digital forensics. Unauthorized scanning of third-party infrastructure is discouraged and may constitute a legal offense.
+
+Contact
+Ayush Singh Kshatriya
+Cybersecurity Researcher & OSINT Analyst
+GitHub: @ayushsingh257
+LinkedIn: linkedin.com/in/ayush-singh-kshatriya
