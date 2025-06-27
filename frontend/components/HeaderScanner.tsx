@@ -11,7 +11,7 @@ export default function HeaderScanner() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
 
   // 🔐 Check for login + role access
   if (!user) {
@@ -43,6 +43,7 @@ export default function HeaderScanner() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ THIS IS CRUCIAL
         },
         body: JSON.stringify({ url }),
       });
@@ -67,7 +68,10 @@ export default function HeaderScanner() {
 
         await fetch("http://127.0.0.1:5000/api/log-scan", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ Add this
+          },
           body: JSON.stringify({ tool: "Header Scanner", input: url, result: data }),
         });
       } else if (data.error) {

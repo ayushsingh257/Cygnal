@@ -6,8 +6,7 @@ import MetadataDiff from "./MetadataDiff";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useReportStore } from "@/store/useReportStore";
-import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
-
+import { useAuthStore } from "@/store/useAuthStore";
 
 type MetaResult = {
   filename: string;
@@ -24,17 +23,15 @@ export default function MetadataTool() {
   const MAX_FILE_SIZE_MB = 10;
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore(); // ✅ Step 7
+  const { user, token } = useAuthStore();
 
+  if (!user) {
+    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+  }
 
-    if (!user) {
-      return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
-    }
-
-    if (user.role !== "analyst" && user.role !== "admin") {
-      return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
-    }
-
+  if (user.role !== "analyst" && user.role !== "admin") {
+    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+  }
 
   useEffect(() => {
     const logs = sessionStorage.getItem("metaLogs");
@@ -97,6 +94,9 @@ export default function MetadataTool() {
 
       const res = await fetch("http://localhost:5000/api/metadata", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ token passed for /api/metadata
+        },
         body: form,
       });
 
@@ -120,22 +120,24 @@ export default function MetadataTool() {
         score,
       };
 
-      // ⏺ Log result to session history + store
-addToHistory({
-  tool: "Metadata",
-  input: file.name,
-  result: JSON.stringify({
-    score,
-    threats: issues.slice(0, 3),
-    keys: Object.keys(data.metadata).slice(0, 3),
-  }, null, 2),
-});
+      addToHistory({
+        tool: "Metadata",
+        input: file.name,
+        result: JSON.stringify({
+          score,
+          threats: issues.slice(0, 3),
+          keys: Object.keys(data.metadata).slice(0, 3),
+        }, null, 2),
+      });
 
       setToolUsed("metadataUsed");
 
       await fetch("http://localhost:5000/api/log-scan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ token passed for audit log
+        },
         body: JSON.stringify({
           tool: "Metadata Extraction",
           input: file.name,
@@ -270,10 +272,7 @@ addToHistory({
           </div>
         ))}
         {results.length >= 2 && (
-          <MetadataDiff
-            file1={results[0]}
-            file2={results[1]}
-          />
+          <MetadataDiff file1={results[0]} file2={results[1]} />
         )}
       </div>
     </div>

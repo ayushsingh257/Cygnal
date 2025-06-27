@@ -1,0 +1,18 @@
+{
+  "id": "cd5d8223-0bfa-4b19-af0f-bf35ac72eaff",
+  "timestamp": "2025-06-27T03:36:10.767211",
+  "tool": "Metadata Extraction",
+  "input": "Soumya Resume.docx",
+  "result": {
+    "score": "Low",
+    "threats": [],
+    "fields": [
+      "author",
+      "category",
+      "created",
+      "modified",
+      "subject",
+      "title"
+    ]
+  }
+}

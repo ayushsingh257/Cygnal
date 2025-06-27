@@ -1,9 +1,10 @@
 "use client";
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useReportStore } from "@/store/useReportStore";
-import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface SearchResult {
   match_path: string;
@@ -19,15 +20,15 @@ export default function ReverseImageSearch() {
   const [error, setError] = useState("");
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore(); // ✅ Step 7
+  const { user, token } = useAuthStore();
 
-    if (!user) {
-      return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
-    }
+  if (!user) {
+    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+  }
 
-    if (user.role !== "analyst" && user.role !== "admin") {
-      return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
-    }
+  if (user.role !== "analyst" && user.role !== "admin") {
+    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);
@@ -51,6 +52,9 @@ export default function ReverseImageSearch() {
     try {
       const response = await fetch("/api/reverse-image-search", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Pass token to image search
+        },
         body: formData,
       });
 
@@ -68,16 +72,20 @@ export default function ReverseImageSearch() {
 
       setResults(data.results);
       setToolUsed("reverseImageUsed");
+
       addToHistory({
-  tool: "Reverse Image Search",
-  input: selectedFile.name,
-  result: JSON.stringify(data.results.slice(0, 3), null, 2),
-});
+        tool: "Reverse Image Search",
+        input: selectedFile.name,
+        result: JSON.stringify(data.results.slice(0, 3), null, 2),
+      });
 
-
+      // ✅ Send audit log with token
       await fetch("/api/log-scan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           tool: "Reverse Image Search",
           input: selectedFile.name,

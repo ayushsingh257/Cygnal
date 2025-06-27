@@ -1,0 +1,35 @@
+{
+  "id": "efbd645a-c810-4e46-80d7-8559910d1f63",
+  "timestamp": "2025-06-27T03:57:17.923154",
+  "tool": "Header Scanner",
+  "input": "https://github.com",
+  "result": {
+    "headers": [
+      {
+        "name": "Content-Security-Policy",
+        "present": true
+      },
+      {
+        "name": "Strict-Transport-Security",
+        "present": true
+      },
+      {
+        "name": "X-Content-Type-Options",
+        "present": true
+      },
+      {
+        "name": "X-Frame-Options",
+        "present": true
+      },
+      {
+        "name": "Referrer-Policy",
+        "present": true
+      },
+      {
+        "name": "Permissions-Policy",
+        "present": false
+      }
+    ],
+    "success": true
+  }
+}
