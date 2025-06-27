@@ -13,7 +13,7 @@ export default function EmailScanner() {
   const [includeSubpages, setIncludeSubpages] = useState(false); // ✅ new toggle
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
 
   if (!user) {
     return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
@@ -44,7 +44,10 @@ export default function EmailScanner() {
       // 🧪 Try normal scan first
       let response = await fetch("http://127.0.0.1:5000/api/email-scan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ THIS IS CRUCIAL
+        },
         body: JSON.stringify({ url, includeSubpages }),
       });
 
@@ -59,7 +62,10 @@ export default function EmailScanner() {
 
         await fetch("http://127.0.0.1:5000/api/log-scan", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ Add this
+          },
           body: JSON.stringify({
             tool: "Email Scanner (Normal)",
             input: url,
@@ -86,7 +92,10 @@ export default function EmailScanner() {
 
           await fetch("http://127.0.0.1:5000/api/log-scan", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // ✅ Add this
+            },
             body: JSON.stringify({
               tool: "Email Scanner (JS Fallback)",
               input: url,

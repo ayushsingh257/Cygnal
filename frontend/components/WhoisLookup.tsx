@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
-import { useAuthStore } from "@/store/useAuthStore"; // ✅ Step 7
-
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function WhoisLookup() {
   const [domain, setDomain] = useState("");
@@ -12,16 +11,15 @@ export default function WhoisLookup() {
   const [loading, setLoading] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user } = useAuthStore(); // ✅ Step 7
+  const { user, token } = useAuthStore();
 
-    if (!user) {
-      return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
-    }
+  if (!user) {
+    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+  }
 
-    if (user.role !== "analyst" && user.role !== "admin") {
-      return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
-    }
-
+  if (user.role !== "analyst" && user.role !== "admin") {
+    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+  }
 
   const handleLookup = async () => {
     setError("");
@@ -39,6 +37,7 @@ export default function WhoisLookup() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ domain }),
       });
@@ -49,14 +48,25 @@ export default function WhoisLookup() {
       if (data.success) {
         setResult(data.result);
         setToolUsed("whoisUsed");
-        addToHistory({ tool: "WHOIS Lookup", input: domain, result: JSON.stringify(data.result, null, 2) });
 
+        addToHistory({
+          tool: "WHOIS Lookup",
+          input: domain,
+          result: JSON.stringify(data.result, null, 2),
+        });
 
-        // Backend log
+        // ✅ Audit log with user token
         await fetch("http://127.0.0.1:5000/api/log-scan", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tool: "WHOIS Lookup", input: domain, result: data.result }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            tool: "WHOIS Lookup",
+            input: domain,
+            result: data.result,
+          }),
         });
       } else {
         setError("❌ WHOIS lookup failed: " + (data.error || "Unknown error"));

@@ -13,9 +13,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import base64
 import traceback
-from auth_utils import init_db, add_user, verify_user
 from jwt_utils import create_token
+from jwt_utils import decode_token  # ✅ Required for username extraction
 from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
+from audit_logger import audit_log  # ✅ Phase 23.1
 import threading
 import time  # ✅ Add this if missing
 from bs4 import BeautifulSoup
@@ -112,12 +113,23 @@ def extract_docx_metadata(file_path):
         logging.error(f"DOCX metadata extraction failed: {e}")
         return {"error": f"DOCX metadata extraction failed: {str(e)}"}
 
+
+def get_current_user():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    try:
+        decoded = decode_token(token)
+        return decoded.get("username", "unknown")
+    except Exception:
+        return "unknown"
+
+
 # ========== ROUTES ==========
 
 @app.route("/api/header-scan", methods=["POST"])
 def header_scan():
     data = request.get_json()
     url = data.get("url", "").strip()
+    user = get_current_user()
 
     if not is_valid_url(url):
         return jsonify({"success": False, "error": "Invalid URL format."}), 400
@@ -125,7 +137,6 @@ def header_scan():
     try:
         response = requests.get(url, timeout=5)
         headers = response.headers
-
         expected_headers = [
             "Content-Security-Policy",
             "Strict-Transport-Security",
@@ -134,8 +145,9 @@ def header_scan():
             "Referrer-Policy",
             "Permissions-Policy",
         ]
-
         results = [{"name": h, "present": h in headers} for h in expected_headers]
+
+        audit_log("Header Scanner", user, url, results)
         return jsonify({"success": True, "headers": results})
     except requests.exceptions.RequestException as e:
         return jsonify({"success": False, "error": f"Header scan failed: {str(e)}"}), 500
@@ -144,6 +156,7 @@ def header_scan():
 def whois_lookup():
     data = request.get_json()
     domain = data.get("domain", "").strip()
+    user = get_current_user()
 
     if not is_valid_domain(domain):
         return jsonify({"success": False, "error": "Invalid domain name."}), 400
@@ -159,12 +172,15 @@ def whois_lookup():
             "emails": str(w.emails),
             "country": str(w.country)
         }
+
+        audit_log("WHOIS Lookup", user, domain, result)
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
-    
+
 @app.route("/api/email-scan", methods=["POST"])
 def email_scan():
+    user = get_current_user()
     try:
         data = request.get_json()
         url = data.get("url", "").strip()
@@ -173,10 +189,8 @@ def email_scan():
         if not is_valid_url(url):
             return jsonify({"success": False, "error": "Invalid URL format."}), 400
 
-        # Set to store unique emails
         found_emails = set()
 
-        # Helper function to extract emails from a single page
         def extract_emails_from_url(page_url):
             try:
                 response = requests.get(page_url, timeout=6)
@@ -187,10 +201,8 @@ def email_scan():
                 logging.warning(f"Failed to fetch {page_url}: {e}")
                 return set()
 
-        # Scan main page
         found_emails.update(extract_emails_from_url(url))
 
-        # Optional: scan subpages
         if include_subpages:
             try:
                 base_domain = urlparse(url).netloc
@@ -206,16 +218,19 @@ def email_scan():
                         full_url = href if href.startswith("http") else f"https://{base_domain}{href}"
                         internal_links.add(full_url)
 
-                for link in list(internal_links)[:10]:  # Limit to 10 to prevent abuse
+                for link in list(internal_links)[:10]:
                     found_emails.update(extract_emails_from_url(link))
             except Exception as e:
                 logging.warning(f"Subpage scan failed: {e}")
 
-        return jsonify({
+        result = {
             "success": True,
             "emails": list(found_emails),
             "count": len(found_emails)
-        })
+        }
+
+        audit_log("Email Scanner", user, {"url": url, "includeSubpages": include_subpages}, result)
+        return jsonify(result)
 
     except Exception as e:
         logging.error(f"Email scan failed: {e}")
@@ -223,6 +238,7 @@ def email_scan():
 
 @app.route("/api/email-scan-js", methods=["POST"])
 def email_scan_js():
+    user = get_current_user()
     try:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
@@ -248,17 +264,9 @@ def email_scan_js():
         driver.set_page_load_timeout(40)
 
         try:
-            try:
-                driver.get(url)
-            except Exception as e:
-                logging.error(f"Selenium page load timeout: {e}")
-                return jsonify({"success": False, "error": f"Page load timeout: {str(e)}"}), 500
-
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            time.sleep(5)  # Give extra time for dynamic JS content
-
+            driver.get(url)
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            time.sleep(5)
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             visible_text = soup.get_text(separator=" ")
@@ -268,18 +276,19 @@ def email_scan_js():
         email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
         found_emails = list(set(re.findall(email_pattern, visible_text)))
 
-        return jsonify({
-            "success": True,
-            "emails": found_emails,
-            "count": len(found_emails)
-        })
+        result = {"success": True, "emails": found_emails, "count": len(found_emails)}
+        audit_log("Email Scanner (JS)", user, {"url": url}, result)
+
+        return jsonify(result)
 
     except Exception as e:
         logging.error(f"JS email scan failed: {e}")
         return jsonify({"success": False, "error": f"JS email scan failed: {str(e)}"}), 500
+    
 
 @app.route("/api/screenshot", methods=["POST"])
 def screenshot():
+    user = get_current_user()
     data = request.get_json()
     url = data.get("url", "").strip()
 
@@ -306,12 +315,17 @@ def screenshot():
         with open(screenshot_path, "rb") as img:
             encoded = base64.b64encode(img.read()).decode("utf-8")
 
-        return jsonify({"success": True, "image": encoded})
+        result = {"success": True, "image": encoded}
+        audit_log("Screenshot Tool", user, {"url": url}, {"screenshot_saved": filename})
+
+        return jsonify(result)
+
     except Exception as e:
         return jsonify({"success": False, "error": f"Screenshot failed: {str(e)}"}), 500
 
 @app.route("/api/metadata", methods=["POST"])
 def metadata_extraction():
+    user = get_current_user()
     if "file" not in request.files:
         return jsonify({"success": False, "error": "No file uploaded."}), 400
 
@@ -343,28 +357,40 @@ def metadata_extraction():
             metadata = {"error": "Unsupported file type."}
 
         os.remove(temp_path)
+        result = {"success": True, "metadata": metadata}
+        audit_log("Metadata Extraction", user, {"filename": filename}, metadata)
 
-        return jsonify({"success": True, "metadata": metadata})
+        return jsonify(result)
+
     except Exception as e:
         return jsonify({"success": False, "error": f"Failed to extract metadata: {str(e)}"}), 500
 
 @app.route('/api/reverse-image-search', methods=['POST'])
 def reverse_image_search():
+    user = get_current_user()
     try:
         file = request.files['file']
         if not file:
             return jsonify({"success": False, "error": "No file uploaded"}), 400
 
-        filepath = os.path.join("temp_upload", file.filename)
+        filename = file.filename
+        filepath = os.path.join("temp_upload", filename)
+        os.makedirs("temp_upload", exist_ok=True)
         file.save(filepath)
 
         results = perform_reverse_image_search(filepath)
+        os.remove(filepath)
 
-        return jsonify({"success": True, "results": results})
-    
+        result = {"success": True, "results": results}
+        audit_log("Reverse Image Search", user, {"filename": filename}, {"matches_found": len(results)})
+
+        return jsonify(result)
+
     except Exception as e:
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
+
+
 
 # ========== NEW: PHASE 18 – SCAN LOGGING ==========
 @app.route("/api/log-scan", methods=["POST"])
