@@ -221,6 +221,29 @@ UX:
 - Robust error handling and full session logging
 Status: ✅ Completed
 
+[Phase 23] – Intelligence Audit Logging & SIEM Integration
+Logging:
+- Tracks each tool invocation with timestamp, user, IP, input, and output
+- Stored in `audit_logs/audit_log.json` as newline-delimited JSON entries
+- Automatically forwarded to:
+  - Syslog (UDP 514) — supports external SIEM ingestion
+  - AWS CloudWatch Logs — centralized cloud-based log monitoring
+Tamper Prevention:
+- Append-only log format ensures integrity
+- CLI and admin-viewer access with role enforcement
+Status: ✅ Completed
+
+
+[Phase 24] – Persistent Audit Storage (SQLite DB Logging)
+Database:
+- All tool usage logs mirrored in `lookup_logs.db` under `lookups` table
+- Stores: timestamp, user, IP, tool, input, result (JSON)
+- Fully automated from `audit_logger.py`, no extra config needed
+Analysis:
+- Logs inspectable using `check_logs.py` utility
+- Ready for future integration into dashboards or admin viewer
+Status: ✅ Completed
+
 
 END OF FINDINGS LOG
 All phases above were successfully implemented and tested under simulated investigation scenarios.

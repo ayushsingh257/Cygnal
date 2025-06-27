@@ -6,8 +6,9 @@ import socket
 import boto3
 import logging
 from botocore.exceptions import BotoCoreError, ClientError
+from database import insert_lookup_log  # ✅ Phase 24: Log to SQLite
 
-# ========== AUDIT LOGGER (Phase 23.3) ==========
+# ========== AUDIT LOGGER (Phase 23.3 & 24) ==========
 
 # Config flags (you can move these to config.py or .env later)
 ENABLE_SYSLOG = True
@@ -52,8 +53,8 @@ def get_client_ip():
 
 def audit_log(tool: str, user: str, input_data, result_data):
     """
-    Append a structured audit log to audit_logs/audit_log.json
-    and forward to Syslog and CloudWatch if enabled.
+    Append a structured audit log to audit_logs/audit_log.json,
+    and forward to Syslog, CloudWatch, and SQLite DB if enabled.
     """
     try:
         os.makedirs("audit_logs", exist_ok=True)
@@ -67,7 +68,7 @@ def audit_log(tool: str, user: str, input_data, result_data):
             "result": result_data,
         }
 
-        # Save locally
+        # Save locally to file
         with open("audit_logs/audit_log.json", "a", encoding="utf-8") as f:
             f.write(json.dumps(log_entry) + "\n")
 
@@ -83,8 +84,10 @@ def audit_log(tool: str, user: str, input_data, result_data):
         # Send to CloudWatch
         if ENABLE_CLOUDWATCH and cloudwatch_client:
             try:
-                # Get sequence token
-                streams = cloudwatch_client.describe_log_streams(logGroupName=CLOUDWATCH_GROUP, logStreamNamePrefix=CLOUDWATCH_STREAM)
+                streams = cloudwatch_client.describe_log_streams(
+                    logGroupName=CLOUDWATCH_GROUP,
+                    logStreamNamePrefix=CLOUDWATCH_STREAM
+                )
                 token = streams['logStreams'][0].get('uploadSequenceToken')
 
                 cloudwatch_client.put_log_events(
@@ -98,6 +101,9 @@ def audit_log(tool: str, user: str, input_data, result_data):
                 )
             except (BotoCoreError, ClientError) as e:
                 print("[CloudWatch Error]", str(e))
+
+        # ✅ Phase 24: Save to SQLite database
+        insert_lookup_log(user, log_entry["ip"], tool, input_data, result_data)
 
     except Exception as e:
         print(f"[AUDIT LOGGING ERROR]: {e}")
