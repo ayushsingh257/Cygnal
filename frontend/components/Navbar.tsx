@@ -24,6 +24,13 @@ export default function Navbar() {
           </>
         ) : (
           <>
+            {/* ✅ Phase 23.2: Show Admin Audit Viewer if user is admin */}
+            {user.role === "admin" && (
+              <Link href="/admin/audit" className="navbar-link">
+                Admin Audit Viewer
+              </Link>
+            )}
+
             <span className="navbar-user">👤 {user.username}</span>
             <button onClick={logout} className="navbar-logout">Logout</button>
           </>
