@@ -8,7 +8,8 @@ type ToolKeys =
   | "screenshotUsed"
   | "metadataUsed"
   | "reverseImageUsed"
-  | "emailUsed"; // ✅ Added for Email Scanner
+  | "emailUsed"
+  | "malwareUsed"; // ✅ Added for Malware Scanner
 
 interface ScanEntry {
   tool: string;
@@ -23,7 +24,8 @@ interface ReportState {
   screenshotUsed: boolean;
   metadataUsed: boolean;
   reverseImageUsed: boolean;
-  emailUsed: boolean; // ✅ Added
+  emailUsed: boolean;
+  malwareUsed: boolean; // ✅ Added
 
   scanHistory: ScanEntry[];
   addToHistory: (entry: Omit<ScanEntry, "timestamp">) => void;
@@ -39,7 +41,8 @@ export const useReportStore = create<ReportState>((set) => ({
   screenshotUsed: false,
   metadataUsed: false,
   reverseImageUsed: false,
-  emailUsed: false, // ✅ Added
+  emailUsed: false,
+  malwareUsed: false, // ✅ Added
 
   scanHistory: [],
 
@@ -69,6 +72,7 @@ export const useReportStore = create<ReportState>((set) => ({
       screenshotUsed: false,
       metadataUsed: false,
       reverseImageUsed: false,
-      emailUsed: false, // ✅ Reset
+      emailUsed: false,
+      malwareUsed: false, // ✅ Reset
     })),
 }));

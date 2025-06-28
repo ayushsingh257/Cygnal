@@ -79,7 +79,9 @@ export default function Dashboard() {
 
   const colors = [
     "#FF69B4", "#8A2BE2", "#00BFFF", "#FFD700",
-    "#00FF7F", "#FF4500", "#9932CC", "#00CED1"
+    "#00FF7F", "#FF4500", "#9932CC", "#00CED1",
+    "#FF6347", "#40E0D0", "#BA55D3", "#7FFF00",
+    "#FF8C00", "#20B2AA", "#DA70D6", "#1E90FF"
   ];
 
   const timelineDatasets = Object.keys(timelineMap).map((tool, index) => ({

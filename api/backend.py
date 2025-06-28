@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -432,6 +435,36 @@ def reverse_image_search():
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route("/api/malware-scan", methods=["POST"])
+def malware_scan():
+    from malware_scanner import scan_file_hybrid_analysis  # ✅ Now using Hybrid Analysis
+    user = get_current_user()
+    
+    if "file" not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+    filename = file.filename
+    if filename == "":
+        return jsonify({"success": False, "error": "Filename is empty"}), 400
+
+    try:
+        os.makedirs("uploads", exist_ok=True)
+        filepath = os.path.join("uploads", filename)
+        file.save(filepath)
+
+        result = scan_file_hybrid_analysis(filepath)  # 🔁 Hybrid scan function
+
+        # ✅ Audit + log
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Malware Scanner", {"filename": filename}, result)
+        audit_log("Malware Scanner", user, {"filename": filename}, result)
+
+        os.remove(filepath)
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        logging.error(f"Malware scan failed: {e}")
+        return jsonify({"success": False, "error": f"Scan failed: {str(e)}"}), 500
 
 
 

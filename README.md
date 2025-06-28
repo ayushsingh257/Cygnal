@@ -1,145 +1,193 @@
-Cygnal OSINT Reconnaissance Framework
+# Cygnal OSINT Reconnaissance Framework
 
-Introduction
+## Introduction
+
 Cygnal is an open-source intelligence (OSINT) platform engineered for deep surface analysis, digital threat investigation, and metadata-driven reconnaissance. The system integrates passive scanning, content inspection, reverse image indexing, and forensic logging to assist analysts in profiling digital assets with precision. Designed for cybersecurity professionals, digital forensics teams, and intelligence analysts, Cygnal prioritizes modularity, ethical compliance, and verifiable reporting.
 
-Motivation
+## Motivation
+
 In contemporary threat landscapes, adversaries increasingly obfuscate their infrastructure behind ephemeral domains, evasive headers, and minimal WHOIS footprints. Cygnal addresses this challenge by turning surface-level digital exposure—headers, contact data, domain records, images—into actionable intelligence, captured in a reproducible and structured format.
 
-Technical Overview
+## Technical Overview
+
 Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform follows modular microservice-style principles for each recon tool, supporting separation of concerns, ease of extension, and secure access control via JWT authentication and role-based privileges.
 
-## Current Capabilities (As of Phase 26)
-Cygnal includes the following features:
+---
 
-- **Security Header Analysis**: Detection of misconfigured or missing HTTP security headers.
-- **WHOIS Record Extraction**: Passive profiling of domain registration, ownership, and expiration.
-- **Website Screenshot Capture**: Full-page rendering via Selenium for visual archiving.
-- **Metadata Recon Tool**: Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
-- **Reverse Image Search (Offline)**: AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
-- **Email Exposure Scanner**:
+## ✅ Current Capabilities (As of Phase 27)
+
+Cygnal includes the following tools:
+
+- **Security Header Analysis**  
+  Detection of misconfigured or missing HTTP security headers.
+
+- **WHOIS Record Extraction**  
+  Passive profiling of domain registration, ownership, and expiration.
+
+- **Website Screenshot Capture**  
+  Full-page rendering via Selenium for visual archiving.
+
+- **Metadata Recon Tool**  
+  Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
+
+- **Reverse Image Search (Offline)**  
+  AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
+
+- **Email Exposure Scanner**
   - Static Regex-based scan of visible email addresses.
   - Subpage crawler for recursive page scanning.
   - JavaScript-rendered extraction using headless Chrome.
   - Trust model scoring based on source context.
-- **PDF Report Generator**: Snapshot of analyst sessions and tool results (Phase 17, postponed).
-- **User Authentication**: Role-based access (Admin, Analyst, Viewer) via JWT and bcrypt-secured credentials.
-- **Analyst Session Logs**: Structured session-wide tracking with JSON/CSV export.
-- **Audit Trail Logging**:
-  - File-based JSON audit history.
-  - Syslog and AWS CloudWatch forwarding (Phase 23).
-  - SQLite database mirroring for audit inspection (Phase 24).
-- **Visual Dashboard** *(Phase 26)*:
-  - Role-restricted session analytics for admins.
-  - Tool usage frequency bar chart.
-  - Tool usage timeline (multi-line graph).
-  - Last 5 days graph for daily operational review.
-  - Smooth animated slide-in visualization.
 
-System Architecture
-The architecture follows a clear separation of layers:
+- **🛡️ Malware Scanner (Hybrid Analysis Integration)** *(Phase 27)*  
+  Enables secure file-based malware scanning via [Hybrid Analysis](https://www.hybrid-analysis.com/):
+  - Verdict (malicious/suspicious/clean)
+  - Threat family and score
+  - Environment used during sandboxing
+  - Automatically logs to Audit Viewer and Visual Dashboard
 
-Frontend: Next.js 14 (React), Zustand state management, TailwindCSS for responsive UI, dynamic module imports for performance.
-Backend: Flask + Python, secured with JWT, modular routes per tool, logging, and tamper-resistant audit trails.
+  **🔐 Requirements**  
+  An API key is required from Hybrid Analysis. If not set or permission is restricted, the tool fails gracefully.
 
-Storage:
-audit_logs.json: Append-only audit file
-lookup_logs.db: SQLite database (Phase 24)
-session_logs/: Tool-wise session artifacts
-screenshots/, temp_upload/: Runtime-generated evidence
+  Set the key via:
 
+  - PowerShell:  
+    ```powershell
+    $env:HYBRID_API_KEY="your_api_key"
+    ```
 
-Phase Overview
-Phase 1–16: Core Tools & UI
-Security Header Scanner
-WHOIS Lookup
-Screenshot Tool
-Email Scanner (HTML, JS, Crawler)
-Metadata Recon (EXIF, PDF, DOCX)
-Reverse Image Search (CLIP + FAISS)
-Session Log Export
-UI redesign (Next.js + Tailwind)
-User Authentication
-Role-Based Access Control
+  - Linux/macOS:  
+    ```bash
+    export HYBRID_API_KEY=your_api_key
+    ```
 
-### Phase 17–20: Reporting and Access Control
-- Unified PDF Reporting (Postponed)
-- Secure login/register with JWT
-- Local session persistence (Zustand)
-- Route-level restriction
-- Analyst/Admin role enforcement
+  > Note: This module respects key limitations. Use in production environments only with vetted API access.
 
-### Phase 21–24: Logging, Audit & SIEM Prep
-- **Phase 21**: Role-based access enforced via frontend/backend JWT parsing
-- **Phase 22**: Advanced Email Scanner (with fallback, trust scoring, crawl depth)
-- **Phase 23**:
-  - File-based JSON audit logs
-  - Syslog UDP export (configurable)
-  - AWS CloudWatch logging
-- **Phase 24**:
-  - SQLite database mirroring of audit logs
-  - Persistent forensic storage of IP, user, tool, input, and result
-  - `check_logs.py` utility for direct inspection (CLI)
+- **PDF Report Generator**  
+  Full PDF snapshot of analyst results with branding and timestamps (Phase 17).
 
-### Phase 26 – Visual Analytics Dashboard
-The dashboard provides role-gated graphical analytics for audit log review:
-- Tool Usage Frequency (Bar Graph)
-- Tool Usage Timeline (Multi-line Graph per Tool)
-- Tool Usage (Last 5 Days View)
-- Automatically updates based on SQLite history
-- Admin-only access enforced via route + JWT validation
+- **User Authentication**  
+  JWT-secured login with role-based access (Admin, Analyst, Viewer).
 
-Sample Output (Tool Snapshots)
+- **Analyst Session Logs**  
+  Per-tool session logging with export and inspection.
 
-Header Scanner
+- **Audit Trail Logging**
+  - File-based logs
+  - Syslog export
+  - AWS CloudWatch integration
+  - SQLite mirroring for analytics
+
+- **Visual Dashboard (Phase 26)**
+  - Tool Usage Frequency (bar graph)
+  - Tool Usage Timeline (multi-line chart)
+  - Tool Usage (Last 5 Days)
+  - Admin-only access
+  - Auto-update via session logs
+
+---
+
+## System Architecture
+
+**Frontend:**  
+Next.js 14, Zustand, TailwindCSS, modular dynamic imports.
+
+**Backend:**  
+Python + Flask, modular routes, JWT auth, logging, audit trail.
+
+**Storage:**
+- `audit_logs/`: JSON logs per scan
+- `lookup_logs.db`: SQLite audit trail (Phase 24)
+- `session_logs/`: Structured per-session JSON data
+- `screenshots/`, `temp_upload/`: Runtime output
+
+---
+
+## Phase Overview
+
+### Phase 1–16: Core Recon Tools
+- Header Scanner
+- WHOIS Lookup
+- Screenshot Capture
+- Email Exposure Scanner
+- Metadata Extraction (EXIF/PDF/DOCX)
+- Reverse Image Search (CLIP+FAISS)
+- Session Logging + Audit Viewer
+- UI overhaul with Tailwind + Next.js
+- Authentication, RBAC, PDF reporting
+
+### Phase 17–20: Reporting & Auth
+- JWT-secured routes
+- PDF Snapshot Reports
+- Admin/Analyst separation
+- Persistent session history
+
+### Phase 21–24: Audit & Logging
+- Syslog & CloudWatch export
+- SQLite-based audit mirroring
+- IP, User, Tool, Input, Result
+- Queryable logs for dashboards
+
+### Phase 26: Visual Dashboard
+- Admin-only analytics view
+- Tool frequency + timeline charts
+- JSON viewer for raw audit events
+
+### Phase 27: Malware Scanner
+- Hybrid Analysis integration
+- Threat score + sandbox verdicts
+- Graceful fallback if key is not set
+- Audit logs and dashboard support
+
+---
+
+## Sample Outputs
+
+**Header Scanner**
 [+] Content-Security-Policy: Present
 [-] X-Frame-Options: Missing
-[+] Strict-Transport-Security: Present
 
-WHOIS Record
+**WHOIS Lookup**
 Domain: cyberpulse.in
 Registrar: GoDaddy
-Creation: 2024-06-24
+Created: 2024-06-24
 Country: IN
 
-Metadata Extraction (test.pdf)
+**Metadata Extraction**
+Tool: Canva
 Author: Ayush Singh
 Created: 2024-06-20T12:44:22Z
-Tool: Canva
 
-Reverse Image Search
-Match Path: reference_images/shoe.png
-Match Confidence: 92.31%
+**Reverse Image Match**
+Path: reference_images/shoe.png
+Confidence: 92.31%
 
-Phase 24 – Persistent Audit Logging (SQLite)
-The current phase introduces long-term, queryable audit storage.
-All tool events (Header, WHOIS, Metadata, Image, Email) are now mirrored into lookup_logs.db.
-The lookups table stores:
-timestamp, user, ip, tool, input, result
-Logs can be accessed via CLI using check_logs.py or queried programmatically for dashboards.
-This ensures tamper-resistant analyst accountability and forensic reproducibility in regulated environments.
+**Malware Scanner (Hybrid Analysis)**
+Verdict: malicious
+Threat Score: 85
+Environment: Windows 10 64-bit
 
-Installation
-Clone the repository:
+---
+
+## Installation
+
+# Clone
 git clone https://github.com/ayushsingh257/Cygnal.git
 cd Cygnal
 
-Install backend dependencies:
+# Backend
 cd api
 pip install -r requirements.txt
-
-Start Flask backend:
 python backend.py
 
-Run frontend (in separate terminal):
-cd frontend
+# Frontend
+cd ../frontend
 npm install
 npm run dev
 
-
 Licensing & Ethics
-Cygnal is licensed under the MIT License (© 2025 Ayush Singh Kshatriya).
-This software is intended strictly for lawful, ethical use in intelligence, threat research, and digital forensics. Unauthorized scanning of third-party infrastructure is discouraged and may constitute a legal offense.
+Cygnal is released under the MIT License (© 2025 Ayush Singh Kshatriya).
+It is intended for lawful and ethical cybersecurity investigations. Unauthorized use against external infrastructure is discouraged and may violate legal statutes.
 
 Contact
 Ayush Singh Kshatriya
