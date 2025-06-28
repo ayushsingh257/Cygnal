@@ -17,6 +17,9 @@ const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearc
 const EmailScanner = dynamic(() => import("../components/EmailScanner"), {
   ssr: false,
 });
+const MalwareScanner = dynamic(() => import("../components/MalwareScanner"), {
+  ssr: false,
+});
 const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
   ssr: false,
 });
@@ -35,6 +38,7 @@ export default function Home() {
     { id: 3, name: "Metadata Recon Tool", component: <MetadataTool /> },
     { id: 4, name: "Reverse Image Search", component: <ReverseImageSearch /> },
     { id: 5, name: "Email Scanner", component: <EmailScanner /> },
+    { id: 6, name: "Malware Scanner", component: <MalwareScanner /> }, // ✅ New tool
   ];
 
   return (
