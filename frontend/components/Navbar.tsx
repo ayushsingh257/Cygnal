@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import "../app/navbar.css"; // or move to styles if needed
+import "../app/navbar.css";
 
 export default function Navbar() {
   const { user, logout, loadUserFromStorage } = useAuthStore();
@@ -24,11 +24,16 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            {/* ✅ Phase 23.2: Show Admin Audit Viewer if user is admin */}
+            {/* ✅ Admin-only links */}
             {user.role === "admin" && (
-              <Link href="/admin/audit" className="navbar-link">
-                Admin Audit Viewer
-              </Link>
+              <>
+                <Link href="/admin/audit" className="navbar-link">
+                  Admin Audit Viewer
+                </Link>
+                <Link href="/dashboard" className="navbar-link">
+                  Visual Dashboard
+                </Link>
+              </>
             )}
 
             <span className="navbar-user">👤 {user.username}</span>

@@ -9,27 +9,32 @@ In contemporary threat landscapes, adversaries increasingly obfuscate their infr
 Technical Overview
 Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform follows modular microservice-style principles for each recon tool, supporting separation of concerns, ease of extension, and secure access control via JWT authentication and role-based privileges.
 
-Current Capabilities (As of Phase 24)
+## Current Capabilities (As of Phase 26)
 Cygnal includes the following features:
-Security Header Analysis: Detection of misconfigured or missing HTTP security headers.
-WHOIS Record Extraction: Passive profiling of domain registration, ownership, and expiration.
-Website Screenshot Capture: Full-page rendering via Selenium for visual archiving.
-Metadata Recon Tool: Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
-Reverse Image Search (Offline): AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
-Email Exposure Scanner:
-Static Regex-based scan of visible email addresses.
-Subpage crawler for recursive page scanning.
-JavaScript-rendered extraction using headless Chrome.
-Trust model scoring based on source context.
-PDF Report Generator: Snapshot of analyst sessions and tool results (Phase 17, postponed).
-User Authentication: Role-based access (Admin, Analyst, Viewer) via JWT and bcrypt-secured credentials.
-Analyst Session Logs: Structured session-wide tracking with JSON/CSV export.
-Audit Trail Logging:
-File-based JSON audit history.
-Syslog and AWS CloudWatch forwarding (Phase 23).
-SQLite database mirroring for audit inspection (Phase 24).
-Role Enforcement: Tools are restricted to authenticated users with analyst/admin privileges.
 
+- **Security Header Analysis**: Detection of misconfigured or missing HTTP security headers.
+- **WHOIS Record Extraction**: Passive profiling of domain registration, ownership, and expiration.
+- **Website Screenshot Capture**: Full-page rendering via Selenium for visual archiving.
+- **Metadata Recon Tool**: Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
+- **Reverse Image Search (Offline)**: AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
+- **Email Exposure Scanner**:
+  - Static Regex-based scan of visible email addresses.
+  - Subpage crawler for recursive page scanning.
+  - JavaScript-rendered extraction using headless Chrome.
+  - Trust model scoring based on source context.
+- **PDF Report Generator**: Snapshot of analyst sessions and tool results (Phase 17, postponed).
+- **User Authentication**: Role-based access (Admin, Analyst, Viewer) via JWT and bcrypt-secured credentials.
+- **Analyst Session Logs**: Structured session-wide tracking with JSON/CSV export.
+- **Audit Trail Logging**:
+  - File-based JSON audit history.
+  - Syslog and AWS CloudWatch forwarding (Phase 23).
+  - SQLite database mirroring for audit inspection (Phase 24).
+- **Visual Dashboard** *(Phase 26)*:
+  - Role-restricted session analytics for admins.
+  - Tool usage frequency bar chart.
+  - Tool usage timeline (multi-line graph).
+  - Last 5 days graph for daily operational review.
+  - Smooth animated slide-in visualization.
 
 System Architecture
 The architecture follows a clear separation of layers:
@@ -57,24 +62,32 @@ UI redesign (Next.js + Tailwind)
 User Authentication
 Role-Based Access Control
 
-Phase 17–20: Reporting and Access Control
-Unified PDF Reporting (Postponed)
-Secure login/register with JWT
-Local session persistence (Zustand)
-Route-level restriction
-Analyst/Admin role enforcement
+### Phase 17–20: Reporting and Access Control
+- Unified PDF Reporting (Postponed)
+- Secure login/register with JWT
+- Local session persistence (Zustand)
+- Route-level restriction
+- Analyst/Admin role enforcement
 
-Phase 21–24: Logging, Audit & SIEM Prep
-Phase 21: Role-based access enforced via frontend/backend JWT parsing
-Phase 22: Advanced Email Scanner (with fallback, trust scoring, crawl depth)
-Phase 23:
-File-based JSON audit logs
-Syslog UDP export (configurable)
-AWS CloudWatch logging
-Phase 24:
-SQLite database mirroring of audit logs
-Persistent forensic storage of IP, user, tool, input, and result
-Check_logs.py utility for direct inspection (CLI)
+### Phase 21–24: Logging, Audit & SIEM Prep
+- **Phase 21**: Role-based access enforced via frontend/backend JWT parsing
+- **Phase 22**: Advanced Email Scanner (with fallback, trust scoring, crawl depth)
+- **Phase 23**:
+  - File-based JSON audit logs
+  - Syslog UDP export (configurable)
+  - AWS CloudWatch logging
+- **Phase 24**:
+  - SQLite database mirroring of audit logs
+  - Persistent forensic storage of IP, user, tool, input, and result
+  - `check_logs.py` utility for direct inspection (CLI)
+
+### Phase 26 – Visual Analytics Dashboard
+The dashboard provides role-gated graphical analytics for audit log review:
+- Tool Usage Frequency (Bar Graph)
+- Tool Usage Timeline (Multi-line Graph per Tool)
+- Tool Usage (Last 5 Days View)
+- Automatically updates based on SQLite history
+- Admin-only access enforced via route + JWT validation
 
 Sample Output (Tool Snapshots)
 

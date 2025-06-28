@@ -1,10 +1,6 @@
-// ✅ frontend/app/admin/audit/page.tsx
-import dynamic from "next/dynamic";
-
-const AuditTrailViewer = dynamic(() => import("@/components/Admin/AuditTrailViewer"), {
-  ssr: false,
-});
+// ✅ This is now a Server Component (no "use client" needed)
+import AdminAuditWrapper from "@/components/Admin/AdminAuditWrapper";
 
 export default function AdminAuditPage() {
-  return <AuditTrailViewer />;
+  return <AdminAuditWrapper />;
 }

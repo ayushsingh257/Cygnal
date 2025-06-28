@@ -247,3 +247,18 @@ Status: ✅ Completed
 
 END OF FINDINGS LOG
 All phases above were successfully implemented and tested under simulated investigation scenarios.
+
+[Phase 26] – Visual Dashboard (Role-Based Tool Usage Analytics)
+Dashboard:
+Admin-only dashboard now accessible at /dashboard
+Displays real-time analytics via Chart.js:
+📊 Tool Usage Frequency (bar chart)
+📈 Tool Usage Timeline (per-tool line chart)
+📆 Last 5 Days Activity (rolling line graph with dynamic updates)
+Color-coded by tool, with interactive legends and scroll animations
+Fully integrated into frontend via dynamic SSR-safe import
+Access Control:
+Dashboard route is protected via JWT role-check (admin only)
+Non-admins are redirected silently back to /
+Status: ✅ Completed
+

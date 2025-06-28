@@ -1,0 +1,30 @@
+.dashboard-container {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.chart-box {
+  background-color: #111;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #333;
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.2);
+}
+
+.raw-log-view pre {
+  background-color: #111;
+  border: 1px solid #444;
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  color: #eaeaea;
+  overflow-x: auto;
+  margin-top: 1rem;
+}

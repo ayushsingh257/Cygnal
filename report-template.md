@@ -263,3 +263,81 @@ Cygnal now features a dual-mode Email Scanner that supports both static HTML sca
 
 🧪 Analyst Note:
 This layered scanning approach ensures higher coverage in real-world OSINT scenarios, especially on SPAs or sites with JavaScript-heavy rendering. The fallback logic mimics human browsing behavior, increasing effectiveness.
+
+## 🧠 Phase 23: Audit Trail Logging & SIEM Integration
+
+Cygnal introduces a multi-channel audit logging system to record every tool usage event in detail, ensuring accountability, traceability, and enterprise-grade compliance.
+
+### Key Features:
+- Logs each action with:
+  - Tool name
+  - Username
+  - IP address
+  - Input data
+  - Result output
+  - UTC timestamp
+- Stored in JSON Lines format (`audit_logs/audit_log.json`) for easy parsing
+- Forwarded in real time to:
+  - Local Syslog (UDP 514) for SOC/SIEM ingestion
+  - AWS CloudWatch Logs for cloud-scale observability
+
+### Security Enhancements:
+- Tamper-resistant append-only structure
+- Logging is non-intrusive — failures never disrupt tool execution
+- Future-ready for audit dashboards and automated threat modeling
+
+🧪 Analyst Note:
+This phase establishes foundational compliance infrastructure and supports incident response auditing. It is now possible to correlate OSINT events with analysts and export full trails for regulators or case files.
+
+---
+
+## 🗄️ Phase 24: Persistent Logging to SQLite Database
+
+To support long-term investigations, Cygnal now persists audit events in a structured, queryable SQLite database (`lookup_logs.db`).
+
+### Key Features:
+- Stores detailed tool usage data in `lookups` table
+  - Columns: UUID, timestamp, username, IP, tool, input, result
+- Enables:
+  - Querying recent activity via CLI or scripts
+  - Linking lookup history to analyst profiles
+  - Future integration into admin dashboards and charts
+- CLI utility (`check_logs.py`) available for querying recent logs
+
+### Data Design:
+- Optimized schema for indexing, sorting, and retrieval
+- Prevents duplicate entries using UUIDs
+- Maintains same logging structure as JSON logs for consistency
+
+🧪 Analyst Note:
+SQLite logging gives investigators the ability to retain and query past tool usage with precision. This enhances forensics and allows for pattern analysis across analysts, tools, or targets.
+
+---
+
+## 📊 Phase 26: Visual Dashboard for Tool Usage Analytics
+
+Cygnal now includes an interactive, role-restricted visual dashboard that transforms lookup logs into actionable intelligence graphs — accessible only to Admin users.
+
+### Key Features:
+- **Tool Usage Frequency** (Bar Chart)
+  - Shows the number of times each tool was used
+  - Useful for understanding tool popularity and analyst behavior
+- **All-Time Tool Usage Timeline** (Line Chart)
+  - Visualizes how often each tool was used across all days since first recorded log
+  - Multi-line graph per tool for comparative trend analysis
+- **Last 5 Days Usage Timeline** (Line Chart)
+  - Displays tool usage trends for the most recent 5-day window (auto-adjusts daily)
+  - Helps track recent analyst activity and operational tempo
+
+### Technical Highlights:
+- Admin-only dashboard page (`/dashboard`) protected via JWT role check
+- Built with `chart.js` and auto-refreshes data from `/api/history`
+- Responsive design with smooth entry animations
+
+### UI/UX Enhancements:
+- Dashboard hidden entirely from non-admins
+- Conditional rendering ensures only authorized personnel access visual insights
+- Slide-in animations triggered on page load and scroll into view
+
+🧪 **Analyst Note**:
+This dashboard provides security teams with rapid visual cues into usage patterns, spike detection, and anomaly discovery. It sets the stage for deeper behavioral analytics in future phases.

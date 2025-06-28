@@ -17,7 +17,7 @@ from jwt_utils import create_token
 from jwt_utils import decode_token  # ✅ Required for username extraction
 from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
 from audit_logger import audit_log  # ✅ Phase 23.1
-from database import init_lookup_db  # ✅ Phase 24: DB init
+from database import init_lookup_db, insert_lookup_log
 
 import threading
 import time  # ✅ Add this if missing
@@ -134,7 +134,7 @@ def get_audit_logs():
         if decoded.get("role") != "admin":
             return jsonify({"success": False, "error": "Access denied. Admins only."}), 403
 
-        audit_path = "audit_logs.json"
+        audit_path = "audit_logs/audit_log.json"  # ✅ Updated path
         if not os.path.exists(audit_path):
             return jsonify({"success": True, "logs": []})
 
@@ -171,7 +171,8 @@ def header_scan():
         ]
         results = [{"name": h, "present": h in headers} for h in expected_headers]
 
-        audit_log("Header Scanner", user, url, results)
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Header Scanner", {"url": url}, results)
         return jsonify({"success": True, "headers": results})
     except requests.exceptions.RequestException as e:
         return jsonify({"success": False, "error": f"Header scan failed: {str(e)}"}), 500
@@ -197,7 +198,10 @@ def whois_lookup():
             "country": str(w.country)
         }
 
-        audit_log("WHOIS Lookup", user, domain, result)
+        # ✅ Log this lookup
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "WHOIS Lookup", {"domain": domain}, result)
+
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"WHOIS lookup failed: {str(e)}"}), 500
@@ -237,7 +241,6 @@ def email_scan():
                 for link in soup.find_all("a", href=True):
                     href = link["href"]
                     parsed = urlparse(href)
-
                     if href.startswith("/") or parsed.netloc == base_domain:
                         full_url = href if href.startswith("http") else f"https://{base_domain}{href}"
                         internal_links.add(full_url)
@@ -253,7 +256,10 @@ def email_scan():
             "count": len(found_emails)
         }
 
-        audit_log("Email Scanner", user, {"url": url, "includeSubpages": include_subpages}, result)
+        # ✅ Log this scan
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Email Scanner", {"url": url, "includeSubpages": include_subpages}, result)
+
         return jsonify(result)
 
     except Exception as e:
@@ -301,14 +307,16 @@ def email_scan_js():
         found_emails = list(set(re.findall(email_pattern, visible_text)))
 
         result = {"success": True, "emails": found_emails, "count": len(found_emails)}
-        audit_log("Email Scanner (JS)", user, {"url": url}, result)
+
+        # ✅ Log to DB
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Email Scanner (JS)", {"url": url}, result)
 
         return jsonify(result)
 
     except Exception as e:
         logging.error(f"JS email scan failed: {e}")
         return jsonify({"success": False, "error": f"JS email scan failed: {str(e)}"}), 500
-    
 
 @app.route("/api/screenshot", methods=["POST"])
 def screenshot():
@@ -340,13 +348,16 @@ def screenshot():
             encoded = base64.b64encode(img.read()).decode("utf-8")
 
         result = {"success": True, "image": encoded}
-        audit_log("Screenshot Tool", user, {"url": url}, {"screenshot_saved": filename})
+
+        # ✅ Log to DB
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Screenshot Tool", {"url": url}, {"screenshot_saved": filename})
 
         return jsonify(result)
 
     except Exception as e:
         return jsonify({"success": False, "error": f"Screenshot failed: {str(e)}"}), 500
-
+    
 @app.route("/api/metadata", methods=["POST"])
 def metadata_extraction():
     user = get_current_user()
@@ -381,8 +392,12 @@ def metadata_extraction():
             metadata = {"error": "Unsupported file type."}
 
         os.remove(temp_path)
+
         result = {"success": True, "metadata": metadata}
-        audit_log("Metadata Extraction", user, {"filename": filename}, metadata)
+
+        # ✅ Log to DB
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Metadata Extraction", {"filename": filename}, metadata)
 
         return jsonify(result)
 
@@ -406,13 +421,17 @@ def reverse_image_search():
         os.remove(filepath)
 
         result = {"success": True, "results": results}
-        audit_log("Reverse Image Search", user, {"filename": filename}, {"matches_found": len(results)})
+
+        # ✅ Log to DB
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Reverse Image Search", {"filename": filename}, {"matches_found": len(results)})
 
         return jsonify(result)
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 
 
@@ -487,7 +506,7 @@ def register_user():
         if not success:
             return jsonify({"success": False, "error": "User already exists."}), 409
 
-        role = "analyst"  # hardcoded role for now
+        role = "admin" if username == "Ayush Singh" else "analyst"  # hardcoded role for now
         token = create_token({"username": username, "role": role})
         return jsonify({
             "success": True,

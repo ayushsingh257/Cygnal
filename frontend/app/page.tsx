@@ -6,31 +6,24 @@ import { useState } from "react";
 import HeaderScanner from "../components/HeaderScanner";
 import WhoisLookup from "../components/WhoisLookup";
 import ScreenshotTool from "../components/ScreenshotTool";
-import Navbar from "../components/Navbar"; // ✅ Added navbar import
+import Navbar from "../components/Navbar";
 
-// ✅ Dynamically import MetadataTool with SSR disabled
 const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
   ssr: false,
 });
-
-// ✅ Dynamically import ReverseImageSearch with SSR disabled
 const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearch"), {
   ssr: false,
 });
-
-// ✅ Dynamically import EmailScanner with SSR disabled
 const EmailScanner = dynamic(() => import("../components/EmailScanner"), {
   ssr: false,
 });
-
-// ✅ Dynamically import ScanHistory with SSR disabled
 const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
   ssr: false,
 });
 
 import "./Hero.css";
 import "./Scanners.css";
-import "./navbar.css"; // Import the new CSS file
+import "./navbar.css";
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<number | null>(null);
@@ -41,15 +34,16 @@ export default function Home() {
     { id: 2, name: "Website Screenshot", component: <ScreenshotTool /> },
     { id: 3, name: "Metadata Recon Tool", component: <MetadataTool /> },
     { id: 4, name: "Reverse Image Search", component: <ReverseImageSearch /> },
-    { id: 5, name: "Email Scanner", component: <EmailScanner /> }, // ✅ Added Email Scanner
+    { id: 5, name: "Email Scanner", component: <EmailScanner /> },
   ];
 
   return (
     <main className="min-h-screen bg-black text-white font-sans px-6 py-10 relative overflow-hidden">
-      {/* ✅ NAVBAR (Always on top) */}
+      {/* NAVBAR */}
       <Navbar />
+
       {/* HERO SECTION */}
-      <section className="hero-container text-center relative z-10 mt-16"> {/* Added margin-top to avoid overlap */}
+      <section className="hero-container text-center relative z-10 mt-16">
         <div className="video-wrapper">
           <video
             autoPlay
@@ -73,7 +67,7 @@ export default function Home() {
         </p>
       </section>
 
-      {/* SCANNERS SECTION */}
+      {/* TOOLS SECTION */}
       <section className="scanners-section relative z-10 mt-16">
         <h2 className="text-4xl font-bold mb-10 text-center bg-gradient-to-r from-pink-500 to-purple-700 bg-clip-text text-transparent">
           Tools
@@ -99,8 +93,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SESSION HISTORY TOGGLE & VIEWER */}
-      <section className="mt-6 text-center">
+      {/* SESSION LOG HISTORY */}
+      <section className="mt-10 text-center">
         <ScanHistory />
       </section>
 
