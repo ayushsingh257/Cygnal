@@ -10,8 +10,9 @@ type ToolKeys =
   | "reverseImageUsed"
   | "emailUsed"
   | "malwareUsed"
-  | "ipReputationUsed"  // ✅ Phase 28
-  | "passiveDNSUsed";   // ✅ Phase 29
+  | "ipReputationUsed"   // ✅ Phase 28
+  | "passiveDNSUsed"     // ✅ Phase 29
+  | "portScanUsed";      // ✅ Phase 30
 
 interface ScanEntry {
   tool: string;
@@ -30,6 +31,7 @@ interface ReportState {
   malwareUsed: boolean;
   ipReputationUsed: boolean;  // ✅ Phase 28
   passiveDNSUsed: boolean;    // ✅ Phase 29
+  portScanUsed: boolean;      // ✅ Phase 30
 
   scanHistory: ScanEntry[];
   addToHistory: (entry: Omit<ScanEntry, "timestamp">) => void;
@@ -48,7 +50,8 @@ export const useReportStore = create<ReportState>((set) => ({
   emailUsed: false,
   malwareUsed: false,
   ipReputationUsed: false,
-  passiveDNSUsed: false,  // ✅ Init
+  passiveDNSUsed: false,
+  portScanUsed: false, // ✅ Init
 
   scanHistory: [],
 
@@ -59,7 +62,7 @@ export const useReportStore = create<ReportState>((set) => ({
           ...entry,
           timestamp: new Date().toISOString(),
         },
-        ...state.scanHistory.slice(0, 49), // keep max 50 entries
+        ...state.scanHistory.slice(0, 49),
       ],
     })),
 
@@ -81,6 +84,7 @@ export const useReportStore = create<ReportState>((set) => ({
       emailUsed: false,
       malwareUsed: false,
       ipReputationUsed: false,
-      passiveDNSUsed: false, // ✅ Reset
+      passiveDNSUsed: false,
+      portScanUsed: false, // ✅ Reset
     })),
 }));

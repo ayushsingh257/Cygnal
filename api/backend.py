@@ -24,15 +24,18 @@ from database import init_lookup_db, insert_lookup_log
 import threading
 import time
 from bs4 import BeautifulSoup
+
 # Metadata tools
 from PIL import Image
 from PIL.ExifTags import TAGS
 import fitz  # PyMuPDF
 import docx
+
 # Reverse image search
 from reverse_image_search import perform_reverse_image_search
 from ip_reputation import get_ip_reputation  # ✅ Phase 28
 from passive_dns import get_passive_dns # ✅ Phase 29
+from port_scanner import scan_target
 
 
 # Phase 18 logging dependencies
@@ -536,6 +539,42 @@ def passive_dns_lookup():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"Passive DNS lookup failed: {str(e)}"}), 500
+
+@app.route("/api/port-scan", methods=["POST"])
+def port_scan():
+    user = get_current_user()
+    try:
+        data = request.get_json()
+        target = data.get("target", "").strip()
+        mode = data.get("mode", "fast")
+
+        if not target:
+            return jsonify({"error": "Missing target"}), 400
+
+        result = scan_target(target, mode)
+        if "error" in result:
+            return jsonify(result), 500
+
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Port Scanner", {"target": target, "mode": mode}, result)
+        audit_log("Port Scanner", user, {"target": target, "mode": mode}, result)
+
+        # ✅ Write to session logs for Visual Dashboard
+        scan_log = {
+            "tool": "Port Scanner",
+            "input": f"{target} ({mode})",
+            "result": result,
+            "user": user,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        os.makedirs("session_logs", exist_ok=True)
+        session_id = str(uuid.uuid4())
+        with open(f"session_logs/{session_id}.json", "w") as f:
+            json.dump(scan_log, f, indent=2)
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Scan failed: {str(e)}"}), 500
 
 
 # ========== NEW: PHASE 18 – SCAN LOGGING ==========

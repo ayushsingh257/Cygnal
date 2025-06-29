@@ -282,7 +282,37 @@ Status: ✅ Completed
 
 ---
 
-END OF FINDINGS LOG  
+[Phase 30] – Port Scanner (Nmap, Masscan Wrapper)  
+Tool: PortScanTool  
+Target: cyberpulse.in  
+Scan Engines: Nmap (TCP), Masscan (High-speed UDP/TCP)  
+Open Ports Detected:  
+- 80 (HTTP), 443 (HTTPS), 22 (SSH)  
+- Masscan speed scan confirmed port 8080 on alternate interface  
+Scan Modes:  
+- Quick (Top 1000 ports)  
+- Full (1-65535)  
+Use Case: Identify exposed services, discover shadow services, pre-recon for vulnerability analysis
+Integration: Local execution of Nmap and Masscan with result normalization
+Logging:
+- Admin Audit Trail: ✅
+- Visual Dashboard Timeline: ✅
+- Session History Log: ✅
+
+⚠️ **System Compatibility Note:**
+This module requires elevated network privileges (raw socket or pcap access) and Linux/WSL environments for full Masscan/Nmap functionality.
+- **Masscan**: May fail silently or show interface errors on Windows without WinPcap/Npcap or when firewall restricts outbound packets.
+- **Nmap**: Service/version detection (-sV) and banner grabbing work best on Unix-based systems with full socket access.
+- Tool execution is sandbox-aware and skips scanning if unsupported environment is detected.
+- Analyst is notified of such limitations in frontend.
+
+Design Note:
+Masscan used for rapid initial sweep; Nmap follows up on detected ports for banner and service fingerprinting. Tool balances depth and speed based on analyst selection. Normalized output includes port, protocol, service guess, and optional banner.  
+Status: ✅ Completed (fully operational in compatible environments)
+
+---
+
+END OF FINDINGS LOG
 All modules listed above were successfully implemented, tested, and validated in a secure analyst environment using local and offline simulation workflows.  
 
 © 2025 Ayush Singh Kshatriya – Cygnal OSINT & Reconnaissance Framework

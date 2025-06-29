@@ -169,6 +169,37 @@ Last 5 Days Trendline
 Note:
 Malware Scanner, IP Reputation, and Passive DNS activity are all integrated into these analytics tools once logged. Admins can trace historical tool usage via multi-source logs.
 
+🌐 11. Subdomain Scanner (Amass / SecurityTrails)
+
+Domain Queried: example.com
+Tool: Subdomain Reconnaissance Module
+Engine: SecurityTrails API / Amass
+
+**Subdomains Discovered:**
+- blog.example.com
+- dev.example.com
+- mail.example.com
+- assets.example.com
+
+**Total Subdomains:** 4
+**Source:** Passive API Lookup
+
+**Analyst Note:**
+Subdomain enumeration reveals hidden or staging infrastructure. Discovered assets may host outdated services, development environments, or misconfigured endpoints — all of which increase the attack surface.
+Passive enumeration avoids detection and is ideal for stealthy reconnaissance.
+
+> Note: If SecurityTrails API is not configured, fallback to Amass CLI (if installed locally).
+
+📈 12. Visual Analytics (Admin-Only Dashboard)
+Cygnal includes a dashboard for real-time tool usage tracking:
+Tool Usage Frequency (Bar Chart)
+Tool Usage Timeline (Multi-Line Chart)
+Last 5 Days Trendline
+
+Note:
+Malware Scanner, IP Reputation, and Passive DNS activity are all integrated into these analytics tools once logged. Admins can trace historical tool usage via multi-source logs.
+
+
 ✅ Final Analyst Statement
 This session highlights the effectiveness of Cygnal's modular OSINT tooling. All actions are logged, audit-traced, and designed for enterprise-grade forensic workflows. The malware scanning and DNS features depend on third-party API tiers but are architecturally complete — ensuring future compatibility and extensibility.
 

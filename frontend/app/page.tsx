@@ -30,6 +30,9 @@ const PassiveDNSLookup = dynamic(() => import("../components/PassiveDNSLookup"),
 const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
   ssr: false,
 });
+const PortScanner = dynamic(() => import("../components/PortScanner"), {
+  ssr: false,
+});
 
 import "./Hero.css";
 import "./Scanners.css";
@@ -48,6 +51,7 @@ export default function Home() {
     { id: 6, name: "Malware Scanner", component: <MalwareScanner /> },
     { id: 7, name: "IP Reputation Checker", component: <IPReputationTool /> },
     { id: 8, name: "Passive DNS Lookup", component: <PassiveDNSLookup /> },
+    { id: 9, name: "Port Scanner", component: <PortScanner /> },
 
   ];
 
