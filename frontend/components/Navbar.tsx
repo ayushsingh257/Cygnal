@@ -33,6 +33,9 @@ export default function Navbar() {
                 <Link href="/dashboard" className="navbar-link">
                   Visual Dashboard
                 </Link>
+                <Link href="/admin" className="navbar-link">
+                  Admin Panel
+                </Link>
               </>
             )}
 
