@@ -23,6 +23,10 @@ const EmailScanner = dynamic(() => import("../components/EmailScanner"), {
 const MalwareScanner = dynamic(() => import("../components/MalwareScanner"), {
   ssr: false,
 });
+const PassiveDNSLookup = dynamic(() => import("../components/PassiveDNSLookup"), {
+  ssr: false,
+});
+
 const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
   ssr: false,
 });
@@ -43,6 +47,8 @@ export default function Home() {
     { id: 5, name: "Email Scanner", component: <EmailScanner /> },
     { id: 6, name: "Malware Scanner", component: <MalwareScanner /> },
     { id: 7, name: "IP Reputation Checker", component: <IPReputationTool /> },
+    { id: 8, name: "Passive DNS Lookup", component: <PassiveDNSLookup /> },
+
   ];
 
   return (

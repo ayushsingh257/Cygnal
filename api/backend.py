@@ -32,6 +32,8 @@ import docx
 # Reverse image search
 from reverse_image_search import perform_reverse_image_search
 from ip_reputation import get_ip_reputation  # ✅ Phase 28
+from passive_dns import get_passive_dns # ✅ Phase 29
+
 
 # Phase 18 logging dependencies
 from datetime import datetime
@@ -502,6 +504,39 @@ def ip_reputation():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"IP reputation check failed: {str(e)}"}), 500
+    
+@app.route("/api/passive-dns", methods=["POST"])
+def passive_dns_lookup():
+    user = get_current_user()
+    try:
+        data = request.get_json()
+        domain = data.get("domain", "").strip()
+        if not domain:
+            return jsonify({"success": False, "error": "Missing domain name"}), 400
+
+        result = get_passive_dns(domain)
+
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "Passive DNS", {"domain": domain}, result)
+        audit_log("Passive DNS", user, {"domain": domain}, result)
+
+        # ✅ Also write to session logs for Dashboard
+        scan_log = {
+            "tool": "Passive DNS",
+            "input": domain,
+            "result": result,
+            "user": user,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        os.makedirs("session_logs", exist_ok=True)
+        session_id = str(uuid.uuid4())
+        with open(f"session_logs/{session_id}.json", "w") as f:
+            json.dump(scan_log, f, indent=2)
+
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Passive DNS lookup failed: {str(e)}"}), 500
+
 
 # ========== NEW: PHASE 18 – SCAN LOGGING ==========
 @app.route("/api/log-scan", methods=["POST"])

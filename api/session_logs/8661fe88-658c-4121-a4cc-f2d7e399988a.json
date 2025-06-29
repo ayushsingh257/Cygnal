@@ -1,0 +1,62 @@
+{
+  "tool": "Passive DNS",
+  "input": "github.com",
+  "result": {
+    "query": "github.com",
+    "result_count": 10,
+    "results": [
+      {
+        "host": "github.com",
+        "ip": "5.101.111.152",
+        "resolved": 1739848326
+      },
+      {
+        "host": "github.com",
+        "ip": "4.225.11.194",
+        "resolved": 1728826361
+      },
+      {
+        "host": "github.com",
+        "ip": "140.82.116.3",
+        "resolved": 1716127022
+      },
+      {
+        "host": "github.com",
+        "ip": "20.233.83.145",
+        "resolved": 1716126754
+      },
+      {
+        "host": "github.com",
+        "ip": "140.82.116.4",
+        "resolved": 1714029125
+      },
+      {
+        "host": "github.com",
+        "ip": "161.35.94.165",
+        "resolved": 1713069050
+      },
+      {
+        "host": "github.com",
+        "ip": "185.26.51.3",
+        "resolved": 1713030867
+      },
+      {
+        "host": "github.com",
+        "ip": "20.26.156.215",
+        "resolved": 1712819271
+      },
+      {
+        "host": "github.com",
+        "ip": "20.29.134.23",
+        "resolved": 1695743201
+      },
+      {
+        "host": "github.com",
+        "ip": "20.175.192.147",
+        "resolved": 1692820214
+      }
+    ]
+  },
+  "user": "unknown",
+  "timestamp": "2025-06-29T06:29:37.018575Z"
+}

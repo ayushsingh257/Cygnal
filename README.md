@@ -14,7 +14,7 @@ Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform
 
 ---
 
-## ✅ Current Capabilities (As of Phase 28)
+## ✅ Current Capabilities (As of Phase 29)
 
 Cygnal includes the following tools:
 
@@ -68,130 +68,152 @@ Cygnal includes the following tools:
 
   > Note: If the API key is missing, the tool fails gracefully with error messaging.
 
-- **PDF Report Generator**
+- **📡 Passive DNS Lookup (VirusTotal Integration)** *(Phase 29)*
+  Retrieve historical DNS resolution data using [VirusTotal's Passive DNS API](https://developers.virustotal.com/reference/dns-resolutions):
+  - Returns last-seen A/AAAA records for domains
+  - Useful for detecting domain infrastructure changes
+  - Timestamps converted from UNIX for analyst clarity
+  - Gracefully handles empty or failed lookups
+  - Fully integrated into session log, audit trail, and dashboard
+
+- **PDF Report Generator**  
   Full PDF snapshot of analyst results with branding and timestamps (Phase 17).
 
-- **User Authentication**
+- **User Authentication**  
   JWT-secured login with role-based access (Admin, Analyst, Viewer).
 
-- **Analyst Session Logs**
+- **Analyst Session Logs**  
   Per-tool session logging with export and inspection.
 
-- **Audit Trail Logging**
-  - File-based logs
-  - Syslog export
-  - AWS CloudWatch integration
+- **Audit Trail Logging**  
+  - File-based logs  
+  - Syslog export  
+  - AWS CloudWatch integration  
   - SQLite mirroring for analytics
 
-- **Visual Dashboard (Phase 26)**
-  - Tool Usage Frequency (bar graph)
-  - Tool Usage Timeline (multi-line chart)
-  - Tool Usage (Last 5 Days)
-  - Admin-only access
+- **Visual Dashboard (Phase 26)**  
+  - Tool Usage Frequency (bar graph)  
+  - Tool Usage Timeline (multi-line chart)  
+  - Tool Usage (Last 5 Days)  
+  - Admin-only access  
   - Auto-update via session logs
 
 ---
 
 ## System Architecture
 
-**Frontend:**
+**Frontend:**  
 Next.js 14, Zustand, TailwindCSS, modular dynamic imports.
 
-**Backend:**
+**Backend:**  
 Python + Flask, modular routes, JWT auth, logging, audit trail.
 
-**Storage:**
-- `audit_logs/`: JSON logs per scan
-- `lookup_logs.db`: SQLite audit trail (Phase 24)
-- `session_logs/`: Structured per-session JSON data
+**Storage:**  
+- `audit_logs/`: JSON logs per scan  
+- `lookup_logs.db`: SQLite audit trail (Phase 24)  
+- `session_logs/`: Structured per-session JSON data  
 - `screenshots/`, `temp_upload/`: Runtime output
 
 ---
 
 ## Phase Overview
 
-### Phase 1–16: Core Recon Tools
-- Header Scanner
-- WHOIS Lookup
-- Screenshot Capture
-- Email Exposure Scanner
-- Metadata Extraction (EXIF/PDF/DOCX)
-- Reverse Image Search (CLIP+FAISS)
-- Session Logging + Audit Viewer
-- UI overhaul with Tailwind + Next.js
+### Phase 1–16: Core Recon Tools  
+- Header Scanner  
+- WHOIS Lookup  
+- Screenshot Capture  
+- Email Exposure Scanner  
+- Metadata Extraction (EXIF/PDF/DOCX)  
+- Reverse Image Search (CLIP+FAISS)  
+- Session Logging + Audit Viewer  
+- UI overhaul with Tailwind + Next.js  
 - Authentication, RBAC, PDF reporting
 
-### Phase 17–20: Reporting & Auth
-- JWT-secured routes
-- PDF Snapshot Reports
-- Admin/Analyst separation
+### Phase 17–20: Reporting & Auth  
+- JWT-secured routes  
+- PDF Snapshot Reports  
+- Admin/Analyst separation  
 - Persistent session history
 
-### Phase 21–24: Audit & Logging
-- Syslog & CloudWatch export
-- SQLite-based audit mirroring
-- IP, User, Tool, Input, Result
+### Phase 21–24: Audit & Logging  
+- Syslog & CloudWatch export  
+- SQLite-based audit mirroring  
+- IP, User, Tool, Input, Result  
 - Queryable logs for dashboards
 
-### Phase 26: Visual Dashboard
-- Admin-only analytics view
-- Tool frequency + timeline charts
+### Phase 26: Visual Dashboard  
+- Admin-only analytics view  
+- Tool frequency + timeline charts  
 - JSON viewer for raw audit events
 
-### Phase 27: Malware Scanner
-- Hybrid Analysis integration
-- Threat score + sandbox verdicts
-- Graceful fallback if key is not set
+### Phase 27: Malware Scanner  
+- Hybrid Analysis integration  
+- Threat score + sandbox verdicts  
+- Graceful fallback if key is not set  
 - Audit logs and dashboard support
 
-### Phase 28: IP Reputation Tracker
-- AbuseIPDB-based passive IP reputation check
-- Displays score, reports, ISP, and location
-- Logs to audit trail and dashboard
+### Phase 28: IP Reputation Tracker  
+- AbuseIPDB-based passive IP reputation check  
+- Displays score, reports, ISP, and location  
+- Logs to audit trail and dashboard  
 - Graceful failure if key is not set
+
+### Phase 29: Passive DNS Lookup  
+- VirusTotal API-based historical DNS resolution viewer  
+- Displays A/AAAA records with timestamps  
+- Helpful for tracking domain infrastructure evolution  
+- Clean UI, logs results, and fits into the dashboard system
 
 ---
 
 ## Sample Outputs
 
-**Header Scanner**
-[+] Content-Security-Policy: Present
+**Header Scanner**  
+[+] Content-Security-Policy: Present  
 [-] X-Frame-Options: Missing
 
-**WHOIS Lookup**
-Domain: cyberpulse.in
-Registrar: GoDaddy
-Created: 2024-06-24
+**WHOIS Lookup**  
+Domain: cyberpulse.in  
+Registrar: GoDaddy  
+Created: 2024-06-24  
 Country: IN
 
-**Metadata Extraction**
-Tool: Canva
-Author: Ayush Singh
+**Metadata Extraction**  
+Tool: Canva  
+Author: Ayush Singh  
 Created: 2024-06-20T12:44:22Z
 
-**Reverse Image Match**
-Path: reference_images/shoe.png
+**Reverse Image Match**  
+Path: reference_images/shoe.png  
 Confidence: 92.31%
 
-**Malware Scanner (Hybrid Analysis)**
-Verdict: malicious
-Threat Score: 85
+**Malware Scanner (Hybrid Analysis)**  
+Verdict: malicious  
+Threat Score: 85  
 Environment: Windows 10 64-bit
 
-**IP Reputation Lookup**
-IP: 45.227.254.19
-Abuse Score: 100/100
-Total Reports: 1867
-Last Reported: 2025-06-25T13:12:49Z
-Country: LT
-ISP: XWIN UNIVERSAL LTD
+**IP Reputation Lookup**  
+IP: 45.227.254.19  
+Abuse Score: 100/100  
+Total Reports: 1867  
+Last Reported: 2025-06-25T13:12:49Z  
+Country: LT  
+ISP: XWIN UNIVERSAL LTD  
 Usage Type: Hosting/Data Center
+
+**Passive DNS Lookup**  
+Domain: poki.com  
+Resolved IPs:
+- 104.18.144.9 (2024-04-02 14:47:56)
+- 104.17.147.37 (2023-08-25 11:56:12)
+- 104.16.191.197 (2023-08-20 10:29:45)
 
 ---
 
 ## Installation
 
 # Clone
+```bash
 git clone https://github.com/ayushsingh257/Cygnal.git
 cd Cygnal
 
