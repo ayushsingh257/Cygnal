@@ -1,0 +1,9 @@
+{
+  "tool": "Passive DNS",
+  "input": "https://github.com",
+  "result": {
+    "error": "VirusTotal API key not set."
+  },
+  "user": "unknown",
+  "timestamp": "2025-06-29T06:21:21.071987Z"
+}

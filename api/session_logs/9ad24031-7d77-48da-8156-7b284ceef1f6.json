@@ -1,0 +1,62 @@
+{
+  "tool": "Passive DNS",
+  "input": "poki.com",
+  "result": {
+    "query": "poki.com",
+    "result_count": 10,
+    "results": [
+      {
+        "host": "poki.com",
+        "ip": "104.18.144.9",
+        "resolved": 1712035676
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.18.143.9",
+        "resolved": 1712035676
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.17.147.37",
+        "resolved": 1692914172
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.17.148.37",
+        "resolved": 1692914170
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.18.128.197",
+        "resolved": 1692472192
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.16.191.197",
+        "resolved": 1692472185
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.16.209.71",
+        "resolved": 1576198668
+      },
+      {
+        "host": "poki.com",
+        "ip": "104.16.208.71",
+        "resolved": 1576198668
+      },
+      {
+        "host": "poki.com",
+        "ip": "35.244.244.156",
+        "resolved": 1561518299
+      },
+      {
+        "host": "poki.com",
+        "ip": "35.237.145.81",
+        "resolved": 1554226853
+      }
+    ]
+  },
+  "user": "unknown",
+  "timestamp": "2025-06-29T06:42:57.497375Z"
+}
