@@ -133,7 +133,27 @@ Each tool usage event is persistently logged in both JSON and SQLite formats for
   "timestamp": "2025-06-25T14:52:01Z"
 }
 
-9. Visual Analytics (Admin-Only Dashboard)
+## 🛰️ 9. IP Reputation Scanner
+
+**IP Queried:** 45.227.254.19
+**Tool:** AbuseIPDB via Cygnal IP Reputation Module
+
+| Attribute       | Value                  |
+|----------------|------------------------|
+| Abuse Score     | 0/100                |
+| Total Reports   | 1,867                  |
+| Last Reported   | 2025-06-29T01:28:02Z   |
+| Country         | LT (Lithuania)         |
+| ISP             | XWIN UNIVERSAL LTD     |
+| Usage Type      | Hosting / Transit      |
+| Domain          | xwinnet.biz            |
+
+**Analyst Note:**
+This IP is flagged heavily in AbuseIPDB with over 1800 abuse submissions. Despite a 0% confidence score (due to abuse types or vote inconsistencies), this address aligns with common infrastructure tied to malicious activities. Further contextual investigation recommended before enforcement actions.
+
+---
+
+10. Visual Analytics (Admin-Only Dashboard)
 Cygnal includes a dashboard for real-time tool usage tracking:
 
 Tool Usage Frequency (Bar Chart)

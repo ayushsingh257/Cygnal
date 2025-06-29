@@ -9,7 +9,8 @@ type ToolKeys =
   | "metadataUsed"
   | "reverseImageUsed"
   | "emailUsed"
-  | "malwareUsed"; // ✅ Added for Malware Scanner
+  | "malwareUsed"
+  | "ipReputationUsed"; // ✅ Phase 28
 
 interface ScanEntry {
   tool: string;
@@ -25,7 +26,8 @@ interface ReportState {
   metadataUsed: boolean;
   reverseImageUsed: boolean;
   emailUsed: boolean;
-  malwareUsed: boolean; // ✅ Added
+  malwareUsed: boolean;
+  ipReputationUsed: boolean; // ✅ New
 
   scanHistory: ScanEntry[];
   addToHistory: (entry: Omit<ScanEntry, "timestamp">) => void;
@@ -42,7 +44,8 @@ export const useReportStore = create<ReportState>((set) => ({
   metadataUsed: false,
   reverseImageUsed: false,
   emailUsed: false,
-  malwareUsed: false, // ✅ Added
+  malwareUsed: false,
+  ipReputationUsed: false, // ✅ Init
 
   scanHistory: [],
 
@@ -73,6 +76,7 @@ export const useReportStore = create<ReportState>((set) => ({
       metadataUsed: false,
       reverseImageUsed: false,
       emailUsed: false,
-      malwareUsed: false, // ✅ Reset
+      malwareUsed: false,
+      ipReputationUsed: false, // ✅ Reset
     })),
 }));

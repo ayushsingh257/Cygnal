@@ -17,22 +17,21 @@ from selenium.webdriver.chrome.options import Options
 import base64
 import traceback
 from jwt_utils import create_token
-from jwt_utils import decode_token  # ✅ Required for username extraction
-from auth_utils import init_db, add_user, verify_user, get_user_role  # ✅ updated
-from audit_logger import audit_log  # ✅ Phase 23.1
+from jwt_utils import decode_token
+from auth_utils import init_db, add_user, verify_user, get_user_role
+from audit_logger import audit_log
 from database import init_lookup_db, insert_lookup_log
-
 import threading
-import time  # ✅ Add this if missing
+import time
 from bs4 import BeautifulSoup
 # Metadata tools
 from PIL import Image
 from PIL.ExifTags import TAGS
 import fitz  # PyMuPDF
 import docx
-
 # Reverse image search
 from reverse_image_search import perform_reverse_image_search
+from ip_reputation import get_ip_reputation  # ✅ Phase 28
 
 # Phase 18 logging dependencies
 from datetime import datetime
@@ -127,7 +126,6 @@ def get_current_user():
     except Exception:
         return "unknown"
 
-
 # ========== NEW: PHASE 23.2 FETCH AUDIT LOGS ==========
 @app.route("/api/get-audit-logs", methods=["GET"])
 def get_audit_logs():
@@ -149,9 +147,7 @@ def get_audit_logs():
         logging.error(f"Failed to fetch audit logs: {e}")
         return jsonify({"success": False, "error": "Failed to fetch audit logs"}), 500
 
-
 # ========== ROUTES ==========
-
 @app.route("/api/header-scan", methods=["POST"])
 def header_scan():
     data = request.get_json()
@@ -384,7 +380,6 @@ def metadata_extraction():
         temp_path = os.path.join("temp_upload", filename)
         os.makedirs("temp_upload", exist_ok=True)
         file.save(temp_path)
-
         if ext in ["jpg", "jpeg", "png"]:
             metadata = extract_image_metadata(temp_path)
         elif ext == "pdf":
@@ -393,17 +388,12 @@ def metadata_extraction():
             metadata = extract_docx_metadata(temp_path)
         else:
             metadata = {"error": "Unsupported file type."}
-
         os.remove(temp_path)
-
         result = {"success": True, "metadata": metadata}
-
         # ✅ Log to DB
         ip = request.remote_addr
         insert_lookup_log(user, ip, "Metadata Extraction", {"filename": filename}, metadata)
-
         return jsonify(result)
-
     except Exception as e:
         return jsonify({"success": False, "error": f"Failed to extract metadata: {str(e)}"}), 500
 
@@ -419,32 +409,30 @@ def reverse_image_search():
         filepath = os.path.join("temp_upload", filename)
         os.makedirs("temp_upload", exist_ok=True)
         file.save(filepath)
-
         results = perform_reverse_image_search(filepath)
         os.remove(filepath)
-
         result = {"success": True, "results": results}
-
         # ✅ Log to DB
         ip = request.remote_addr
         insert_lookup_log(user, ip, "Reverse Image Search", {"filename": filename}, {"matches_found": len(results)})
-
         return jsonify(result)
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
+    
 
 @app.route("/api/malware-scan", methods=["POST"])
 def malware_scan():
     from malware_scanner import scan_file_hybrid_analysis  # ✅ Now using Hybrid Analysis
     user = get_current_user()
-    
+
     if "file" not in request.files:
         return jsonify({"success": False, "error": "No file uploaded"}), 400
 
     file = request.files["file"]
     filename = file.filename
+
     if filename == "":
         return jsonify({"success": False, "error": "Filename is empty"}), 400
 
@@ -453,20 +441,67 @@ def malware_scan():
         filepath = os.path.join("uploads", filename)
         file.save(filepath)
 
-        result = scan_file_hybrid_analysis(filepath)  # 🔁 Hybrid scan function
+        # 🔁 Scan using Hybrid Analysis
+        result = scan_file_hybrid_analysis(filepath)
 
-        # ✅ Audit + log
+        # ✅ Log to DB + Audit
         ip = request.remote_addr
         insert_lookup_log(user, ip, "Malware Scanner", {"filename": filename}, result)
         audit_log("Malware Scanner", user, {"filename": filename}, result)
 
+        # ✅ Also log to session_logs for Dashboard
+        scan_log = {
+            "tool": "Malware Scanner",
+            "input": filename,
+            "result": result,
+            "user": user,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        os.makedirs("session_logs", exist_ok=True)
+        session_id = str(uuid.uuid4())
+        with open(f"session_logs/{session_id}.json", "w") as f:
+            json.dump(scan_log, f, indent=2)
+
         os.remove(filepath)
         return jsonify({"success": True, "result": result})
+
     except Exception as e:
         logging.error(f"Malware scan failed: {e}")
         return jsonify({"success": False, "error": f"Scan failed: {str(e)}"}), 500
 
 
+@app.route("/api/ip-reputation", methods=["POST"])
+def ip_reputation():
+    from ip_reputation import get_ip_reputation
+    user = get_current_user()
+    try:
+        data = request.get_json()
+        ip_address = data.get("ip", "").strip()
+        if not ip_address:
+            return jsonify({"success": False, "error": "Missing IP address"}), 400
+
+        result = get_ip_reputation(ip_address)
+
+        ip = request.remote_addr
+        insert_lookup_log(user, ip, "IP Reputation", {"ip": ip_address}, result)
+        audit_log("IP Reputation", user, {"ip": ip_address}, result)
+
+        # ✅ Also write to session logs for Dashboard to pick up
+        scan_log = {
+            "tool": "IP Reputation",
+            "input": ip_address,
+            "result": result,
+            "user": user,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        os.makedirs("session_logs", exist_ok=True)
+        session_id = str(uuid.uuid4())
+        with open(f"session_logs/{session_id}.json", "w") as f:
+            json.dump(scan_log, f, indent=2)
+
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"IP reputation check failed: {str(e)}"}), 500
 
 # ========== NEW: PHASE 18 – SCAN LOGGING ==========
 @app.route("/api/log-scan", methods=["POST"])
@@ -509,7 +544,6 @@ def fetch_all_logs():
                 path = os.path.join(log_dir, file)
                 with open(path) as f:
                     logs.append(json.load(f))
-
         # Sort by timestamp descending
         logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return jsonify({"success": True, "logs": logs})
@@ -517,13 +551,11 @@ def fetch_all_logs():
         logging.error(f"Failed to load history logs: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-
 @app.errorhandler(500)
 def handle_500_error(e):
     return jsonify({"success": False, "error": "Internal Server Error"}), 
 
 # ========== PHASE 19: AUTH API ROUTES ==========
-
 @app.route("/api/register", methods=["POST"])
 def register_user():
     try:
@@ -551,8 +583,6 @@ def register_user():
         logging.error(f"Registration error: {e}")
         return jsonify({"success": False, "error": "Registration failed."}), 500
 
-
-
 @app.route("/api/login", methods=["POST"])
 def login_user():
     try:
@@ -562,11 +592,9 @@ def login_user():
 
         if not username or not password:
             return jsonify({"success": False, "error": "Username and password are required."}), 400
-
         valid = verify_user(username, password)
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
-
         role = get_user_role(username)
         token = create_token({"username": username, "role": role})
         return jsonify({
@@ -578,8 +606,6 @@ def login_user():
     except Exception as e:
         logging.error(f"Login error: {e}")
         return jsonify({"success": False, "error": "Login failed."}), 500
-
-
 
 # ========== MAIN ==========
 if __name__ == "__main__":

@@ -14,23 +14,23 @@ Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform
 
 ---
 
-## ✅ Current Capabilities (As of Phase 27)
+## ✅ Current Capabilities (As of Phase 28)
 
 Cygnal includes the following tools:
 
-- **Security Header Analysis**  
+- **Security Header Analysis**
   Detection of misconfigured or missing HTTP security headers.
 
-- **WHOIS Record Extraction**  
+- **WHOIS Record Extraction**
   Passive profiling of domain registration, ownership, and expiration.
 
-- **Website Screenshot Capture**  
+- **Website Screenshot Capture**
   Full-page rendering via Selenium for visual archiving.
 
-- **Metadata Recon Tool**  
+- **Metadata Recon Tool**
   Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
 
-- **Reverse Image Search (Offline)**  
+- **Reverse Image Search (Offline)**
   AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
 
 - **Email Exposure Scanner**
@@ -39,37 +39,42 @@ Cygnal includes the following tools:
   - JavaScript-rendered extraction using headless Chrome.
   - Trust model scoring based on source context.
 
-- **🛡️ Malware Scanner (Hybrid Analysis Integration)** *(Phase 27)*  
+- **🛡️ Malware Scanner (Hybrid Analysis Integration)** *(Phase 27)*
   Enables secure file-based malware scanning via [Hybrid Analysis](https://www.hybrid-analysis.com/):
   - Verdict (malicious/suspicious/clean)
   - Threat family and score
   - Environment used during sandboxing
   - Automatically logs to Audit Viewer and Visual Dashboard
 
-  **🔐 Requirements**  
-  An API key is required from Hybrid Analysis. If not set or permission is restricted, the tool fails gracefully.
+- **🌐 IP Reputation Tracker (AbuseIPDB Integration)** *(Phase 28)*
+  Perform passive abuse reputation lookup using [AbuseIPDB](https://www.abuseipdb.com/):
+  - Abuse Score (0–100)
+  - Total abuse reports and timestamps
+  - ISP, Country, Domain, and Usage Type
+  - Auto-logged to Visual Dashboard + Audit Trail
 
-  Set the key via:
+  **🔐 Requirements**
+  Set the API key via:
 
-  - PowerShell:  
+  - PowerShell:
     ```powershell
-    $env:HYBRID_API_KEY="your_api_key"
+    $env:ABUSEIPDB_API_KEY="your_api_key"
     ```
 
-  - Linux/macOS:  
+  - Linux/macOS:
     ```bash
-    export HYBRID_API_KEY=your_api_key
+    export ABUSEIPDB_API_KEY=your_api_key
     ```
 
-  > Note: This module respects key limitations. Use in production environments only with vetted API access.
+  > Note: If the API key is missing, the tool fails gracefully with error messaging.
 
-- **PDF Report Generator**  
+- **PDF Report Generator**
   Full PDF snapshot of analyst results with branding and timestamps (Phase 17).
 
-- **User Authentication**  
+- **User Authentication**
   JWT-secured login with role-based access (Admin, Analyst, Viewer).
 
-- **Analyst Session Logs**  
+- **Analyst Session Logs**
   Per-tool session logging with export and inspection.
 
 - **Audit Trail Logging**
@@ -89,10 +94,10 @@ Cygnal includes the following tools:
 
 ## System Architecture
 
-**Frontend:**  
+**Frontend:**
 Next.js 14, Zustand, TailwindCSS, modular dynamic imports.
 
-**Backend:**  
+**Backend:**
 Python + Flask, modular routes, JWT auth, logging, audit trail.
 
 **Storage:**
@@ -139,6 +144,12 @@ Python + Flask, modular routes, JWT auth, logging, audit trail.
 - Graceful fallback if key is not set
 - Audit logs and dashboard support
 
+### Phase 28: IP Reputation Tracker
+- AbuseIPDB-based passive IP reputation check
+- Displays score, reports, ISP, and location
+- Logs to audit trail and dashboard
+- Graceful failure if key is not set
+
 ---
 
 ## Sample Outputs
@@ -166,6 +177,15 @@ Confidence: 92.31%
 Verdict: malicious
 Threat Score: 85
 Environment: Windows 10 64-bit
+
+**IP Reputation Lookup**
+IP: 45.227.254.19
+Abuse Score: 100/100
+Total Reports: 1867
+Last Reported: 2025-06-25T13:12:49Z
+Country: LT
+ISP: XWIN UNIVERSAL LTD
+Usage Type: Hosting/Data Center
 
 ---
 

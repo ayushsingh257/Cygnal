@@ -1,0 +1,19 @@
+{
+  "tool": "IP Reputation",
+  "input": "185.100.87.202",
+  "result": {
+    "ipAddress": "185.100.87.202",
+    "isWhitelisted": false,
+    "abuseConfidenceScore": 0,
+    "countryCode": "RO",
+    "domain": "flokinet.is",
+    "totalReports": 0,
+    "lastReportedAt": "2025-01-21T04:16:35+00:00",
+    "usageType": "Data Center/Web Hosting/Transit",
+    "isp": "FlokiNET Ltd",
+    "hostnames": [],
+    "status": "complete"
+  },
+  "user": "Ayush Singh",
+  "timestamp": "2025-06-29T02:19:20.035571Z"
+}
