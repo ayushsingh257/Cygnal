@@ -1,0 +1,19 @@
+{
+  "tool": "IP Reputation",
+  "input": "37.123.12.64",
+  "result": {
+    "ipAddress": "37.123.12.64",
+    "isWhitelisted": null,
+    "abuseConfidenceScore": 0,
+    "countryCode": "TR",
+    "domain": "superonline.net",
+    "totalReports": 0,
+    "lastReportedAt": null,
+    "usageType": null,
+    "isp": "Turkcell Superonline",
+    "hostnames": [],
+    "status": "complete"
+  },
+  "user": "Ayush Singh",
+  "timestamp": "2025-06-29T02:19:47.773248Z"
+}

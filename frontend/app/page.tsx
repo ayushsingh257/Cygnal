@@ -8,6 +8,9 @@ import WhoisLookup from "../components/WhoisLookup";
 import ScreenshotTool from "../components/ScreenshotTool";
 import Navbar from "../components/Navbar";
 
+const IPReputationTool = dynamic(() => import("../components/IPReputationTool"), {
+  ssr: false,
+});
 const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
   ssr: false,
 });
@@ -38,7 +41,8 @@ export default function Home() {
     { id: 3, name: "Metadata Recon Tool", component: <MetadataTool /> },
     { id: 4, name: "Reverse Image Search", component: <ReverseImageSearch /> },
     { id: 5, name: "Email Scanner", component: <EmailScanner /> },
-    { id: 6, name: "Malware Scanner", component: <MalwareScanner /> }, // ✅ New tool
+    { id: 6, name: "Malware Scanner", component: <MalwareScanner /> },
+    { id: 7, name: "IP Reputation Checker", component: <IPReputationTool /> },
   ];
 
   return (

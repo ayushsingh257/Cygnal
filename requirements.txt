@@ -3,11 +3,13 @@ flask-cors
 requests
 pillow
 python-whois
-docx
-fitz
+python-docx
+PyMuPDF
 selenium
 bs4
 lxml
 python-dotenv
 werkzeug
 file-saver
+boto3           # ✅ Needed for CloudWatch
+pyjwt           # ✅ If using JWT for login/register

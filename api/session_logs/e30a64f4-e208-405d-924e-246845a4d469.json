@@ -1,0 +1,19 @@
+{
+  "tool": "IP Reputation",
+  "input": "127.0.0.2",
+  "result": {
+    "ipAddress": "127.0.0.2",
+    "isWhitelisted": null,
+    "abuseConfidenceScore": 0,
+    "countryCode": null,
+    "domain": null,
+    "totalReports": 0,
+    "lastReportedAt": null,
+    "usageType": "Reserved",
+    "isp": null,
+    "hostnames": [],
+    "status": "complete"
+  },
+  "user": "Ayush Singh",
+  "timestamp": "2025-06-29T02:31:58.316226Z"
+}
