@@ -98,6 +98,24 @@ Cygnal includes the following tools:
   - Admin-only access  
   - Auto-update via session logs
 
+🧭 Port Scanner (Masscan / Nmap Integration) (Phase 30)
+Enables high-speed and comprehensive port scanning using Masscan or Nmap:
+
+Choose between Masscan (fast TCP scan) or Nmap (detailed service enumeration)
+
+Displays open ports, service names, and protocols
+
+Logs successful scans into Audit Trail and Visual Dashboard
+
+Gracefully warns if neither tool is available on system
+
+⚠️ System Compatibility Notice:
+This tool requires Linux-based systems (Kali, Ubuntu, WSL, etc.) where either masscan or nmap is installed and available in the system's PATH.
+
+If neither tool is detected, scan does not proceed, and no entries are logged to ensure data integrity.
+
+On Windows without WSL or tool binaries, the scan interface still loads but shows a clear warning message.
+
 ---
 
 ## System Architecture
@@ -164,6 +182,13 @@ Python + Flask, modular routes, JWT auth, logging, audit trail.
 - Helpful for tracking domain infrastructure evolution  
 - Clean UI, logs results, and fits into the dashboard system
 
+### Phase 30: Port Scanner  
+- Supports Masscan (fast) and Nmap (detailed) scanning  
+- Command-line tool detection to prevent execution errors  
+- UI provides user-friendly target input and method selection  
+- Auto-logs results into audit trail and Visual Dashboard upon success  
+- Graceful fallback and alert if tools are not installed (e.g., on Windows)
+
 ---
 
 ## Sample Outputs
@@ -208,6 +233,12 @@ Resolved IPs:
 - 104.17.147.37 (2023-08-25 11:56:12)
 - 104.16.191.197 (2023-08-20 10:29:45)
 
+**Port Scanner**  
+Tool: Masscan  
+Target: poki.com  
+Open Ports:  
+- 80/tcp (http)  
+- 443/tcp (https)
 ---
 
 ## Installation

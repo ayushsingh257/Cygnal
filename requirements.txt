@@ -11,5 +11,7 @@ lxml
 python-dotenv
 werkzeug
 file-saver
-boto3           # ✅ Needed for CloudWatch
-pyjwt           # ✅ If using JWT for login/register
+boto3
+pyjwt
+python-nmap         # ✅ For Nmap support
+masscan             # ✅ For Masscan support
