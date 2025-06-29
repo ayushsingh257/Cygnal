@@ -21,6 +21,8 @@ from jwt_utils import decode_token
 from auth_utils import init_db, add_user, verify_user, get_user_role
 from audit_logger import audit_log
 from database import init_lookup_db, insert_lookup_log
+from database import init_lookup_db, insert_lookup_log, get_all_users, update_user_role, delete_user_by_username
+from database import get_user_id
 import threading
 import time
 from bs4 import BeautifulSoup
@@ -36,7 +38,7 @@ from reverse_image_search import perform_reverse_image_search
 from ip_reputation import get_ip_reputation  # ✅ Phase 28
 from passive_dns import get_passive_dns # ✅ Phase 29
 from port_scanner import scan_target
-
+from auth_utils import verify_token
 
 # Phase 18 logging dependencies
 from datetime import datetime
@@ -629,33 +631,36 @@ def fetch_all_logs():
 def handle_500_error(e):
     return jsonify({"success": False, "error": "Internal Server Error"}), 
 
+
 # ========== PHASE 19: AUTH API ROUTES ==========
+
 @app.route("/api/register", methods=["POST"])
 def register_user():
     try:
         data = request.get_json()
-        email = data.get("email", "").strip().lower()
         username = data.get("username", "").strip()
         password = data.get("password", "").strip()
 
-        if not email or not password or not username:
+        if not username or not password:
             return jsonify({"success": False, "error": "All fields are required."}), 400
 
-        success = add_user(email, username, password)
+        role = "admin" if username == "Ayush Singh" else "analyst"
+        success = add_user(username, password, role)
         if not success:
             return jsonify({"success": False, "error": "User already exists."}), 409
 
-        role = "admin" if username == "Ayush Singh" else "analyst"  # hardcoded role for now
-        token = create_token({"username": username, "role": role})
+        user_id = get_user_id(username)
+        token = create_token({"id": user_id, "username": username, "role": role})
         return jsonify({
             "success": True,
             "message": "Registration successful.",
-            "user": {"username": username, "role": role},
+            "user": {"id": user_id, "username": username, "role": role},
             "token": token
         })
     except Exception as e:
         logging.error(f"Registration error: {e}")
         return jsonify({"success": False, "error": "Registration failed."}), 500
+
 
 @app.route("/api/login", methods=["POST"])
 def login_user():
@@ -666,21 +671,92 @@ def login_user():
 
         if not username or not password:
             return jsonify({"success": False, "error": "Username and password are required."}), 400
+
         valid = verify_user(username, password)
         if not valid:
             return jsonify({"success": False, "error": "Invalid credentials."}), 401
+
         role = get_user_role(username)
-        token = create_token({"username": username, "role": role})
+        user_id = get_user_id(username)
+        token = create_token({"id": user_id, "username": username, "role": role})
         return jsonify({
             "success": True,
             "message": "Login successful.",
-            "user": {"username": username, "role": role},
+            "user": {"id": user_id, "username": username, "role": role},
             "token": token
         })
     except Exception as e:
         logging.error(f"Login error: {e}")
         return jsonify({"success": False, "error": "Login failed."}), 500
 
+# ========= PHASE 31: ADMIN PANEL ROUTES =========
+
+@app.route("/api/admin/users", methods=["GET"])
+def get_users():
+    try:
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "")
+        payload = verify_token(token)
+        if not payload or payload.get("role") != "admin":
+            return jsonify({"success": False, "error": "Unauthorized"}), 403
+
+        users = get_all_users()
+        return jsonify({"success": True, "users": users})
+    except Exception as e:
+        logging.error(f"Error fetching users: {e}")
+        return jsonify({"success": False, "error": "Failed to fetch users"}), 500
+
+
+@app.route("/api/admin/users/<username>", methods=["PATCH"])
+def update_user(username):
+    try:
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "")
+        payload = verify_token(token)
+        if not payload or payload.get("role") != "admin":
+            return jsonify({"success": False, "error": "Unauthorized"}), 403
+
+        if payload.get("username") == username:
+            return jsonify({"success": False, "error": "You cannot change your own role"}), 400
+
+        data = request.get_json()
+        new_role = data.get("role")
+        if new_role not in ["admin", "analyst", "viewer"]:
+            return jsonify({"success": False, "error": "Invalid role"}), 400
+
+        success = update_user_role(username, new_role)
+        if success:
+            return jsonify({"success": True, "message": "User role updated"})
+        else:
+            return jsonify({"success": False, "error": "User not found"}), 404
+    except Exception as e:
+        logging.error(f"Error updating user role: {e}")
+        return jsonify({"success": False, "error": "Failed to update role"}), 500
+
+
+@app.route("/api/admin/users/<username>", methods=["DELETE"])
+def delete_user(username):
+    try:
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "")
+        payload = verify_token(token)
+        if not payload or payload.get("role") != "admin":
+            return jsonify({"success": False, "error": "Unauthorized"}), 403
+
+        if payload.get("username") == username:
+            return jsonify({"success": False, "error": "You cannot delete yourself"}), 400
+
+        if username == "Ayush Singh":
+            return jsonify({"success": False, "error": "Cannot delete primary admin"}), 400
+
+        success = delete_user_by_username(username)
+        if success:
+            return jsonify({"success": True, "message": "User deleted"})
+        else:
+            return jsonify({"success": False, "error": "User not found"}), 404
+    except Exception as e:
+        logging.error(f"Error deleting user: {e}")
+        return jsonify({"success": False, "error": "Failed to delete user"}), 500
 # ========== MAIN ==========
 if __name__ == "__main__":
     init_db()  # ✅ Ensure DB is ready

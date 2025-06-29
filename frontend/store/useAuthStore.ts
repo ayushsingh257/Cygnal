@@ -1,9 +1,16 @@
-import { create } from "zustand"; // ✅ Add this if missing
+import { create } from "zustand";
+
+interface User {
+  id?: number; // ✅ Optional to prevent issues if backend doesn't send it
+  username: string;
+  role: string;
+  email?: string;
+}
 
 interface AuthState {
-  user: { username: string; role: string } | null;
+  user: User | null;
   token: string | null;
-  setUser: (user: { username: string; role: string }, token: string) => void;
+  setUser: (user: User, token: string) => void;
   logout: () => void;
   loadUserFromStorage: () => void;
 }
@@ -23,18 +30,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("cygnal_token");
     set({ user: null, token: null });
   },
-
-  loadUserFromStorage: () => {
-    const storedUser = localStorage.getItem("cygnal_user");
-    const storedToken = localStorage.getItem("cygnal_token");
-    if (storedUser && storedToken) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
+  
+loadUserFromStorage: () => {
+  const storedUser = localStorage.getItem("cygnal_user");
+  const storedToken = localStorage.getItem("cygnal_token");
+  if (storedUser && storedToken) {
+    try {
+      const parsedUser: User = JSON.parse(storedUser);
+      if (parsedUser.username && parsedUser.role) {
+        // 🛠 Ensure ID is numeric
+        parsedUser.id = parsedUser.id ? Number(parsedUser.id) : undefined;
         set({ user: parsedUser, token: storedToken });
-      } catch {
-        localStorage.removeItem("cygnal_user");
-        localStorage.removeItem("cygnal_token");
+      } else {
+        throw new Error("Invalid user data");
       }
+    } catch {
+      localStorage.removeItem("cygnal_user");
+      localStorage.removeItem("cygnal_token");
     }
-  },
+  }
+},
 }));

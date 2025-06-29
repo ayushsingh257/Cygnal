@@ -14,7 +14,7 @@ Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform
 
 ---
 
-## ✅ Current Capabilities (As of Phase 29)
+## (As of Phase 29)
 
 Cygnal includes the following tools:
 
@@ -116,6 +116,15 @@ If neither tool is detected, scan does not proceed, and no entries are logged to
 
 On Windows without WSL or tool binaries, the scan interface still loads but shows a clear warning message.
 
+## ✅ Current Capabilities (As of Phase 31)
+- **🛠️ Admin Panel (User Management, Role Assignment)** *(Phase 31)*
+  Enables full user account management for administrators:
+  - View all registered users with username, role, and status
+  - Change roles (Analyst ⬄ Viewer ⬄ Admin) via dropdown selector
+  - Delete accounts with confirmation
+  - Self-protection logic: Admins cannot delete or downgrade themselves
+  - UI disables self-modification with tooltips explaining restrictions
+  - Changes immediately reflect in the database and frontend state
 ---
 
 ## System Architecture
@@ -189,6 +198,12 @@ Python + Flask, modular routes, JWT auth, logging, audit trail.
 - Auto-logs results into audit trail and Visual Dashboard upon success  
 - Graceful fallback and alert if tools are not installed (e.g., on Windows)
 
+### Phase 31: Admin Panel
+- Interactive admin interface for managing user accounts
+- Supports real-time role reassignment (admin/analyst/viewer)
+- Account deletion with audit-safe restrictions
+- Prevents self-deletion or self-demotion for current admin
+- Clean UI with role dropdowns, delete buttons, and tooltips
 ---
 
 ## Sample Outputs
