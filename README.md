@@ -13,6 +13,21 @@ In contemporary threat landscapes, adversaries increasingly obfuscate their infr
 Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform follows modular microservice-style principles for each recon tool, supporting separation of concerns, ease of extension, and secure access control via JWT authentication and role-based privileges.
 
 ---
+## (As of Phase 34)
+
+🛠️ Admin Panel (User Management, Role Assignment) (Phase 31) Enables full user account management for administrators:
+View all registered users with username, role, and status
+Change roles (Analyst ⬄ Viewer ⬄ Admin) via dropdown selector
+Delete accounts with confirmation
+Self-protection logic: Admins cannot delete or downgrade themselves
+UI disables self-modification with tooltips explaining restrictions
+Changes immediately reflect in the database and frontend state
+🔍 Custom Threat Intelligence Bridge/API (Phase 34) Adds a dedicated API for querying threat intelligence data:
+Allows admins to test lookups for IPs or hashes (e.g., 8.8.8.8)
+Returns mock data with tags, risk score, source, and related hashes
+Logs queries to the lookups table and session logs for audit and dashboard
+Integrated into the Admin Panel with a clear UI for testing
+Enhances security analysis with external threat intelligence capabilities
 
 ## (As of Phase 29)
 
@@ -205,6 +220,13 @@ Python + Flask, modular routes, JWT auth, logging, audit trail.
 - Prevents self-deletion or self-demotion for current admin
 - Clean UI with role dropdowns, delete buttons, and tooltips
 ---
+
+### Phase 31: Custom Threat Intelligence Bridge
+Introduces a custom API for threat intelligence queries
+Admin-only feature accessible via the Admin Panel
+Provides mock threat data for testing (e.g., tags, risk scores)
+Logs results to lookups table and session logs
+Enhances Cygnal’s security analysis capabilities
 
 ## Sample Outputs
 

@@ -28,11 +28,23 @@ def init_lookup_db():
                 role TEXT NOT NULL CHECK (role IN ('admin', 'analyst', 'viewer'))
             );
         """)
+        # 🔽 Phase 34: Threat Intel Table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS threat_intel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                indicator TEXT NOT NULL,
+                type TEXT NOT NULL,
+                source TEXT,
+                tags TEXT,
+                timestamp TEXT DEFAULT (DATETIME('now'))
+            );
+        """)
         conn.commit()
         conn.close()
         print("[DB] lookup_logs.db initialized.")
     except Exception as e:
         print("[DB ERROR]", str(e))
+
 
 def insert_lookup_log(user: str, ip: str, tool: str, input_data, result_data):
     try:
@@ -54,6 +66,7 @@ def insert_lookup_log(user: str, ip: str, tool: str, input_data, result_data):
         conn.close()
     except Exception as e:
         print("[DB INSERT ERROR]", str(e))
+
 
 # ====== Admin Panel DB Functions (Phase 31) ======
 
@@ -159,3 +172,8 @@ def delete_user_by_id(id):
     except Exception as e:
         print("[DB DELETE USER BY ID ERROR]", str(e))
         return False
+
+def get_db_connection():
+    conn = sqlite3.connect("cygnal.db")
+    conn.row_factory = sqlite3.Row
+    return conn

@@ -1,0 +1,20 @@
+{
+  "tool": "Intel Bridge",
+  "input": "8.8.8.8",
+  "result": {
+    "indicator": "8.8.8.8",
+    "tags": [
+      "APT28",
+      "malware",
+      "C2"
+    ],
+    "risk_score": 78,
+    "source": "Custom Threat Feed",
+    "related_hashes": [
+      "abc123",
+      "def456"
+    ]
+  },
+  "user": "Ayush Singh",
+  "timestamp": "2025-06-30T07:12:35.464294Z"
+}
