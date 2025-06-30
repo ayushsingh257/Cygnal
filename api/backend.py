@@ -23,9 +23,12 @@ from audit_logger import audit_log
 from database import init_lookup_db, insert_lookup_log
 from database import init_lookup_db, insert_lookup_log, get_all_users, update_user_role, delete_user_by_username
 from database import get_user_id
+from intel_bridge import query_intel_bridge
+
 import threading
 import time
 from bs4 import BeautifulSoup
+import traceback 
 
 # Metadata tools
 from PIL import Image
@@ -541,6 +544,41 @@ def passive_dns_lookup():
         return jsonify({"success": True, "result": result})
     except Exception as e:
         return jsonify({"success": False, "error": f"Passive DNS lookup failed: {str(e)}"}), 500
+    
+@app.route("/api/intel-bridge", methods=["POST"])
+def custom_intel_bridge():
+    user = get_current_user()
+    try:
+        data = request.get_json()
+        indicator = data.get("indicator", "").strip()
+        if not indicator:
+            return jsonify({"success": False, "error": "Missing threat indicator"}), 400
+
+        # Pass username and IP to query_intel_bridge
+        ip = request.remote_addr
+        result = query_intel_bridge(indicator, user, ip)
+
+        # Log audit event
+        audit_log("Intel Bridge", user, {"indicator": indicator}, result)
+
+        # Write to session logs for Visual Dashboard
+        scan_log = {
+            "tool": "Intel Bridge",
+            "input": indicator,
+            "result": result,
+            "user": user,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        os.makedirs("session_logs", exist_ok=True)
+        session_id = str(uuid.uuid4())
+        with open(f"session_logs/{session_id}.json", "w") as f:
+            json.dump(scan_log, f, indent=2)
+
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        traceback.print_exc()  #Print full error to console
+        return jsonify({"success": False, "error": f"Intel Bridge lookup failed: {str(e)}"}), 500
+
 
 @app.route("/api/port-scan", methods=["POST"])
 def port_scan():

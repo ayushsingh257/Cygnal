@@ -1,0 +1,10 @@
+{
+  "tool": "Malware Scanner",
+  "input": "cygnal-logo.png.png",
+  "result": {
+    "status": "error",
+    "message": "Upload failed: {\"message\":\"Requested URI - Not Found\"}"
+  },
+  "user": "unknown",
+  "timestamp": "2025-06-30T07:28:59.599648Z"
+}
