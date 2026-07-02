@@ -4,7 +4,7 @@ from datetime import datetime
 import sqlite3
 from database import insert_lookup_log
 
-DB_PATH = "lookup_logs.db"
+DB_PATH = "cygnal.db"
 
 def query_intel_bridge(indicator: str, username: str = "unknown", ip: str = "unknown"):
     # Simulate threat intel query

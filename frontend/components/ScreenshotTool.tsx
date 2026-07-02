@@ -38,7 +38,7 @@ export default function ScreenshotTool() {
     try {
       // ✅ Include Authorization header in screenshot request
       const response = await axios.post<ScreenshotResponse>(
-        "http://localhost:5000/api/screenshot",
+        "/api/screenshot",
         { url },
         {
           headers: {
@@ -59,7 +59,7 @@ export default function ScreenshotTool() {
         });
 
         // ✅ Log scan with user
-        await fetch("http://localhost:5000/api/log-scan", {
+        await fetch("/api/log-scan", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

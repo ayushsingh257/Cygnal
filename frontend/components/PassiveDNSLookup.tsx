@@ -17,7 +17,7 @@ export default function PassiveDNSLookup() {
     setResult(null);
 
     try {
-      const res = await fetch("http://localhost:5000/api/passive-dns", {
+      const res = await fetch("/api/passive-dns", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

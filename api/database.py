@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 import json
 
-DB_PATH = "lookup_logs.db"
+DB_PATH = "cygnal.db"
 
 def init_lookup_db():
     try:

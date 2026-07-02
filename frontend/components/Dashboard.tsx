@@ -29,8 +29,19 @@ ChartJS.register(
   TimeScale
 );
 
+interface BackgroundTask {
+  id: string;
+  name: string;
+  status: string;
+  progress: number;
+  result: any;
+  error: string | null;
+  timestamp: string;
+}
+
 export default function Dashboard() {
   const [logs, setLogs] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<BackgroundTask[]>([]);
   const [showRaw, setShowRaw] = useState(false);
 
   useEffect(() => {
@@ -46,6 +57,23 @@ export default function Dashboard() {
       }
     }
     fetchLogs();
+  }, []);
+
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const res = await fetch("/api/tasks");
+        const data = await res.json();
+        if (data.success) {
+          setTasks(data.tasks);
+        }
+      } catch (err) {
+        console.error("Failed to fetch active tasks queue", err);
+      }
+    }
+    fetchTasks();
+    const interval = setInterval(fetchTasks, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   const toolUsage: Record<string, number> = {};
@@ -145,10 +173,57 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-container mt-20 text-white">
+    <div className="dashboard-container mt-20 text-white max-w-7xl mx-auto px-4">
       <h2 className="text-3xl font-bold text-center mb-8 gradient-title">
-        Visual Dashboard
+        Live SOC Dashboard
       </h2>
+
+      {/* Live Active Scan Queue */}
+      <div className="bg-zinc-900/80 border border-zinc-800 p-6 rounded-lg mb-8 shadow-xl">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          ⚡ Live Scan Queue & Running Jobs
+        </h3>
+        {tasks.length === 0 ? (
+          <p className="text-gray-400 text-sm font-mono">No active scan jobs in queue.</p>
+        ) : (
+          <div className="space-y-4">
+            {tasks.slice(0, 5).map((task) => (
+              <div key={task.id} className="bg-zinc-800/80 p-4 rounded border border-zinc-700/80">
+                <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
+                  <div>
+                    <span className="font-semibold text-purple-400">{task.name}</span>
+                    <span className="text-xs text-gray-500 ml-2 font-mono">ID: {task.id.slice(0, 8)}</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${
+                    task.status === "complete" ? "bg-green-950 text-green-400 border border-green-700" :
+                    task.status === "error" ? "bg-red-950 text-red-400 border border-red-700" :
+                    task.status === "running" ? "bg-blue-950 text-blue-400 border border-blue-700 animate-pulse" :
+                    "bg-yellow-950 text-yellow-400 border border-yellow-700"
+                  }`}>
+                    {task.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 bg-zinc-700 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-purple-500 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${task.progress}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-300 font-mono w-8 text-right">
+                    {task.progress}%
+                  </span>
+                </div>
+                {task.error && (
+                  <p className="text-red-400 text-xs mt-2 font-mono break-all">
+                    Error: {task.error}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="charts-grid">
         {/* Bar Chart */}
