@@ -29,7 +29,7 @@ export default function AuditTrailViewer() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/get-audit-logs", {
+      const res = await fetch("/api/get-audit-logs", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -92,7 +92,7 @@ export default function MetadataTool() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await fetch("http://localhost:5000/api/metadata", {
+      const res = await fetch("/api/metadata", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // ✅ token passed for /api/metadata
@@ -132,7 +132,7 @@ export default function MetadataTool() {
 
       setToolUsed("metadataUsed");
 
-      await fetch("http://localhost:5000/api/log-scan", {
+      await fetch("/api/log-scan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,7 +3,7 @@ import bcrypt
 from datetime import datetime
 from jwt_utils import decode_token  # ✅ Added
 
-DB_PATH = "lookup_logs.db"  # ✅ Use unified DB now
+DB_PATH = "cygnal.db"  # ✅ Use unified DB now
 
 def init_db():
     """

@@ -18,7 +18,7 @@ const IPReputationTool: React.FC = () => {
 
     try {
       const token = localStorage.getItem("cygnal_token");
-      const res = await fetch("http://localhost:5000/api/ip-reputation", {
+      const res = await fetch("/api/ip-reputation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

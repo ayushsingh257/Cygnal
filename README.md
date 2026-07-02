@@ -1,306 +1,147 @@
-# Cygnal OSINT Reconnaissance Framework
+# 📡 Cygnal 2.0 — Enterprise-Grade, AI-Powered Cybersecurity & OSINT Platform
 
-## Introduction
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
+[![Next.js Version](https://img.shields.io/badge/Next.js-15.0-black.svg)](https://nextjs.org)
 
-Cygnal is an open-source intelligence (OSINT) platform engineered for deep surface analysis, digital threat investigation, and metadata-driven reconnaissance. The system integrates passive scanning, content inspection, reverse image indexing, and forensic logging to assist analysts in profiling digital assets with precision. Designed for cybersecurity professionals, digital forensics teams, and intelligence analysts, Cygnal prioritizes modularity, ethical compliance, and verifiable reporting.
-
-## Motivation
-
-In contemporary threat landscapes, adversaries increasingly obfuscate their infrastructure behind ephemeral domains, evasive headers, and minimal WHOIS footprints. Cygnal addresses this challenge by turning surface-level digital exposure—headers, contact data, domain records, images—into actionable intelligence, captured in a reproducible and structured format.
-
-## Technical Overview
-
-Cygnal consists of a Next.js 14 frontend and a Flask-based backend. The platform follows modular microservice-style principles for each recon tool, supporting separation of concerns, ease of extension, and secure access control via JWT authentication and role-based privileges.
-
----
-## (As of Phase 34)
-
-🛠️ Admin Panel (User Management, Role Assignment) (Phase 31) Enables full user account management for administrators:
-View all registered users with username, role, and status
-Change roles (Analyst ⬄ Viewer ⬄ Admin) via dropdown selector
-Delete accounts with confirmation
-Self-protection logic: Admins cannot delete or downgrade themselves
-UI disables self-modification with tooltips explaining restrictions
-Changes immediately reflect in the database and frontend state
-🔍 Custom Threat Intelligence Bridge/API (Phase 34) Adds a dedicated API for querying threat intelligence data:
-Allows admins to test lookups for IPs or hashes (e.g., 8.8.8.8)
-Returns mock data with tags, risk score, source, and related hashes
-Logs queries to the lookups table and session logs for audit and dashboard
-Integrated into the Admin Panel with a clear UI for testing
-Enhances security analysis with external threat intelligence capabilities
-
-## (As of Phase 29)
-
-Cygnal includes the following tools:
-
-- **Security Header Analysis**
-  Detection of misconfigured or missing HTTP security headers.
-
-- **WHOIS Record Extraction**
-  Passive profiling of domain registration, ownership, and expiration.
-
-- **Website Screenshot Capture**
-  Full-page rendering via Selenium for visual archiving.
-
-- **Metadata Recon Tool**
-  Extraction of embedded EXIF, DOCX, and PDF metadata (author, device, creation time).
-
-- **Reverse Image Search (Offline)**
-  AI-based similarity detection using OpenAI CLIP and FAISS for visual correlation.
-
-- **Email Exposure Scanner**
-  - Static Regex-based scan of visible email addresses.
-  - Subpage crawler for recursive page scanning.
-  - JavaScript-rendered extraction using headless Chrome.
-  - Trust model scoring based on source context.
-
-- **🛡️ Malware Scanner (Hybrid Analysis Integration)** *(Phase 27)*
-  Enables secure file-based malware scanning via [Hybrid Analysis](https://www.hybrid-analysis.com/):
-  - Verdict (malicious/suspicious/clean)
-  - Threat family and score
-  - Environment used during sandboxing
-  - Automatically logs to Audit Viewer and Visual Dashboard
-
-- **🌐 IP Reputation Tracker (AbuseIPDB Integration)** *(Phase 28)*
-  Perform passive abuse reputation lookup using [AbuseIPDB](https://www.abuseipdb.com/):
-  - Abuse Score (0–100)
-  - Total abuse reports and timestamps
-  - ISP, Country, Domain, and Usage Type
-  - Auto-logged to Visual Dashboard + Audit Trail
-
-  **🔐 Requirements**
-  Set the API key via:
-
-  - PowerShell:
-    ```powershell
-    $env:ABUSEIPDB_API_KEY="your_api_key"
-    ```
-
-  - Linux/macOS:
-    ```bash
-    export ABUSEIPDB_API_KEY=your_api_key
-    ```
-
-  > Note: If the API key is missing, the tool fails gracefully with error messaging.
-
-- **📡 Passive DNS Lookup (VirusTotal Integration)** *(Phase 29)*
-  Retrieve historical DNS resolution data using [VirusTotal's Passive DNS API](https://developers.virustotal.com/reference/dns-resolutions):
-  - Returns last-seen A/AAAA records for domains
-  - Useful for detecting domain infrastructure changes
-  - Timestamps converted from UNIX for analyst clarity
-  - Gracefully handles empty or failed lookups
-  - Fully integrated into session log, audit trail, and dashboard
-
-- **PDF Report Generator**  
-  Full PDF snapshot of analyst results with branding and timestamps (Phase 17).
-
-- **User Authentication**  
-  JWT-secured login with role-based access (Admin, Analyst, Viewer).
-
-- **Analyst Session Logs**  
-  Per-tool session logging with export and inspection.
-
-- **Audit Trail Logging**  
-  - File-based logs  
-  - Syslog export  
-  - AWS CloudWatch integration  
-  - SQLite mirroring for analytics
-
-- **Visual Dashboard (Phase 26)**  
-  - Tool Usage Frequency (bar graph)  
-  - Tool Usage Timeline (multi-line chart)  
-  - Tool Usage (Last 5 Days)  
-  - Admin-only access  
-  - Auto-update via session logs
-
-🧭 Port Scanner (Masscan / Nmap Integration) (Phase 30)
-Enables high-speed and comprehensive port scanning using Masscan or Nmap:
-
-Choose between Masscan (fast TCP scan) or Nmap (detailed service enumeration)
-
-Displays open ports, service names, and protocols
-
-Logs successful scans into Audit Trail and Visual Dashboard
-
-Gracefully warns if neither tool is available on system
-
-⚠️ System Compatibility Notice:
-This tool requires Linux-based systems (Kali, Ubuntu, WSL, etc.) where either masscan or nmap is installed and available in the system's PATH.
-
-If neither tool is detected, scan does not proceed, and no entries are logged to ensure data integrity.
-
-On Windows without WSL or tool binaries, the scan interface still loads but shows a clear warning message.
-
-## ✅ Current Capabilities (As of Phase 31)
-- **🛠️ Admin Panel (User Management, Role Assignment)** *(Phase 31)*
-  Enables full user account management for administrators:
-  - View all registered users with username, role, and status
-  - Change roles (Analyst ⬄ Viewer ⬄ Admin) via dropdown selector
-  - Delete accounts with confirmation
-  - Self-protection logic: Admins cannot delete or downgrade themselves
-  - UI disables self-modification with tooltips explaining restrictions
-  - Changes immediately reflect in the database and frontend state
----
-
-## System Architecture
-
-**Frontend:**  
-Next.js 14, Zustand, TailwindCSS, modular dynamic imports.
-
-**Backend:**  
-Python + Flask, modular routes, JWT auth, logging, audit trail.
-
-**Storage:**  
-- `audit_logs/`: JSON logs per scan  
-- `lookup_logs.db`: SQLite audit trail (Phase 24)  
-- `session_logs/`: Structured per-session JSON data  
-- `screenshots/`, `temp_upload/`: Runtime output
+**Cygnal 2.0** is an open-source intelligence (OSINT), digital forensics (DFIR), and Security Operations Center (SOC) investigation platform. Powered by cooperative Multi-Agent AI orchestration, passive/active asset reconnaissance, and relational cyber knowledge graphs, Cygnal transforms raw digital signals (WHOIS, headers, passive DNS, screenshots, open ports, reputation checks, and sandbox results) into verified evidence and actionable cases.
 
 ---
 
-## Phase Overview
+## 🎯 The Vision
+Cygnal 2.0 bridges the gap between raw data collection and cognitive threat analysis. By equipping cybersecurity professionals with a team of cooperative, specialized AI agents, the platform automates complex investigation workflows. No more clicking between separate browser extensions and tools—input an indicator once, and let the agents trace, map, and write the report.
 
-### Phase 1–16: Core Recon Tools  
-- Header Scanner  
-- WHOIS Lookup  
-- Screenshot Capture  
-- Email Exposure Scanner  
-- Metadata Extraction (EXIF/PDF/DOCX)  
-- Reverse Image Search (CLIP+FAISS)  
-- Session Logging + Audit Viewer  
-- UI overhaul with Tailwind + Next.js  
-- Authentication, RBAC, PDF reporting
-
-### Phase 17–20: Reporting & Auth  
-- JWT-secured routes  
-- PDF Snapshot Reports  
-- Admin/Analyst separation  
-- Persistent session history
-
-### Phase 21–24: Audit & Logging  
-- Syslog & CloudWatch export  
-- SQLite-based audit mirroring  
-- IP, User, Tool, Input, Result  
-- Queryable logs for dashboards
-
-### Phase 26: Visual Dashboard  
-- Admin-only analytics view  
-- Tool frequency + timeline charts  
-- JSON viewer for raw audit events
-
-### Phase 27: Malware Scanner  
-- Hybrid Analysis integration  
-- Threat score + sandbox verdicts  
-- Graceful fallback if key is not set  
-- Audit logs and dashboard support
-
-### Phase 28: IP Reputation Tracker  
-- AbuseIPDB-based passive IP reputation check  
-- Displays score, reports, ISP, and location  
-- Logs to audit trail and dashboard  
-- Graceful failure if key is not set
-
-### Phase 29: Passive DNS Lookup  
-- VirusTotal API-based historical DNS resolution viewer  
-- Displays A/AAAA records with timestamps  
-- Helpful for tracking domain infrastructure evolution  
-- Clean UI, logs results, and fits into the dashboard system
-
-### Phase 30: Port Scanner  
-- Supports Masscan (fast) and Nmap (detailed) scanning  
-- Command-line tool detection to prevent execution errors  
-- UI provides user-friendly target input and method selection  
-- Auto-logs results into audit trail and Visual Dashboard upon success  
-- Graceful fallback and alert if tools are not installed (e.g., on Windows)
-
-### Phase 31: Admin Panel
-- Interactive admin interface for managing user accounts
-- Supports real-time role reassignment (admin/analyst/viewer)
-- Account deletion with audit-safe restrictions
-- Prevents self-deletion or self-demotion for current admin
-- Clean UI with role dropdowns, delete buttons, and tooltips
 ---
 
-### Phase 31: Custom Threat Intelligence Bridge
-Introduces a custom API for threat intelligence queries
-Admin-only feature accessible via the Admin Panel
-Provides mock threat data for testing (e.g., tags, risk scores)
-Logs results to lookups table and session logs
-Enhances Cygnal’s security analysis capabilities
+## 🚀 Key Features
 
-## Sample Outputs
+*   **🕵️ Cooperative Multi-Agent AI**: Specialized, autonomous AI agents (Recon, Threat Intel, Malware, Forensics, SOC Analyst) cooperatively investigate targets and execute platform scanners.
+*   **🌐 Attack Surface Mapper**: Automated discovery of subdomains, open ports, SSL configurations, DNS records, MX, SPF, DMARC, ASN, CDN, and WAF details.
+*   **🔌 Dynamic Plugin Architecture**: Modular integrations for external threat intelligence providers (VirusTotal, AbuseIPDB, GreyNoise, Shodan, Censys, AlienVault, URLScan, Have I Been Pwned).
+*   **📊 Live SOC Dashboard**: Real-time scan monitoring, global IP geolocations heatmap, running background jobs tracker, incident statistics, and a weighted threat score meter.
+*   **📂 Case & Evidence Management**: Structured investigation cases with secure file storage, cryptographic hash integrity tracking (SHA-256), and automated timeline reconstruction.
+*   **🧠 RAG & Local Vector Storage**: Query past cases, scanned metadata, and attached reports through a local vector search engine (Qdrant/ChromaDB).
+*   **⚡ Asynchronous Job Execution**: Heavyweight network sweeps (Nmap/Masscan) and headless web rendering managed via background task workers with live progress metrics.
+*   **🛡️ Secure Audit Trails**: Append-only auditing backed by SQLite, mirroring actions to local logs, syslog (UDP 514), and AWS CloudWatch.
 
-**Header Scanner**  
-[+] Content-Security-Policy: Present  
-[-] X-Frame-Options: Missing
-
-**WHOIS Lookup**  
-Domain: cyberpulse.in  
-Registrar: GoDaddy  
-Created: 2024-06-24  
-Country: IN
-
-**Metadata Extraction**  
-Tool: Canva  
-Author: Ayush Singh  
-Created: 2024-06-20T12:44:22Z
-
-**Reverse Image Match**  
-Path: reference_images/shoe.png  
-Confidence: 92.31%
-
-**Malware Scanner (Hybrid Analysis)**  
-Verdict: malicious  
-Threat Score: 85  
-Environment: Windows 10 64-bit
-
-**IP Reputation Lookup**  
-IP: 45.227.254.19  
-Abuse Score: 100/100  
-Total Reports: 1867  
-Last Reported: 2025-06-25T13:12:49Z  
-Country: LT  
-ISP: XWIN UNIVERSAL LTD  
-Usage Type: Hosting/Data Center
-
-**Passive DNS Lookup**  
-Domain: poki.com  
-Resolved IPs:
-- 104.18.144.9 (2024-04-02 14:47:56)
-- 104.17.147.37 (2023-08-25 11:56:12)
-- 104.16.191.197 (2023-08-20 10:29:45)
-
-**Port Scanner**  
-Tool: Masscan  
-Target: poki.com  
-Open Ports:  
-- 80/tcp (http)  
-- 443/tcp (https)
 ---
 
-## Installation
+## 🏛️ System Architecture
 
-# Clone
+```
+                       ┌────────────────────────┐
+                       │    Security Analyst    │
+                       └───────────┬────────────┘
+                                   │ Ctrl+K / UI / Chat
+                                   ▼
+                       ┌────────────────────────┐
+                       │  Next.js 15 Frontend   │
+                       └───────────┬────────────┘
+                                   │ /api Proxy Rewrite
+                                   ▼
+                       ┌────────────────────────┐
+                       │   Flask API Server     │
+                       └───────────┬────────────┘
+         ┌─────────────────────────┼────────────────────────┐
+         ▼                         ▼                        ▼
+┌──────────────────┐      ┌──────────────────┐     ┌─────────────────┐
+│Background Worker │      │Multi-Agent Core  │     │ Databases       │
+│(Async Job Queue) │      │(Ollama/GPT/Gem)  │     │(SQLite/ChromaDB)│
+└──────────────────┘      └────────┬─────────┘     └─────────────────┘
+                                   │ Runs Scanners
+                                   ▼
+                  ┌─────────────────────────────────┐
+                  │ Scanners, Headless Chrome, Port │
+                  │ Sweeps, External Plugin Feeds  │
+                  └─────────────────────────────────┘
+```
+
+---
+
+## 🧱 Technology Stack
+
+*   **Frontend**: Next.js 15 (App Router), React 19, Zustand, Tailwind CSS v4.0 + Custom CSS Modules, Chart.js, Leaflet Geo-Maps.
+*   **Backend**: Flask (Python 3), Flask-Executor, bcrypt, pyjwt.
+*   **Forensics & Scanners**: Headless Chrome (Selenium), python-whois, python-nmap, PyMuPDF, python-docx, Pillow, FAISS + CLIP.
+*   **Storage**: SQLite (Structured relational DB) + ChromaDB / Qdrant (Vector Database).
+
+---
+
+## 📁 Project Structure
+
+```
+Cygnal/
+├── api/                       # Flask Backend Services
+│   ├── routes/v2/             # Blueprint APIs (auth, admin, scanners)
+│   ├── plugins/               # External TI & Scan Plugins
+│   ├── database.py            # SQLite schema models
+│   ├── backend.py             # App entry point
+│   ├── audit_logger.py        # Audit Trail Logging
+│   └── requirements.txt       # Python Dependencies
+├── frontend/                  # Next.js Frontend
+│   ├── app/                   # App Router pages (admin, auth, dashboard)
+│   ├── components/            # UI components and tools
+│   ├── store/                 # Zustand state stores
+│   ├── next.config.ts         # Next.js configurations & proxy rewrites
+│   └── package.json           # Node Dependencies
+├── docs/                      # Documentation
+├── driver/                    # Headless web binaries (chromedriver.exe)
+├── screenshots/               # Stored target captures
+└── docker-compose.yml         # Container configuration
+```
+
+---
+
+## 🛠️ Installation & Configuration
+
+### Prerequisites
+- Python 3.9+
+- Node.js 18+
+- Nmap / Masscan (for active port scanning)
+
+### 1. Set Up Environment Variables
+Create a `.env` file in the `/api` directory:
+```env
+JWT_SECRET=your_secret_key
+JWT_EXPIRY=3d
+ABUSEIPDB_API_KEY=your_key
+VIRUSTOTAL_API_KEY=your_key
+HYBRID_API_KEY=your_key
+```
+
+### 2. Configure Local Ports
+> [!IMPORTANT]
+> **Port 3000 is permanently reserved** for the independent project **CCGP (Cyber Complaint Governance Platform)**.
+> Cygnal 2.0 is configured to run on port **3001** for the frontend and port **5000** for the backend. Do not interfere with CCGP.
+
+### 3. Run Backend
 ```bash
-git clone https://github.com/ayushsingh257/Cygnal.git
-cd Cygnal
-
-# Backend
 cd api
 pip install -r requirements.txt
 python backend.py
+```
+*Backend API will run on `http://localhost:5000`.*
 
-# Frontend
-cd ../frontend
+### 4. Run Frontend
+```bash
+cd frontend
 npm install
 npm run dev
+```
+*Frontend interface will run on `http://localhost:3001`.*
 
-Licensing & Ethics
-Cygnal is released under the MIT License (© 2025 Ayush Singh Kshatriya).
-It is intended for lawful and ethical cybersecurity investigations. Unauthorized use against external infrastructure is discouraged and may violate legal statutes.
+---
 
-Contact
-Ayush Singh Kshatriya
-Cybersecurity Researcher & OSINT Analyst
-GitHub: @ayushsingh257
-LinkedIn: linkedin.com/in/ayush-singh-kshatriya
+## 🤝 Contributing
+Contributions are welcome! Please refer to the [ROADMAP.md](ROADMAP.md) to see planned features and milestones.
+1. Fork the repository and create your feature branch.
+2. Ensure code conforms to python PEP8 and React typescript standards.
+3. Verify that changes do not affect port reservation standards.
+4. Submit a Pull Request with a clear description of changes.
+
+---
+
+## 📄 License
+Cygnal is released under the [MIT License](LICENSE) (© 2025-2026 Ayush Singh Kshatriya).
+
+It is intended for lawful and ethical digital investigations. Unauthorized active scans against external target infrastructures are discouraged.
