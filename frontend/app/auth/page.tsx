@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams, useRouter } from "next/navigation";
 import "./auth.css";
@@ -8,7 +8,7 @@ import "./auth.css";
 const LoginForm = dynamic(() => import("@/components/LoginForm"), { ssr: false });
 const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: false });
 
-export default function AuthPage() {
+function AuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
@@ -37,7 +37,7 @@ export default function AuthPage() {
           <div className="auth-text">
             {showLogin ? (
               <>
-                <span>Don't have an account?</span>
+                <span>Don&apos;t have an account?</span>
                 <a
                   href="/auth?mode=register"
                   onClick={(e) => {
@@ -66,5 +66,17 @@ export default function AuthPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white flex items-center justify-center font-mono">
+        Loading authentication portal...
+      </div>
+    }>
+      <AuthForm />
+    </Suspense>
   );
 }

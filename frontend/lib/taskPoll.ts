@@ -2,7 +2,7 @@ export async function pollTask(
   taskId: string,
   onProgress: (pct: number) => void,
   intervalMs: number = 1000
-): Promise<any> {
+): Promise<Record<string, any>> {
   const token = localStorage.getItem("cygnal_token");
   return new Promise((resolve, reject) => {
     const timer = setInterval(async () => {
@@ -24,7 +24,7 @@ export async function pollTask(
 
         if (task.status === "complete") {
           clearInterval(timer);
-          resolve(task.result);
+          resolve(task.result as Record<string, any>);
         } else if (task.status === "error") {
           clearInterval(timer);
           reject(new Error(task.error || "Task execution failed"));
