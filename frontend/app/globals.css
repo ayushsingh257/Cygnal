@@ -3,22 +3,28 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════
-   CCGP Design System — Global Styles
+   Cygnal Enterprise Design System
    ══════════════════════════════════════ */
 
 :root {
-  --cyber-bg: #060814;
-  --cyber-navy: #0d1117;
-  --cyber-blue: #0ea5e9;
-  --cyber-cyan: #06b6d4;
-  --cyber-purple: #7c3aed;
-  --cyber-green: #10b981;
+  --bg-primary: #060814;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
+  --border-color: rgba(255, 255, 255, 0.05);
+  
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
+  --accent-red: #ef4444;
+  
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
-  background-color: var(--cyber-bg);
+  background-color: var(--bg-primary);
   color: #f1f5f9;
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -27,97 +33,169 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Custom Scrollbar ─────────────────── */
-::-webkit-scrollbar { 
-  width: 4px; 
-  height: 4px; 
+/* ── Custom Premium Scrollbar ─────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-::-webkit-scrollbar-track { 
-  background: #060814; 
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
 }
-::-webkit-scrollbar-thumb { 
-  background: rgba(14,165,233,0.25); 
-  border-radius: 2px; 
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { 
-  background: rgba(14,165,233,0.5); 
-}
-
-/* ── Selection ─────────────────────────── */
-::selection { 
-  background: rgba(14,165,233,0.2); 
-  color: #e0f2fe; 
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* ── Glass Components ───────────────────── */
-.glass {
-  background: rgba(13, 17, 23, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(14,165,233,0.1);
+/* ── Content Selection ─────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.25);
+  color: #ffffff;
 }
 
+/* ── Container Cards ─────────────────────── */
 .glass-card {
-  background: rgba(13, 17, 23, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(14,165,233,0.12);
-  box-shadow: 0 0 0 1px rgba(14,165,233,0.02), 0 20px 50px rgba(0,0,0,0.5);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(13, 17, 23, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
 }
 
 .glass-card:hover {
-  border-color: rgba(14,165,233,0.25);
-  box-shadow: 0 0 0 1px rgba(14,165,233,0.08), 0 0 25px rgba(14,165,233,0.06), 0 20px 50px rgba(0,0,0,0.6);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* ── HUD/Cyber Grids ──────────────────── */
-.cyber-grid-bg {
-  background-image:
-    linear-gradient(rgba(14,165,233,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14,165,233,0.015) 1px, transparent 1px);
-  background-size: 50px 50px;
+/* ── SaaS Form Inputs ─────────────────────────── */
+.cyber-input {
+  background: rgba(22, 27, 34, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
 }
 
-.cyber-grid-dense {
-  background-image:
-    linear-gradient(rgba(14,165,233,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14,165,233,0.02) 1px, transparent 1px);
-  background-size: 25px 25px;
+.cyber-input::placeholder {
+  color: #484f58;
 }
 
-/* ── Gradient Text ─────────────────────── */
-.gradient-text-blue {
-  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.cyber-input:focus {
+  border-color: var(--accent-blue);
+  background: rgba(22, 27, 34, 0.9);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
-.gradient-text-cyber {
-  background: linear-gradient(90deg, #0ea5e9, #06b6d4, #8b5cf6);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradientShift 5s ease infinite;
+/* ── SaaS Buttons ────────────────────────────── */
+.btn-cyber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #21262d;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 8px;
+  color: #c9d1d9;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+.btn-cyber:hover {
+  background: #30363d;
+  border-color: #8b949e;
+  color: #ffffff;
 }
 
-/* ── Shimmer Loading Loader ───────────── */
+.btn-cyber-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #238636;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-primary:hover {
+  background: #2ea043;
+}
+
+.btn-cyber-primary:disabled, .btn-cyber:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Alert Badges ────────────────────────────── */
+.badge-critical {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-high {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-medium {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-low {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ── Shimmer Skeleton Loader ──────────────────── */
 .shimmer {
   background: linear-gradient(90deg,
-    rgba(255,255,255,0.02) 25%,
-    rgba(14,165,233,0.05) 50%,
-    rgba(255,255,255,0.02) 75%
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
   );
   background-size: 200% 100%;
-  animation: shimmerAnim 2s linear infinite;
+  animation: shimmerAnim 1.8s ease-in-out infinite;
 }
 
 @keyframes shimmerAnim {
@@ -125,143 +203,10 @@ body {
   100% { background-position: 200% 0; }
 }
 
-/* ── Status Dots ──────────────────────── */
-.status-dot-green {
-  width: 6.5px; height: 6.5px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px #10b981, 0 0 15px rgba(16,185,129,0.3);
-  animation: statusPulse 2s ease-in-out infinite;
-}
-
-.status-dot-red {
-  width: 6.5px; height: 6.5px;
-  border-radius: 50%;
-  background: #ef4444;
-  box-shadow: 0 0 6px #ef4444;
-}
-
-.status-dot-yellow {
-  width: 6.5px; height: 6.5px;
-  border-radius: 50%;
-  background: #eab308;
-  box-shadow: 0 0 6px #eab308, 0 0 15px rgba(234,179,8,0.3);
-  animation: statusPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.65; transform: scale(0.9); }
-}
-
-/* ── Premium Buttons ───────────────────── */
-.btn-cyber {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  border: 1px solid rgba(14,165,233,0.4);
-  border-radius: 6px;
-  color: white;
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(14,165,233,0.15);
-}
-
-.btn-cyber::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.btn-cyber:hover {
-  box-shadow: 0 0 20px rgba(14,165,233,0.35);
-  transform: translateY(-1.5px);
-  border-color: rgba(14,165,233,0.65);
-}
-
-.btn-cyber:hover::before { 
-  opacity: 1; 
-}
-
-.btn-cyber:active { 
-  transform: translateY(0); 
-}
-
-/* ── Form Inputs ────────────────────────── */
-.cyber-input {
-  background: rgba(6, 8, 20, 0.55);
-  border: 1px solid rgba(14,165,233,0.1);
-  border-radius: 6px;
-  color: #f1f5f9;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 10px 14px;
-  outline: none;
-  transition: all 0.2s ease;
-  width: 100%;
-}
-
-.cyber-input::placeholder { 
-  color: rgba(100, 116, 139, 0.6); 
-}
-
-.cyber-input:focus {
-  border-color: rgba(14,165,233,0.35);
-  background: rgba(14,165,233,0.02);
-  box-shadow: 0 0 0 2px rgba(14,165,233,0.06), 0 0 15px rgba(14,165,233,0.03);
-}
-
-/* ── Severity Badges ────────────────────── */
-.badge-critical {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-}
-.badge-high {
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  color: #fdba74;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-}
-.badge-medium {
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid rgba(234, 179, 8, 0.2);
-  color: #fde047;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-}
-.badge-low {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
+/* ── Typography & Gradients ──────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

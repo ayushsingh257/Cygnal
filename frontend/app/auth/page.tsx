@@ -29,16 +29,16 @@ function AuthForm() {
       
       {/* Background Grids */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-0 cyber-grid-dense opacity-[0.22]" />
-        <div className="absolute top-[20%] left-[25%] w-[500px] h-[500px] rounded-full bg-cyan-950/10 blur-[120px] opacity-60" />
+        <div className="absolute inset-0 cyber-grid-dense opacity-[0.2]" />
+        <div className="absolute top-[20%] left-[25%] w-[500px] h-[500px] rounded-full bg-blue-950/10 blur-[120px] opacity-60" />
       </div>
 
       {/* Gateway Panel */}
-      <div className="w-full max-w-[420px] glass-card rounded-xl p-6 border border-white/10 bg-[#0d1117]/60 z-10 space-y-6">
+      <div className="w-full max-w-[420px] glass-card rounded-xl p-6 bg-[#0d1117]/65 border border-white/5 shadow-2xl z-10 space-y-6">
         <div className="flex justify-center items-center gap-2.5">
-          <Shield className="w-5 h-5 text-cyan-400" />
-          <span className="font-mono text-xs font-extrabold tracking-[0.2em] uppercase text-white">
-            Cygnal Portal Node
+          <Shield className="w-5 h-5 text-blue-400" />
+          <span className="font-sans text-xs font-bold tracking-[0.15em] uppercase text-white">
+            Cygnal Gateway
           </span>
         </div>
 
@@ -46,9 +46,9 @@ function AuthForm() {
         <div className="flex border-b border-white/5 text-xs">
           <button
             onClick={() => handleToggle("login")}
-            className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
+            className={`flex-1 pb-3 font-semibold uppercase tracking-wider transition-all ${
               showLogin 
-                ? "border-b border-cyan-400 text-cyan-400 font-bold" 
+                ? "border-b border-blue-505 text-blue-400" 
                 : "text-slate-500 hover:text-slate-350"
             }`}
           >
@@ -56,9 +56,9 @@ function AuthForm() {
           </button>
           <button
             onClick={() => handleToggle("register")}
-            className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
+            className={`flex-1 pb-3 font-semibold uppercase tracking-wider transition-all ${
               !showLogin 
-                ? "border-b border-cyan-400 text-cyan-400 font-bold" 
+                ? "border-b border-blue-505 text-blue-400" 
                 : "text-slate-500 hover:text-slate-350"
             }`}
           >
@@ -72,8 +72,8 @@ function AuthForm() {
         </div>
 
         {/* Security Warning */}
-        <div className="pt-4 border-t border-white/5 text-[9px] text-slate-600 font-mono text-center leading-relaxed select-none uppercase tracking-wider">
-          System gate enforces encrypted end-to-end sessions. Active audit logging is in progress.
+        <div className="pt-4 border-t border-white/5 text-[9px] text-slate-500 font-mono text-center leading-relaxed select-none uppercase tracking-wider">
+          Enforcing encrypted end-to-end sessions. Compliance auditing in progress.
         </div>
       </div>
 
@@ -84,8 +84,8 @@ function AuthForm() {
 export default function AuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#060814] text-slate-500 flex items-center justify-center font-mono animate-pulse text-[10px] tracking-widest">
-        INITIALIZING SYSTEM GATEWAY SESSION...
+      <div className="min-h-screen bg-[#060814] text-slate-550 flex items-center justify-center font-sans animate-pulse text-xs tracking-wider">
+        CONNECTING TO GATEWAY SESSION...
       </div>
     }>
       <AuthForm />
