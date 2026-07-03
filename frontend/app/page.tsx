@@ -1,124 +1,171 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import HeaderScanner from "../components/HeaderScanner";
-import WhoisLookup from "../components/WhoisLookup";
-import ScreenshotTool from "../components/ScreenshotTool";
-import Navbar from "../components/Navbar";
+import { useAuthStore } from "@/store/useAuthStore";
+import DashboardShell from "@/components/DashboardShell";
+import ScannersConsole from "@/components/ScannersConsole";
+import CyberGlobe from "@/components/CyberGlobe";
+import { Shield, Terminal, Activity, Eye, Server, Cpu } from "lucide-react";
 
-const IPReputationTool = dynamic(() => import("../components/IPReputationTool"), {
-  ssr: false,
-});
-const MetadataTool = dynamic(() => import("../components/MetadataTool"), {
-  ssr: false,
-});
-const ReverseImageSearch = dynamic(() => import("../components/ReverseImageSearch"), {
-  ssr: false,
-});
-const EmailScanner = dynamic(() => import("../components/EmailScanner"), {
-  ssr: false,
-});
-const MalwareScanner = dynamic(() => import("../components/MalwareScanner"), {
-  ssr: false,
-});
-const PassiveDNSLookup = dynamic(() => import("../components/PassiveDNSLookup"), {
-  ssr: false,
-});
-
-const ScanHistory = dynamic(() => import("../components/ScanHistory"), {
-  ssr: false,
-});
-const PortScanner = dynamic(() => import("../components/PortScanner"), {
-  ssr: false,
-});
-
-import "./Hero.css";
-import "./Scanners.css";
-import "./navbar.css";
+const LoginForm = dynamic(() => import("@/components/LoginForm"), { ssr: false });
+const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: false });
 
 export default function Home() {
-  const [activeTool, setActiveTool] = useState<number | null>(null);
+  const { user, loadUserFromStorage } = useAuthStore();
+  const [showLogin, setShowLogin] = useState(true);
+  const [threatLogs, setThreatLogs] = useState<string[]>([
+    "SYSINIT: Secure sandbox environment established.",
+    "INTEL: Threat database definitions updated successfully.",
+    "MONITOR: Unified logs buffer ready."
+  ]);
 
-  const tools = [
-    { id: 0, name: "Header Scanner", component: <HeaderScanner /> },
-    { id: 1, name: "WHOIS Lookup", component: <WhoisLookup /> },
-    { id: 2, name: "Website Screenshot", component: <ScreenshotTool /> },
-    { id: 3, name: "Metadata Recon Tool", component: <MetadataTool /> },
-    { id: 4, name: "Reverse Image Search", component: <ReverseImageSearch /> },
-    { id: 5, name: "Email Scanner", component: <EmailScanner /> },
-    { id: 6, name: "Malware Scanner", component: <MalwareScanner /> },
-    { id: 7, name: "IP Reputation Checker", component: <IPReputationTool /> },
-    { id: 8, name: "Passive DNS Lookup", component: <PassiveDNSLookup /> },
-    { id: 9, name: "Port Scanner", component: <PortScanner /> },
+  useEffect(() => {
+    loadUserFromStorage();
+  }, []);
 
-  ];
+  // Simulated live threat intelligence logs
+  useEffect(() => {
+    if (user) return; // Only run on landing page for visual effect
 
+    const feeds = [
+      "MALWARE: Dynamic analysis finished on SHA-256: 4f1a23b9 - Verdict: SUSPICIOUS",
+      "RECON: Active Port sweep registered on sensor node 02.",
+      "SECURITY: Missing CSP header detected for Host: api.internal_audit.org",
+      "INTEL: IOC blocklist updated: 42 malicious IPs appended.",
+      "AUDIT: Successful admin login audit log recorded.",
+      "WHOIS: Registry query executed for domain: secops-tracker.net",
+      "IP: Bad reputation threshold crossed for source IP: 185.220.101.4"
+    ];
+
+    const interval = setInterval(() => {
+      const feed = feeds[Math.floor(Math.random() * feeds.length)];
+      const time = new Date().toLocaleTimeString();
+      setThreatLogs((prev) => [...prev.slice(-4), `[${time}] ${feed}`]);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // If user is authenticated, render inside the SOC dashboard layout shell
+  if (user) {
+    return (
+      <DashboardShell>
+        <ScannersConsole />
+      </DashboardShell>
+    );
+  }
+
+  // Otherwise, render the premium unauthenticated SOC command center
   return (
-    <main className="min-h-screen bg-black text-white font-sans px-6 py-10 relative overflow-hidden">
-      {/* NAVBAR */}
-      <Navbar />
+    <main className="min-h-screen bg-[#020205] text-[#f1f5f9] flex flex-col justify-between p-6 relative overflow-hidden cyber-grid">
+      
+      {/* Background glow filters */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-950/20 filter blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-950/20 filter blur-[120px] rounded-full pointer-events-none" />
 
-      {/* HERO SECTION */}
-      <section className="hero-container text-center relative z-10 mt-16">
-        <div className="video-wrapper">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            src="/cygnal-3d-logo.mp4"
-            aria-label="Cygnal 3D rotating logo video"
-          />
-          <div className="video-text">
-            <h1 className="hero-title">Cygnal</h1>
-            <p className="hero-subtitle">From surface clues to silent signals</p>
-          </div>
+      {/* TOP HEADER STATUS STRIP */}
+      <div className="w-full flex items-center justify-between border-b border-white/5 pb-4 bg-black/10 backdrop-filter blur-sm z-10">
+        <div className="flex items-center gap-2">
+          <Shield className="w-5 h-5 text-cyan-400 glow-cyan animate-pulse" />
+          <span className="font-mono text-sm font-bold tracking-wider uppercase">
+            Cygnal Security Node
+          </span>
         </div>
-      </section>
+        <div className="flex items-center gap-4 text-xs font-mono text-gray-500">
+          <span className="hidden sm:inline">CON: SECURE CHANNEL</span>
+          <span className="text-cyan-500 font-semibold uppercase animate-pulse">Ready</span>
+        </div>
+      </div>
 
-      {/* ABOUT SECTION */}
-      <section className="about-section text-center mt-12 max-w-4xl mx-auto">
-        <p className="text-lg text-gray-300 leading-relaxed">
-          Cygnal leverages Open-Source Intelligence (OSINT) to uncover hidden insights from publicly available data. Our tools analyze websites, images, metadata, and more to empower investigators, researchers, and security professionals with actionable intelligence. Explore the power of OSINT with us!
-        </p>
-      </section>
+      {/* HERO & SPLIT WORKSPACE GRID */}
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto py-10 z-10">
+        
+        {/* LEFT COLUMN: 3D CYBER GLOBE & INTEL FEED (Lg: 7) */}
+        <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-8 text-center lg:text-left">
+          
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent uppercase font-mono">
+              CYGNAL SEC OPS
+            </h1>
+            <p className="text-gray-400 max-w-lg text-sm md:text-base font-mono">
+              Leverage open-source intelligence, passive reconnaissance, and security metadata extraction to discover silent threat signals.
+            </p>
+          </div>
 
-      {/* TOOLS SECTION */}
-      <section className="scanners-section relative z-10 mt-16">
-        <h2 className="text-4xl font-bold mb-10 text-center bg-gradient-to-r from-pink-500 to-purple-700 bg-clip-text text-transparent">
-          Tools
-        </h2>
-        <div className="scanners-stack mx-auto max-w-4xl">
-          {tools.map((tool) => (
-            <div key={tool.id} className="tool-item">
+          {/* Interactive digital globe */}
+          <div className="w-full max-w-[450px]">
+            <CyberGlobe />
+          </div>
+
+          {/* Live Simulated Threat Feed Terminal */}
+          <div className="w-full max-w-xl glass-panel bg-black/60 p-4 border border-cyan-500/10 rounded-md font-mono text-left">
+            <div className="flex items-center gap-2 border-b border-white/5 pb-2 mb-3">
+              <Terminal size={14} className="text-cyan-400" />
+              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Live Threat Intel stream</span>
+            </div>
+            <div className="space-y-1.5 min-h-[100px] text-[11px] text-gray-400">
+              {threatLogs.map((log, i) => (
+                <div key={i} className="truncate select-none">
+                  <span className="text-cyan-600 mr-1.5">&gt;</span>
+                  {log}
+                </div>
+              ))}
+              <div className="terminal-cursor text-cyan-400 text-xs mt-1 font-bold">Awaiting new events</div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT COLUMN: SECURE PORTAL CARD (Lg: 5) */}
+        <div className="lg:col-span-5 w-full max-w-[450px] mx-auto">
+          <div className="glass-panel p-6 border border-white/5 relative bg-[#06060f]/90">
+            
+            {/* Header Tabs */}
+            <div className="flex border-b border-white/5 mb-6">
               <button
-                onClick={() => setActiveTool(activeTool === tool.id ? null : tool.id)}
-                className="tool-toggle w-full text-left p-6 bg-gray-800 rounded-t-lg font-semibold text-2xl hover:bg-gray-700 transition"
-              >
-                {tool.name}
-              </button>
-              <div
-                className={`tool-content overflow-hidden transition-max-height ${
-                  activeTool === tool.id ? "max-h-screen" : "max-h-0"
+                onClick={() => setShowLogin(true)}
+                className={`flex-1 pb-3 text-sm font-mono font-bold tracking-wider transition-all duration-200 border-b-2 ${
+                  showLogin 
+                    ? "border-cyan-400 text-cyan-400 font-bold" 
+                    : "border-transparent text-gray-500 hover:text-gray-300"
                 }`}
               >
-                {tool.component}
-              </div>
+                🔐 LOGIN
+              </button>
+              <button
+                onClick={() => setShowLogin(false)}
+                className={`flex-1 pb-3 text-sm font-mono font-bold tracking-wider transition-all duration-200 border-b-2 ${
+                  !showLogin 
+                    ? "border-purple-500 text-purple-400 font-bold" 
+                    : "border-transparent text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                👤 REGISTER
+              </button>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* SESSION LOG HISTORY */}
-      <section className="mt-10 text-center">
-        <ScanHistory />
-      </section>
+            {/* Form Slot */}
+            <div className="min-h-[300px]">
+              {showLogin ? <LoginForm /> : <RegisterForm />}
+            </div>
+
+            {/* Security Notice */}
+            <div className="mt-4 pt-4 border-t border-white/5 text-[9px] text-gray-500 font-mono text-center leading-relaxed select-none">
+              TACTICAL WARNING: THIS CONSOLE ACCESS IS RESTRICTED TO AUTHORIZED ANALYSTS. SESSION CORRELATIONS ARE DOCK-INGESTED FOR AUDITS.
+            </div>
+
+          </div>
+        </div>
+
+      </div>
 
       {/* FOOTER */}
-      <footer className="mt-24 text-center text-sm text-gray-500 pb-6 relative z-10">
-        Built by <strong>Ayush Singh Kshatriya</strong> | © 2025 Cygnal Project
+      <footer className="w-full flex justify-between items-center border-t border-white/5 pt-4 text-[10px] text-gray-600 font-mono z-10">
+        <span>© 2026 CYGNAL OPERATIONS CENTER</span>
+        <span>BUILD: ENTERPRISE EDITION</span>
       </footer>
+
     </main>
   );
 }
