@@ -169,55 +169,55 @@ export default function AdminPanel() {
 
   return (
     <DashboardShell>
-      <div className="space-y-6 text-left font-mono">
+      <div className="space-y-6 text-left font-sans">
         
-        {/* Title area */}
+        {/* Header Title */}
         <div className="flex items-center gap-3 border-b border-white/5 pb-4 select-none">
-          <Settings className="text-cyan-500 w-5 h-5" />
+          <Settings className="text-cyan-400 w-5 h-5" />
           <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
               Administration Portal
             </h2>
-            <p className="text-[9px] text-zinc-500">MANAGE USER ROLES & SYSTEM INTEGRATIONS</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">Manage user roles & system integrations</p>
           </div>
         </div>
 
-        {/* User management card */}
-        <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase select-none">
-            <Users size={14} className="text-cyan-500" /> User Directory
+        {/* User Management Card */}
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 font-mono uppercase tracking-wider select-none">
+            <Users size={14} className="text-cyan-400" /> User Directory
           </h3>
 
           {loading ? (
-            <p className="text-zinc-550 text-xs py-4 animate-pulse">Loading identity directory...</p>
+            <p className="text-slate-550 text-xs py-4 animate-pulse font-mono">Loading identity directory...</p>
           ) : users.length === 0 ? (
-            <p className="text-zinc-550 text-xs py-4 text-center">No users indexed.</p>
+            <p className="text-slate-550 text-xs py-4 text-center font-mono">No users indexed.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/5 text-zinc-500">
+                  <tr className="border-b border-white/5 text-slate-500 font-mono">
                     <th className="p-3 text-left">Username</th>
                     <th className="p-3 text-left">Email Address</th>
                     <th className="p-3 text-left">Assigned Role</th>
                     <th className="p-3 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-white/5 text-[11px] font-sans">
                   {users.map((u) => {
                     const self = isSelf(u.username);
                     return (
                       <tr key={u.id ?? u.username} className="hover:bg-white/[0.01] transition-all">
-                        <td className="p-3 font-semibold text-gray-250">{u.username}</td>
-                        <td className="p-3 text-zinc-400">{u.email || "N/A"}</td>
+                        <td className="p-3 font-semibold text-slate-200">{u.username}</td>
+                        <td className="p-3 text-slate-400">{u.email || "N/A"}</td>
                         <td className="p-3">
                           {self ? (
-                            <span className="text-cyan-500 font-semibold uppercase">{u.role} (Self)</span>
+                            <span className="text-cyan-400 font-bold uppercase font-mono text-[10px]">{u.role} (Self)</span>
                           ) : (
                             <select
                               value={u.role}
                               onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                              className="font-mono text-xs px-2 py-1 bg-[#09090b] border border-white/5 rounded text-white focus:border-cyan-500 focus:outline-none"
+                              className="font-mono text-[10.5px] px-2 py-1 bg-[#060814] border border-white/5 rounded text-white focus:border-cyan-500 focus:outline-none"
                             >
                               <option value="admin">admin</option>
                               <option value="analyst">analyst</option>
@@ -229,7 +229,7 @@ export default function AdminPanel() {
                           {self ? (
                             <button
                               disabled
-                              className="opacity-20 cursor-not-allowed text-zinc-650 p-1.5"
+                              className="opacity-20 cursor-not-allowed text-slate-600 p-1.5"
                               title="You cannot delete yourself"
                             >
                               <Trash2 size={14} />
@@ -254,12 +254,12 @@ export default function AdminPanel() {
         </div>
 
         {/* CUSTOM THREAT INTELLIGENCE BRIDGE */}
-        <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase select-none">
-            <Cpu size={14} className="text-cyan-500" /> Threat Intelligence Fusion Bridge
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 font-mono uppercase tracking-wider select-none">
+            <Cpu size={14} className="text-cyan-400" /> Threat Intelligence Fusion Bridge
           </h3>
           
-          <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+          <p className="text-xs text-slate-400 leading-relaxed mb-4">
             Test the integrated backend connector to run security correlation queries against threat databases using custom indicators.
           </p>
 
@@ -271,30 +271,31 @@ export default function AdminPanel() {
               placeholder="e.g. Malicious IP, SHA-256 file signature..."
               className="w-full sm:flex-1"
             />
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-2 w-full sm:w-auto shrink-0">
               <Button
                 onClick={handleTestTI}
-                className="w-full sm:w-auto h-9 flex items-center justify-center gap-1.5"
                 disabled={tiLoading}
+                className="w-full sm:w-auto h-9"
               >
-                <Play size={12} />
-                {tiLoading ? "TESTING..." : "TEST CONNECTOR"}
+                <Play size={11} className="mr-1.5" />
+                {tiLoading ? "Testing..." : "Test Connector"}
               </Button>
-              <button
+              <Button
                 onClick={handleClear}
-                className="btn-cyber-secondary px-3 py-2 text-xs font-mono flex items-center gap-1.5"
+                variant="outline"
+                className="w-full sm:w-auto h-9"
               >
-                <RotateCcw size={12} /> Clear
-              </button>
+                <RotateCcw size={11} className="mr-1.5" /> Clear
+              </Button>
             </div>
           </div>
 
           {tiResponse && (
-            <div className="mt-4 p-4 bg-black/45 border border-white/5 rounded-md">
-              <div className="text-[9px] text-cyan-500 font-bold border-b border-white/5 pb-1.5 mb-2 select-none">
+            <div className="mt-4 p-4 bg-[#060814]/80 border border-white/5 rounded-lg">
+              <div className="text-[9px] text-cyan-400 font-bold border-b border-white/5 pb-1.5 mb-2 font-mono select-none">
                 CONNECTOR BRIDGE OUTPUT:
               </div>
-              <pre className="text-[10px] text-zinc-400 leading-relaxed overflow-auto max-h-60">
+              <pre className="text-[10px] text-slate-400 leading-relaxed overflow-auto max-h-60 font-mono">
                 {JSON.stringify(tiResponse, null, 2)}
               </pre>
             </div>

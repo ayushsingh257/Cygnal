@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Shield, FileCode, Search, User } from "lucide-react";
+import { Shield, FileCode, Search, User, Activity } from "lucide-react";
 
 interface GraphNode {
   id: string;

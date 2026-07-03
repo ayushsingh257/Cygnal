@@ -18,6 +18,7 @@ import "chartjs-adapter-date-fns";
 import { useAuthStore } from "@/store/useAuthStore";
 import MitreAttackMatrix from "./MitreAttackMatrix";
 import DashboardShell from "./DashboardShell";
+import { Button } from "./ui/button";
 import { 
   ShieldAlert, 
   Activity, 
@@ -141,7 +142,7 @@ export default function Dashboard() {
         tension: 0.35,
         borderWidth: 1.5,
         pointBackgroundColor: "#8b5cf6",
-        pointBorderColor: "#09090b",
+        pointBorderColor: "#060814",
         pointBorderWidth: 1.5,
         pointRadius: 3
       }
@@ -154,7 +155,7 @@ export default function Dashboard() {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#0c0c0e",
+        backgroundColor: "#0d1117",
         titleColor: "#ffffff",
         bodyColor: "#a1a1aa",
         titleFont: { family: "monospace", size: 11 },
@@ -184,152 +185,152 @@ export default function Dashboard() {
   const runningTasks = tasks.filter(t => t.status === "running" || t.status === "pending");
 
   return (
-    <DashboardShell>
-      <div className="space-y-6 text-left font-mono">
+    <div className="space-y-6 text-left font-sans">
+      
+      {/* Top Title Bar */}
+      <div className="flex justify-between items-center border-b border-white/5 pb-4 select-none">
+        <div>
+          <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+            SOC Operations Telemetry
+          </h2>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">Real-time auditing & compliance logs</p>
+        </div>
         
-        {/* TOP TITLE PANEL */}
-        <div className="flex justify-between items-center border-b border-white/5 pb-3.5 select-none">
-          <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-              SOC Operations Telemetry
-            </h2>
-            <p className="text-[9px] text-zinc-500">REALTIME AUDITING & COMPLIANCE DATA</p>
+        <Button 
+          onClick={fetchDashboardData}
+          disabled={refreshing}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1.5"
+        >
+          <RefreshCw size={11} className={refreshing ? "animate-spin text-cyan-400" : ""} />
+          {refreshing ? "Syncing..." : "Sync Logs"}
+        </Button>
+      </div>
+
+      {/* Metrics Card Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between select-none">
+          <div className="flex justify-between items-start text-slate-500">
+            <span className="text-[10px] font-mono uppercase tracking-wider">Total Scans</span>
+            <Terminal size={14} className="text-cyan-400" />
           </div>
-          
-          <button 
-            onClick={fetchDashboardData}
-            disabled={refreshing}
-            className="btn-cyber-secondary px-3 py-1.5 flex items-center gap-1.5 text-[10px]"
-          >
-            <RefreshCw size={12} className={refreshing ? "animate-spin text-cyan-400" : ""} />
-            {refreshing ? "SYNCING..." : "REFRESH LOGS"}
-          </button>
-        </div>
-
-        {/* METRIC GRID */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          <div className="glass-panel p-4 bg-[#0c0c0e]/80 flex flex-col justify-between select-none">
-            <div className="flex justify-between items-start">
-              <span className="text-[9px] text-zinc-500 uppercase font-semibold">Total Scans Logged</span>
-              <Terminal size={14} className="text-cyan-500" />
-            </div>
-            <div className="mt-4">
-              <div className="text-2xl font-bold text-white leading-none">{logs.length}</div>
-              <div className="text-[8px] text-zinc-500 mt-1 uppercase">Correlated Events</div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-4 bg-[#0c0c0e]/80 flex flex-col justify-between select-none">
-            <div className="flex justify-between items-start">
-              <span className="text-[9px] text-zinc-500 uppercase font-semibold">Active Run Tasks</span>
-              <Activity size={14} className="text-cyan-500" />
-            </div>
-            <div className="mt-4">
-              <div className="text-2xl font-bold text-white leading-none">{runningTasks.length}</div>
-              <div className="text-[8px] text-zinc-500 mt-1 uppercase">Ingestion Queue</div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-4 bg-[#0c0c0e]/80 flex flex-col justify-between select-none">
-            <div className="flex justify-between items-start">
-              <span className="text-[9px] text-zinc-500 uppercase font-semibold">Forensic Incident Cases</span>
-              <ShieldAlert size={14} className="text-cyan-500" />
-            </div>
-            <div className="mt-4">
-              <div className="text-2xl font-bold text-white leading-none">{caseCount}</div>
-              <div className="text-[8px] text-zinc-500 mt-1 uppercase">Active Cases</div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-4 bg-[#0c0c0e]/80 flex flex-col justify-between select-none">
-            <div className="flex justify-between items-start">
-              <span className="text-[9px] text-zinc-500 uppercase font-semibold">Sensor Health</span>
-              <Clock size={14} className="text-emerald-400 animate-pulse" />
-            </div>
-            <div className="mt-4">
-              <div className="text-2xl font-bold text-emerald-400 leading-none">100%</div>
-              <div className="text-[8px] text-zinc-500 mt-1 uppercase">SLA Standard</div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* CHARTS CONTAINER */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="glass-panel p-5 bg-[#0c0c0e]/80 space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Operational Distribution</h3>
-            <div className="h-56 relative">
-              {logs.length === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">Awaiting data...</div>
-              ) : (
-                <Bar data={barData} options={chartOptions} />
-              )}
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 bg-[#0c0c0e]/80 space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Temporal Density Curve</h3>
-            <div className="h-56 relative">
-              {logs.length === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">Awaiting data...</div>
-              ) : (
-                <Line data={lineData} options={chartOptions} />
-              )}
-            </div>
+          <div className="mt-4">
+            <div className="text-2xl font-black font-mono text-white leading-none">{logs.length}</div>
+            <div className="text-[9px] text-slate-550 mt-1.5 uppercase font-mono tracking-wider">Correlated Entries</div>
           </div>
         </div>
 
-        {/* ACTIVE TASKS QUEUE */}
-        {runningTasks.length > 0 && (
-          <div className="glass-panel p-5 bg-[#0c0c0e]/80 space-y-3">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Active Background Processes</h3>
-            <div className="space-y-3">
-              {runningTasks.map((t) => (
-                <div key={t.id} className="space-y-1.5">
-                  <div className="flex justify-between text-xs text-zinc-350">
-                    <span className="font-bold text-cyan-400">{t.name}</span>
-                    <span>{t.progress}%</span>
-                  </div>
-                  <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden">
-                    <div 
-                      className="bg-cyan-500 h-full rounded-full transition-all duration-300"
-                      style={{ width: `${t.progress}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between select-none">
+          <div className="flex justify-between items-start text-slate-500">
+            <span className="text-[10px] font-mono uppercase tracking-wider">Active Tasks</span>
+            <Activity size={14} className="text-cyan-400" />
           </div>
-        )}
-
-        {/* MITRE ATT&CK MATRIX */}
-        <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-          <MitreAttackMatrix />
+          <div className="mt-4">
+            <div className="text-2xl font-black font-mono text-white leading-none">{runningTasks.length}</div>
+            <div className="text-[9px] text-slate-550 mt-1.5 uppercase font-mono tracking-wider">Background Ingestion</div>
+          </div>
         </div>
 
-        {/* RAW TELEMETRY BLOCK */}
-        <div className="text-center pt-2 select-none">
-          <button 
-            onClick={() => setShowRaw(!showRaw)} 
-            className="btn-cyber-secondary px-4 py-2 text-xs uppercase font-bold"
-          >
-            {showRaw ? "Close Logs Viewport" : "Initialize Logs Viewport"}
-          </button>
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between select-none">
+          <div className="flex justify-between items-start text-slate-500">
+            <span className="text-[10px] font-mono uppercase tracking-wider">Incident Cases</span>
+            <ShieldAlert size={14} className="text-cyan-400" />
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl font-black font-mono text-white leading-none">{caseCount}</div>
+            <div className="text-[9px] text-slate-550 mt-1.5 uppercase font-mono tracking-wider">Indexed Cards</div>
+          </div>
         </div>
 
-        {showRaw && (
-          <div className="glass-panel p-5 bg-black/45 border border-white/5 space-y-3">
-            <div className="flex items-center gap-2 text-xs text-cyan-500 font-bold border-b border-white/5 pb-2">
-              <Database size={14} /> RAW THREAT CORRELATION OBJECTS
-            </div>
-            <pre className="text-[10px] text-zinc-400 leading-relaxed overflow-x-auto max-h-60 p-2">
-              {JSON.stringify(logs, null, 2)}
-            </pre>
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between select-none">
+          <div className="flex justify-between items-start text-slate-500">
+            <span className="text-[10px] font-mono uppercase tracking-wider">Sensor Health</span>
+            <Clock size={14} className="text-emerald-400 animate-pulse" />
           </div>
-        )}
+          <div className="mt-4">
+            <div className="text-2xl font-black font-mono text-emerald-450 leading-none">100%</div>
+            <div className="text-[9px] text-slate-550 mt-1.5 uppercase font-mono tracking-wider">Operational SLA</div>
+          </div>
+        </div>
 
       </div>
-    </DashboardShell>
+
+      {/* Area & Line Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 space-y-4">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Module Distribution</h3>
+          <div className="h-56 relative">
+            {logs.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-550 font-mono">Awaiting telemetry ingestion...</div>
+            ) : (
+              <Bar data={barData} options={chartOptions} />
+            )}
+          </div>
+        </div>
+
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 space-y-4">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Temporal Event Density</h3>
+          <div className="h-56 relative">
+            {logs.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-550 font-mono">Awaiting telemetry ingestion...</div>
+            ) : (
+              <Line data={lineData} options={chartOptions} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Task Queue Shimmer List */}
+      {runningTasks.length > 0 && (
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 space-y-3">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Active Background Ingestion</h3>
+          <div className="space-y-3.5">
+            {runningTasks.map((t) => (
+              <div key={t.id} className="space-y-1.5">
+                <div className="flex justify-between text-xs font-mono text-slate-400">
+                  <span className="font-semibold text-cyan-400">{t.name}</span>
+                  <span>{t.progress}%</span>
+                </div>
+                <div className="w-full bg-[#060814] rounded-full h-1 overflow-hidden">
+                  <div 
+                    className="bg-cyan-400 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${t.progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mitre Attack techniques Matrix */}
+      <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+        <MitreAttackMatrix />
+      </div>
+
+      {/* Raw JSON logs inspector panel */}
+      <div className="text-center pt-2 select-none">
+        <Button 
+          onClick={() => setShowRaw(!showRaw)} 
+          variant="outline"
+        >
+          {showRaw ? "Close Logs Viewport" : "Initialize Logs Viewport"}
+        </Button>
+      </div>
+
+      {showRaw && (
+        <div className="glass-card rounded-xl p-5 bg-[#060814]/80 border border-white/5 space-y-3">
+          <div className="flex items-center gap-2 text-xs text-cyan-400 font-bold border-b border-white/5 pb-2 font-mono">
+            <Database size={14} /> RAW THREAT CORRELATION OBJECTS
+          </div>
+          <pre className="text-[10px] text-slate-450 leading-relaxed overflow-x-auto max-h-60 p-2 font-mono">
+            {JSON.stringify(logs, null, 2)}
+          </pre>
+        </div>
+      )}
+
+    </div>
   );
 }

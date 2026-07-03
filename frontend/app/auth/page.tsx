@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Shield } from "lucide-react";
-import "./auth.css";
 
 const LoginForm = dynamic(() => import("@/components/LoginForm"), { ssr: false });
 const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: false });
@@ -12,7 +11,7 @@ const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: f
 function AuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLogin, setShowLogin] = useState(true);
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -26,51 +25,55 @@ function AuthForm() {
   };
 
   return (
-    <main className="min-h-screen bg-[#09090b] text-[#f4f4f5] flex flex-col items-center justify-center p-6 relative overflow-hidden cyber-grid">
+    <main className="min-h-screen bg-[#060814] text-slate-100 flex flex-col items-center justify-center p-6 relative overflow-hidden select-none">
       
-      {/* Background glow effects */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-purple-950/5 filter blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-cyan-950/5 filter blur-[150px] rounded-full pointer-events-none" />
+      {/* Background Grids */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute inset-0 cyber-grid-dense opacity-[0.22]" />
+        <div className="absolute top-[20%] left-[25%] w-[500px] h-[500px] rounded-full bg-cyan-950/10 blur-[120px] opacity-60" />
+      </div>
 
       {/* Gateway Panel */}
-      <div className="w-full max-w-[400px] glass-panel p-6 border border-white/5 bg-[#0c0c0e]/95 z-10">
-        <div className="flex justify-center items-center gap-2 mb-6 select-none">
-          <Shield className="w-5 h-5 text-cyan-500" />
-          <span className="font-mono text-xs font-semibold tracking-wider uppercase text-white">Cygnal Security Node</span>
+      <div className="w-full max-w-[420px] glass-card rounded-xl p-6 border border-white/10 bg-[#0d1117]/60 z-10 space-y-6">
+        <div className="flex justify-center items-center gap-2.5">
+          <Shield className="w-5 h-5 text-cyan-400" />
+          <span className="font-mono text-xs font-extrabold tracking-[0.2em] uppercase text-white">
+            Cygnal Portal Node
+          </span>
         </div>
 
         {/* Tab triggers */}
-        <div className="flex border-b border-white/5 mb-5 select-none">
+        <div className="flex border-b border-white/5 text-xs">
           <button
             onClick={() => handleToggle("login")}
-            className={`flex-1 pb-2.5 text-xs font-mono font-bold tracking-wider transition-all duration-150 border-b-2 ${
+            className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
               showLogin 
-                ? "border-cyan-500 text-cyan-400 font-bold" 
-                : "border-transparent text-zinc-500 hover:text-zinc-400"
+                ? "border-b border-cyan-400 text-cyan-400 font-bold" 
+                : "text-slate-500 hover:text-slate-350"
             }`}
           >
-            🔐 LOGIN
+            Sign In
           </button>
           <button
             onClick={() => handleToggle("register")}
-            className={`flex-1 pb-2.5 text-xs font-mono font-bold tracking-wider transition-all duration-150 border-b-2 ${
+            className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
               !showLogin 
-                ? "border-cyan-500 text-cyan-400 font-bold" 
-                : "border-transparent text-zinc-500 hover:text-zinc-400"
+                ? "border-b border-cyan-400 text-cyan-400 font-bold" 
+                : "text-slate-500 hover:text-slate-350"
             }`}
           >
-            👤 REGISTER
+            Enlist Node
           </button>
         </div>
 
         {/* Form area */}
-        <div className="min-h-[290px]">
+        <div className="min-h-[280px] flex items-center justify-center">
           {showLogin ? <LoginForm /> : <RegisterForm />}
         </div>
 
         {/* Security Warning */}
-        <div className="mt-4 pt-3.5 border-t border-white/5 text-[8px] text-zinc-650 font-mono text-center leading-relaxed select-none">
-          TACTICAL WARNING: SYSTEM GATEWAY ENFORCES ENCRYPTED HANDSHAKES. SESSION AUDITS IN PROGRESS.
+        <div className="pt-4 border-t border-white/5 text-[9px] text-slate-600 font-mono text-center leading-relaxed select-none uppercase tracking-wider">
+          System gate enforces encrypted end-to-end sessions. Active audit logging is in progress.
         </div>
       </div>
 
@@ -81,8 +84,8 @@ function AuthForm() {
 export default function AuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#09090b] text-zinc-500 flex items-center justify-center font-mono animate-pulse text-xs">
-        CONNECTING TO GATEWAY STREAM...
+      <div className="min-h-screen bg-[#060814] text-slate-500 flex items-center justify-center font-mono animate-pulse text-[10px] tracking-widest">
+        INITIALIZING SYSTEM GATEWAY SESSION...
       </div>
     }>
       <AuthForm />

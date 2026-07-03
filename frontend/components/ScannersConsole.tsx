@@ -120,13 +120,13 @@ export default function ScannersConsole() {
   const ToolIcon = currentTool.icon;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
+    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start text-left font-sans">
       
-      {/* LEFT COLUMN: SCANNER NAVIGATION */}
-      <div className="xl:col-span-1 glass-panel p-4 space-y-4 bg-[#0c0c0e]/80">
+      {/* LEFT COLUMN: NAVIGATION LIST */}
+      <div className="xl:col-span-1 glass-card rounded-xl p-4 bg-[#0d1117]/60 space-y-4">
         <div className="flex items-center gap-2 border-b border-white/5 pb-3 select-none">
-          <TerminalIcon className="text-cyan-500 w-4 h-4" />
-          <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+          <TerminalIcon className="text-cyan-400 w-4 h-4" />
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
             Console Modules
           </h3>
         </div>
@@ -139,17 +139,17 @@ export default function ScannersConsole() {
               <button
                 key={tool.id}
                 onClick={() => setActiveTab(tool.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded text-left font-mono text-xs transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-medium tracking-wide transition-all duration-150 ${
                   isSelected 
-                    ? "bg-white/5 border border-white/5 text-cyan-400 font-semibold"
-                    : "text-zinc-400 border border-transparent hover:text-zinc-200 hover:bg-white/[0.02]"
+                    ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400"
+                    : "text-slate-400 border border-transparent hover:text-white hover:bg-white/[0.02]"
                 }`}
               >
-                <div className="flex items-center gap-2 truncate">
-                  <Icon size={14} className={isSelected ? "text-cyan-400" : "text-zinc-500"} />
+                <div className="flex items-center gap-2.5 truncate">
+                  <Icon size={15} className={isSelected ? "text-cyan-400" : "text-slate-500"} />
                   <span className="truncate">{tool.name}</span>
                 </div>
-                <span className="text-[8px] uppercase px-1.5 py-0.2 bg-zinc-950 border border-white/5 rounded text-zinc-500 font-mono">
+                <span className="text-[8px] uppercase tracking-wider px-2 py-0.5 bg-black/40 border border-white/5 rounded font-mono text-slate-500">
                   {tool.category}
                 </span>
               </button>
@@ -158,34 +158,34 @@ export default function ScannersConsole() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: WORKSPACE */}
+      {/* RIGHT COLUMN: WORKSPACE CONTAINER */}
       <div className="xl:col-span-3 space-y-6">
         
-        {/* Active Tool Header Info */}
-        <div className="glass-panel p-5 text-left bg-[#0c0c0e]/85">
-          <div className="flex items-center gap-3 mb-2 select-none">
-            <div className="w-8 h-8 rounded bg-zinc-900 border border-white/5 flex items-center justify-center">
+        {/* Active Tool Header */}
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/80">
+          <div className="flex items-center gap-3 border-b border-white/5 pb-3 select-none">
+            <div className="w-8 h-8 rounded-lg bg-cyan-950/20 border border-cyan-500/15 flex items-center justify-center">
               <ToolIcon size={16} className="text-cyan-400" />
             </div>
             <div>
-              <h2 className="text-sm font-bold font-mono tracking-wide text-white uppercase">{currentTool.name}</h2>
-              <p className="text-[9px] text-zinc-500 font-mono uppercase tracking-wider">{currentTool.category} Engine</p>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">{currentTool.name}</h2>
+              <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">{currentTool.category} Engine</p>
             </div>
           </div>
-          <p className="text-xs text-zinc-400 mt-2 font-mono leading-relaxed">
+          <p className="text-xs text-slate-400 mt-3 font-sans leading-relaxed">
             {currentTool.desc}
           </p>
         </div>
 
-        {/* Dynamic Tool Form / Component */}
-        <div className="glass-panel p-5 text-left bg-[#0c0c0e]/60 min-h-[25vh]">
+        {/* Dynamic Scan Interface */}
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/50 min-h-[30vh]">
           {currentTool.component}
         </div>
 
-        {/* Global Scan Logs History */}
-        <div className="glass-panel p-5 text-left bg-[#0c0c0e]/80">
+        {/* Global Historical Scan logs list */}
+        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/85">
           <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider border-b border-white/5 pb-2.5 mb-4 flex items-center gap-2 select-none">
-            <History size={14} className="text-cyan-500" /> Output Stream History
+            <History size={14} className="text-cyan-400" /> Output Stream History
           </h3>
           <ScanHistory />
         </div>

@@ -10,7 +10,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         type={type}
         ref={ref}
         className={cn(
-          "w-full bg-[#09090b] border border-white/5 rounded-md px-3 py-2 text-sm text-white placeholder-zinc-500 font-mono transition-all duration-150 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 disabled:opacity-50",
+          "cyber-input",
           className
         )}
         {...props}
