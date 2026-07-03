@@ -3,108 +3,111 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════
-   Cygnal Enterprise Design System
+   Cygnal Torq.io Premium Design System
    ══════════════════════════════════════ */
 
 :root {
-  --bg-primary: #060814;
-  --bg-secondary: #0d1117;
-  --bg-tertiary: #161b22;
-  --border-color: rgba(255, 255, 255, 0.05);
+  --bg-dark: #030712;
+  --bg-surface: #0b0f19;
+  --bg-surface-hover: #111827;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-active: rgba(59, 130, 246, 0.45);
   
-  --accent-cyan: #06b6d4;
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
-  --accent-green: #10b981;
-  --accent-yellow: #f59e0b;
-  --accent-red: #ef4444;
+  --color-primary: #3b82f6; /* Slate Blue */
+  --color-secondary: #6366f1; /* Indigo */
+  --color-accent: #06b6d4; /* Cyan */
+  --color-success: #10b981; /* Emerald */
+  --color-warning: #f59e0b; /* Amber */
+  --color-danger: #ef4444; /* Red */
   
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
-  background-color: var(--bg-primary);
-  color: #f1f5f9;
+  background-color: var(--bg-dark);
+  color: #f3f4f6;
   font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Custom Premium Scrollbar ─────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* ── Content Selection ─────────────────────────── */
-::selection {
-  background: rgba(59, 130, 246, 0.25);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Container Cards ─────────────────────── */
 .glass-card {
-  background: rgba(13, 17, 23, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease-in-out;
+  background: rgba(11, 15, 25, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
 }
 
-/* ── SaaS Form Inputs ─────────────────────────── */
+/* ── Floating Header Nav ───────────────────────── */
+.glass-nav {
+  background: rgba(3, 7, 18, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Premium Form Inputs ───────────────────────── */
 .cyber-input {
-  background: rgba(22, 27, 34, 0.6);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: rgba(11, 15, 25, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  color: #f9fafb;
   font-size: 13px;
-  padding: 10px 14px;
+  padding: 11px 15px;
   outline: none;
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .cyber-input::placeholder {
-  color: #484f58;
+  color: #4b5563;
 }
 
 .cyber-input:focus {
-  border-color: var(--accent-blue);
-  background: rgba(22, 27, 34, 0.9);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  border-color: var(--color-primary);
+  background: rgba(11, 15, 25, 0.95);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* ── SaaS Buttons ────────────────────────────── */
+/* ── Premium Buttons ───────────────────────────── */
 .btn-cyber {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: #21262d;
-  border: 1px solid rgba(240, 246, 252, 0.1);
-  border-radius: 8px;
-  color: #c9d1d9;
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  color: #d1d5db;
   font-weight: 500;
   font-size: 13px;
   cursor: pointer;
@@ -112,8 +115,8 @@ body {
 }
 
 .btn-cyber:hover {
-  background: #30363d;
-  border-color: #8b949e;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
 
@@ -122,10 +125,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: #238636;
-  border: 1px solid rgba(240, 246, 252, 0.1);
-  border-radius: 8px;
+  padding: 10px 22px;
+  background: var(--color-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   color: #ffffff;
   font-weight: 600;
   font-size: 13px;
@@ -134,79 +137,75 @@ body {
 }
 
 .btn-cyber-primary:hover {
-  background: #2ea043;
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
-.btn-cyber-primary:disabled, .btn-cyber:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ── Alert Badges ────────────────────────────── */
+/* ── Severity Badges ───────────────────────────── */
 .badge-critical {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
   color: #f87171;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 2.5px 8.5px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .badge-high {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   color: #fbbf24;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 2.5px 8.5px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .badge-medium {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
   color: #60a5fa;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 2.5px 8.5px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .badge-low {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   color: #34d399;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 2.5px 8.5px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* ── Shimmer Skeleton Loader ──────────────────── */
-.shimmer {
-  background: linear-gradient(90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmerAnim 1.8s ease-in-out infinite;
+/* ── Timeline Rail ─────────────────────────────── */
+.timeline-item {
+  position: relative;
+  padding-left: 20px;
+  border-left: 1px solid var(--border-subtle);
+  padding-bottom: 20px;
 }
 
-@keyframes shimmerAnim {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ── Typography & Gradients ──────────────────── */
-.gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--bg-dark);
 }
