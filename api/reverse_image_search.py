@@ -1,15 +1,23 @@
 import os
-import torch
-import clip
 from PIL import Image
-import faiss
-import numpy as np
 import logging
 import base64
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Try importing ML dependencies optional for CI/tests
+try:
+    import torch
+    import clip
+    import faiss
+    import numpy as np
+    _has_deps = True
+except ImportError as e:
+    _has_deps = False
+    logger.warning(f"Reverse image search dependencies not available: {e}. Reverse image search will be disabled.")
+
 
 class ClipSearchEngine:
     def __init__(self, model_name="ViT-B/32"):
@@ -86,13 +94,21 @@ class ClipSearchEngine:
         return results
 
 # ====== Initialize Search Engine Once ======
-search_engine = ClipSearchEngine()
-search_engine.add_reference_images("reference_images")
+if _has_deps:
+    search_engine = ClipSearchEngine()
+    try:
+        search_engine.add_reference_images("reference_images")
+    except Exception as e:
+        logger.error(f"Failed to add reference images: {e}")
+else:
+    search_engine = None
 
 # ====== API Function to be used in backend.py ======
 def perform_reverse_image_search(image_path):
     try:
         logger.info(f"Performing reverse image search for: {image_path}")
+        if search_engine is None:
+            raise RuntimeError("Reverse image search is disabled because torch, clip, or faiss is not installed.")
         matches = search_engine.search(image_path, top_k=5)
         return matches
     except Exception as e:
