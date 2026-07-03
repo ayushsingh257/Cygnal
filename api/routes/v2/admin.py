@@ -4,7 +4,7 @@ import os
 import json
 from jwt_utils import decode_token
 from auth_utils import verify_token
-from database import get_all_users, update_user_role, delete_user_by_username
+from database import get_all_users, update_user_role, delete_user_by_username, get_threat_intel_feed
 from intel_bridge import query_intel_bridge
 from audit_logger import audit_log
 
@@ -101,6 +101,16 @@ def get_audit_logs():
     except Exception as e:
         logging.error(f"Failed to fetch audit logs: {e}")
         return jsonify({"success": False, "error": "Failed to fetch audit logs"}), 500
+
+
+@admin_bp.route("/get-intel", methods=["GET"])
+def get_intel_feed():
+    try:
+        feed = get_threat_intel_feed()
+        return jsonify(feed)
+    except Exception as e:
+        logging.error(f"Failed to fetch threat intel feed: {e}")
+        return jsonify([])
 
 
 @admin_bp.route("/intel-bridge", methods=["POST"])

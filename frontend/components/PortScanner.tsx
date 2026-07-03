@@ -1,8 +1,7 @@
-// frontend/components/PortScanner.tsx
-
 "use client";
 
 import React, { useState } from "react";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 const PortScanner = () => {
   const [target, setTarget] = useState("");
@@ -10,10 +9,12 @@ const PortScanner = () => {
   const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleScan = async () => {
     setError("");
     setResults([]);
+    setProgress(0);
     if (!target) {
       setError("Please enter a valid IP or domain.");
       return;
@@ -21,22 +22,25 @@ const PortScanner = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/port-scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const finalResult = await submitAndPoll(
+        "/api/port-scan",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ target, mode }),
         },
-        body: JSON.stringify({ target, mode }),
-      });
+        setProgress
+      );
 
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
+      if (finalResult.error) {
+        setError(finalResult.error);
+      } else if (finalResult.results) {
+        setResults(finalResult.results);
       } else {
-        setResults(data.results);
+        setError("Scan returned no results.");
       }
-    } catch (err) {
-      setError("Scan failed. Server error.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Scan failed. Server error.");
     } finally {
       setLoading(false);
     }
@@ -65,8 +69,17 @@ const PortScanner = () => {
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         disabled={loading}
       >
-        {loading ? "Scanning..." : "Start Scan"}
+        {loading ? `Scanning (${progress}%)` : "Start Scan"}
       </button>
+
+      {loading && (
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-3 overflow-hidden">
+          <div
+            className="bg-blue-600 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && <div className="text-red-600 mt-3">{error}</div>}
 

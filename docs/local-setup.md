@@ -7,66 +7,38 @@ This guide explains how to run the project locally.
 ## 🔧 Backend Setup (Flask API)
 
 ```bash
-cd api/
+cd api
+pip install -r ../requirements.txt
 python backend.py
+```
 
-Make sure Flask, requests, python-whois, and flask-cors are installed:
+Backend runs on `http://localhost:5000`.
 
-pip install flask requests python-whois flask-cors
+---
 
-💻 Frontend Setup (Next.js + Tailwind)
-cd frontend/
-npm install
+## 💻 Frontend Setup (Next.js + Tailwind)
+
+```bash
+cd frontend
+npm ci
 npm run dev
-Access at: http://localhost:3000/
+```
 
-🧪 Run Tests (Optional)
-pytest api/tests/
+Access at: `http://localhost:3001/`
 
-
----
-
-#### 2️⃣ `docs/project-overview.md`
-
-```md
-# 📌 Cygnal: OSINT Recon Toolkit
-
-"From surface clues to silent signals" – Cygnal is a powerful OSINT web toolkit that combines:
-
-- 🔎 Header Scanner
-- 🌐 WHOIS Lookup
-- 📸 Reverse Image Search *(Coming Soon)*
-- 🕵️ Metadata Recon *(Coming Soon)*
+> Port 3000 is reserved for the independent CCGP project. Cygnal uses port 3001.
 
 ---
 
-## 🎯 Purpose
+## 🧪 Run Tests
 
-Help cyber investigators, analysts, and journalists easily gather public intelligence using a simple UI.
-
----
-
-## 🔒 Phase 12 Status
-
-✅ Error handling
-✅ Input validation
-✅ Logging and safe backend
-✅ UI/UX polish
-✅ Testing framework added
-✅ Folder structure cleaned
+```bash
+cd api
+pytest tests/ -v
+```
 
 ---
 
-## 🛣️ Roadmap
+## 🚀 Production Deployment
 
-- Phase 13: Reverse Image Search
-- Phase 14: Metadata File Scanner
-- Phase 15: Screenshot Website Tool
-- Phase 16+: Scan history, export report, auth, user dashboard
-
----
-
-## 👨‍💻 Built By
-
-**Ayush Singh Kshatriya**
-GitHub: [@ayushsingh257](https://github.com/ayushsingh257)
+See [walkthrough.md](../walkthrough.md) for Vercel configuration and split-stack deployment notes.

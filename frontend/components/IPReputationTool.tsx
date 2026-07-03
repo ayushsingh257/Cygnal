@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "../store/useReportStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 const IPReputationTool: React.FC = () => {
   const [ip, setIp] = useState("");
   const [result, setResult] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const setUsed = useReportStore((state) => state.setToolUsed);
 
@@ -15,29 +17,32 @@ const IPReputationTool: React.FC = () => {
     setLoading(true);
     setError("");
     setResult(null);
+    setProgress(0);
 
     try {
       const token = localStorage.getItem("cygnal_token");
-      const res = await fetch("/api/ip-reputation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const finalResult = await submitAndPoll(
+        "/api/ip-reputation",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ip }),
         },
-        body: JSON.stringify({ ip }),
-      });
+        setProgress
+      );
 
-      const data = await res.json();
-
-      if (!data.success) {
-        setError(data.error || "Reputation scan failed.");
-      } else {
-        setResult(data.result);
+      if (finalResult.result) {
+        setResult(finalResult.result);
         setUsed("ipReputationUsed");
+      } else {
+        setError("Reputation scan returned no data.");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      setError("Something went wrong while querying AbuseIPDB.");
+      setError(err instanceof Error ? err.message : "Something went wrong while querying AbuseIPDB.");
     } finally {
       setLoading(false);
     }
@@ -63,9 +68,18 @@ const IPReputationTool: React.FC = () => {
           className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
           disabled={loading}
         >
-          {loading ? "Checking..." : "Check Reputation"}
+          {loading ? `Checking (${progress}%)` : "Check Reputation"}
         </button>
       </form>
+
+      {loading && (
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-3 overflow-hidden">
+          <div
+            className="bg-blue-600 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && <div className="text-red-600 text-sm mb-3">{error}</div>}
 

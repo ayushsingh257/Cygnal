@@ -1,6 +1,11 @@
 # api/tests/test_validators.py
 
-from api.backend import is_valid_url, is_valid_domain
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from routes.v2.scanners import is_valid_url, is_valid_domain
 
 
 def test_valid_url():

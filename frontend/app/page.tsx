@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import HeaderScanner from "../components/HeaderScanner";

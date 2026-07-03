@@ -125,7 +125,7 @@ export default function CasesPage() {
 
   const fetchScanHistory = async () => {
     try {
-      const res = await fetch("/api/history", {
+      const res = await fetch("/api/lookups", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -536,11 +536,17 @@ export default function CasesPage() {
                         className="input-cyber w-full font-mono text-xs"
                       >
                         <option value="">-- Select Scan Log --</option>
-                        {scanHistory.map((log) => (
-                          <option key={log.id || log.timestamp} value={log.id}>
-                            [{log.tool}] {log.input} ({new Date(log.timestamp).toLocaleDateString()})
+                        {scanHistory.map((log) => {
+                          const inputLabel =
+                            typeof log.input === "object"
+                              ? JSON.stringify(log.input)
+                              : String(log.input ?? "");
+                          return (
+                          <option key={log.id} value={log.id}>
+                            [{log.tool}] {inputLabel} ({new Date(log.timestamp).toLocaleDateString()})
                           </option>
-                        ))}
+                          );
+                        })}
                       </select>
 
                       <Button

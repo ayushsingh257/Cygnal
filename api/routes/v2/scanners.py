@@ -22,7 +22,7 @@ from reverse_image_search import perform_reverse_image_search
 from ip_reputation import get_ip_reputation
 from passive_dns import get_passive_dns
 from port_scanner import scan_target
-from database import insert_lookup_log
+from database import insert_lookup_log, get_all_lookups
 from audit_logger import audit_log
 from task_manager import global_task_manager
 
@@ -626,6 +626,16 @@ def log_scan():
         logging.error(f"Failed to log scan session: {e}")
         return jsonify({"success": False, "error": "Failed to log scan session"}), 500
     
+
+@scanners_bp.route("/lookups", methods=["GET"])
+def fetch_lookup_logs():
+    try:
+        logs = get_all_lookups()
+        return jsonify({"success": True, "logs": logs})
+    except Exception as e:
+        logging.error(f"Failed to load lookup logs: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @scanners_bp.route("/history", methods=["GET"])
 def fetch_all_logs():

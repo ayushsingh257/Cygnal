@@ -95,8 +95,8 @@ Below is the status of the development milestones.
 | :--- | :--- | :--- | :--- |
 | **Phase 0** | **Master Documentation** | Write Cygnal 2.0 specs, separate README & ROADMAP. | ✅ Completed |
 | **Phase 1** | **Architectural Hardening** | Modularize Flask routes, consolidate SQLite DBs, fix hardcoded ports. | ✅ Completed |
-| **Phase 2** | **Asynchronous Job Queues** | Implement task executors, progress trackers, and Live SOC dashboard. | 🛠️ In Progress |
-| **Phase 3** | **Case & Evidence System** | Create Case CRUD, SHA-256 evidence logs, and timeline mapping. | 📅 Planned |
+| **Phase 2** | **Asynchronous Job Queues** | Implement task executors, progress trackers, and Live SOC dashboard. | ✅ Completed |
+| **Phase 3** | **Case & Evidence System** | Create Case CRUD, SHA-256 evidence logs, and timeline mapping. | ✅ Completed |
 | **Phase 4** | **Plugin & Threat Fusion** | Create `/plugins` architecture, integrate threat index calculations. | 📅 Planned |
 | **Phase 5** | **Multi-Agent AI & RAG** | Setup vector database, deploy Ollama/GPT routing, agent workflows. | 📅 Planned |
 | **Phase 6** | **Attack Surface & Graph** | Implement automated subdomain sweeps, build relation link graphs. | 📅 Planned |
@@ -115,5 +115,20 @@ Below is the status of the development milestones.
 - **Port Isolation**: Reconfigured `frontend/package.json` to launch Next.js dev server on port `3001` to prevent port collisions with other independent projects (specifically CCGP running on port `3000`).
 - **Input Sanitization**: Hardened `port_scanner.py` input logic to validate domain structures and block potential option injection payloads.
 
-### Phase 2: Asynchronous Job Queues & Live SOC Dashboard (Current)
-- *Next Steps*: Integrate background executor threads in Flask, write percentage progress polling routes, and construct the Live SOC workspace panel.
+### Phase 2: Asynchronous Job Queues & Live SOC Dashboard (Completed)
+- **Background Worker Core**: Implemented a thread-pool background execution manager (`task_manager.py`) mapping tasks to progressive callback handlers.
+- **Async Endpoints**: Refactored all scanner API routes inside `routes/v2/scanners.py` to immediately return task IDs instead of holding HTTP threads, adding `/api/tasks` list queries.
+- **Live SOC Dashboard**: Rewrote the Visual Dashboard page to query and update the active scan queues dynamically with progress percentage metrics.
+
+### Phase 3: Case & Evidence Management with Timeline (Completed)
+- **Forensic Schemas**: Created SQLite database schemas for `cases`, `evidence`, and `timeline` in `database.py` with full relational structure.
+- **Case Workspaces API**: Modularized Case creation, severity assignments, notes ingestion, evidence file SHA-256 cryptographic logs, and scan history linking inside `routes/v2/cases.py`.
+- **Investigation Panel Layout**: Built the cases workspace on the frontend (`app/cases/page.tsx`) mapping notes post triggers, file attachment feeds, and chronologically mapped timelines styled using the dark-themed cyber design system.
+- **Lookup History API**: Added `/api/lookups` endpoint for case scan association from the unified `lookups` database table.
+
+### Repository Stabilization Audit (Completed — Pre-Phase 4)
+- **CI/CD**: Fixed npm lockfile sync, requirements path, pytest integration, and full blueprint compilation checks.
+- **Async Frontend Sync**: Migrated all scanner components to `submitAndPoll()` task polling pattern.
+- **API Parity**: Added missing `/api/get-intel` and `/api/lookups` endpoints; fixed case scan association data source mismatch.
+- **Deployment**: Added `frontend/vercel.json`, `CYGNAL_API_URL` env-based proxy, and deployment documentation in `walkthrough.md`.
+

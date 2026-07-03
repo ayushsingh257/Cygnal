@@ -1,24 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
-
-interface ScreenshotResponse {
-  success: boolean;
-  image?: string;
-  error?: string;
-}
+import { submitAndPoll } from "@/lib/taskPoll";
 
 export default function ScreenshotTool() {
   const [url, setUrl] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const { setToolUsed, addToHistory } = useReportStore();
-  const { user, token } = useAuthStore(); // ✅ token needed for both requests
+  const { user, token } = useAuthStore();
 
   if (!user) {
     return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
@@ -34,21 +29,24 @@ export default function ScreenshotTool() {
     setLoading(true);
     setError(null);
     setImage(null);
+    setProgress(0);
 
     try {
-      // ✅ Include Authorization header in screenshot request
-      const response = await axios.post<ScreenshotResponse>(
+      const finalResult = await submitAndPoll(
         "/api/screenshot",
-        { url },
         {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+          body: JSON.stringify({ url }),
+        },
+        setProgress
       );
 
-      if (response.data.success && response.data.image) {
-        const imageBase64 = `data:image/png;base64,${response.data.image}`;
+      if (finalResult.image) {
+        const imageBase64 = `data:image/png;base64,${finalResult.image}`;
         setImage(imageBase64);
 
         setToolUsed("screenshotUsed");
@@ -58,7 +56,6 @@ export default function ScreenshotTool() {
           result: "Screenshot captured",
         });
 
-        // ✅ Log scan with user
         await fetch("/api/log-scan", {
           method: "POST",
           headers: {
@@ -72,10 +69,10 @@ export default function ScreenshotTool() {
           }),
         });
       } else {
-        setError(response.data.error || "Failed to take screenshot");
+        setError("Failed to take screenshot");
       }
-    } catch (err: any) {
-      setError(err.message || "Request failed");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Request failed");
     } finally {
       setLoading(false);
     }
@@ -98,8 +95,17 @@ export default function ScreenshotTool() {
         className="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700 disabled:opacity-50 text-lg"
         disabled={loading}
       >
-        {loading ? "Capturing..." : "Capture Screenshot"}
+        {loading ? `Capturing (${progress}%)` : "Capture Screenshot"}
       </button>
+
+      {loading && (
+        <div className="w-full bg-zinc-700 rounded-full h-2 mt-4 overflow-hidden">
+          <div
+            className="bg-blue-500 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && <p className="text-red-500 mt-6 text-lg">{error}</p>}
 

@@ -2,10 +2,12 @@
 
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 export default function PassiveDNSLookup() {
   const [domain, setDomain] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const setUsed = useReportStore((state) => state.setToolUsed);
@@ -15,30 +17,32 @@ export default function PassiveDNSLookup() {
     setLoading(true);
     setError("");
     setResult(null);
+    setProgress(0);
 
     try {
-      const res = await fetch("/api/passive-dns", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const finalResult = await submitAndPoll(
+        "/api/passive-dns",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain }),
         },
-        body: JSON.stringify({ domain }),
-      });
+        setProgress
+      );
 
-      const data = await res.json();
-      if (data.success) {
-        setResult(data.result);
+      if (finalResult.result) {
+        setResult(finalResult.result);
         setUsed("passiveDNSUsed");
         addToHistory({
           tool: "Passive DNS",
           input: domain,
-          result: data.result,
+          result: finalResult.result,
         });
       } else {
-        setError(data.error || "Failed to fetch DNS records.");
+        setError("Failed to fetch DNS records.");
       }
-    } catch (err) {
-      setError("Request failed.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Request failed.");
     } finally {
       setLoading(false);
     }
@@ -64,8 +68,17 @@ export default function PassiveDNSLookup() {
         disabled={loading || !domain}
         className="btn-cygnal-primary disabled:opacity-50"
       >
-        {loading ? "Looking up..." : "Fetch DNS Records"}
+        {loading ? `Looking up (${progress}%)` : "Fetch DNS Records"}
       </button>
+
+      {loading && (
+        <div className="w-full bg-zinc-800 rounded-full h-2 mt-4 overflow-hidden">
+          <div
+            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && <p className="text-red-400 mt-3">{error}</p>}
 

@@ -370,3 +370,54 @@ def update_case_status(case_id, status):
     except Exception as e:
         print("[DB UPDATE CASE STATUS ERROR]", str(e))
         return False
+
+
+def get_all_lookups(limit=100):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, timestamp, user, ip, tool, input, result
+            FROM lookups
+            ORDER BY timestamp DESC
+            LIMIT ?;
+        """, (limit,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [{
+            "id": r[0],
+            "timestamp": r[1],
+            "user": r[2],
+            "ip": r[3],
+            "tool": r[4],
+            "input": json.loads(r[5]) if r[5] and r[5].startswith(("{", "[")) else r[5],
+            "result": json.loads(r[6]) if r[6] and r[6].startswith(("{", "[")) else r[6],
+        } for r in rows]
+    except Exception as e:
+        print("[DB GET ALL LOOKUPS ERROR]", str(e))
+        return []
+
+
+def get_threat_intel_feed(limit=100):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, indicator, type, source, tags, timestamp
+            FROM threat_intel
+            ORDER BY timestamp DESC
+            LIMIT ?;
+        """, (limit,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [{
+            "id": r[0],
+            "indicator": r[1],
+            "type": r[2],
+            "source": r[3],
+            "tags": r[4],
+            "timestamp": r[5],
+        } for r in rows]
+    except Exception as e:
+        print("[DB GET THREAT INTEL ERROR]", str(e))
+        return []

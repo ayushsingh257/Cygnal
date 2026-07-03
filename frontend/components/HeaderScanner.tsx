@@ -3,17 +3,18 @@
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const { setToolUsed, addToHistory } = useReportStore();
   const { user, token } = useAuthStore();
 
-  // 🔐 Check for login + role access
   if (!user) {
     return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
   }
@@ -25,6 +26,7 @@ export default function HeaderScanner() {
   const handleScan = async () => {
     setResult("");
     setError("");
+    setProgress(0);
 
     if (!url.trim()) {
       setError("❌ Please enter a URL.");
@@ -39,22 +41,23 @@ export default function HeaderScanner() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/header-scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ THIS IS CRUCIAL
+      const finalResult = await submitAndPoll(
+        "/api/header-scan",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ url }),
         },
-        body: JSON.stringify({ url }),
-      });
+        setProgress
+      );
 
-      const data = await response.json();
-      console.log("[HeaderScan] Response:", data);
-
-      if (data && data.headers) {
-        const lines = data.headers
+      if (finalResult && finalResult.headers) {
+        const lines = finalResult.headers
           .map(
-            (header: any) =>
+            (header: { present: boolean; name: string }) =>
               `${header.present ? "✅" : "❌"} ${header.name}: ${
                 header.present ? "Present" : "Missing"
               }`
@@ -64,24 +67,22 @@ export default function HeaderScanner() {
         const finalOutput = `🔍 Header Scan Results for ${url}:\n\n${lines}`;
         setResult(finalOutput);
         setToolUsed("headerUsed");
-        addToHistory({ tool: "Header Scanner", input: url, result: JSON.stringify(data, null, 2) });
+        addToHistory({ tool: "Header Scanner", input: url, result: JSON.stringify(finalResult, null, 2) });
 
-        await fetch("http://127.0.0.1:5000/api/log-scan", {
+        await fetch("/api/log-scan", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ Add this
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ tool: "Header Scanner", input: url, result: data }),
+          body: JSON.stringify({ tool: "Header Scanner", input: url, result: finalResult }),
         });
-      } else if (data.error) {
-        setError("❌ Server error: " + data.error);
       } else {
         setError("❌ Unexpected error. Try again.");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Header Scan Fetch Error:", err);
-      setError("❌ Could not connect to backend.");
+      setError("❌ " + (err instanceof Error ? err.message : "Could not connect to backend."));
     } finally {
       setLoading(false);
     }
@@ -102,9 +103,18 @@ export default function HeaderScanner() {
           onClick={handleScan}
           className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded"
         >
-          {loading ? "Scanning..." : "Scan"}
+          {loading ? `Scanning (${progress}%)` : "Scan"}
         </button>
       </div>
+
+      {loading && (
+        <div className="w-full bg-gray-800 rounded-full h-2 mt-4 overflow-hidden">
+          <div
+            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && (
         <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>

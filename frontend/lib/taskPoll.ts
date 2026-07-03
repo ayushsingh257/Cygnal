@@ -36,3 +36,16 @@ export async function pollTask(
     }, intervalMs);
   });
 }
+
+export async function submitAndPoll(
+  endpoint: string,
+  init: RequestInit,
+  onProgress: (pct: number) => void
+): Promise<Record<string, any>> {
+  const res = await fetch(endpoint, init);
+  const data = await res.json();
+  if (!data.success || !data.task_id) {
+    throw new Error(data.error || "Failed to initiate task");
+  }
+  return pollTask(data.task_id, onProgress);
+}

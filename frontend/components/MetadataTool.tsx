@@ -7,6 +7,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 type MetaResult = {
   filename: string;
@@ -92,64 +93,64 @@ export default function MetadataTool() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await fetch("/api/metadata", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ token passed for /api/metadata
-        },
-        body: form,
-      });
+      try {
+        const finalResult = await submitAndPoll(
+          "/api/metadata",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: form,
+          },
+          () => {}
+        );
 
-      const data = await res.json();
+        const metadata = finalResult.metadata || { error: "Unknown error" };
+        const { issues, score } = analyzeThreats(metadata);
+        const result: MetaResult = {
+          filename: file.name,
+          metadata,
+          threats: issues,
+          score,
+        };
 
-      if (!res.ok || !data.success) {
+        addToHistory({
+          tool: "Metadata",
+          input: file.name,
+          result: JSON.stringify({
+            score,
+            threats: issues.slice(0, 3),
+            keys: Object.keys(metadata).slice(0, 3),
+          }, null, 2),
+        });
+
+        setToolUsed("metadataUsed");
+
+        await fetch("/api/log-scan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            tool: "Metadata Extraction",
+            input: file.name,
+            result: {
+              score,
+              threats: issues,
+              fields: Object.keys(metadata),
+            },
+          }),
+        });
+
+        newResults.push(result);
+      } catch (err: unknown) {
         newResults.push({
           filename: file.name,
-          metadata: { error: data.error || "Unknown error" },
+          metadata: { error: err instanceof Error ? err.message : "Upload failed" },
           threats: [],
           score: "Low",
         });
-        continue;
       }
-
-      const { issues, score } = analyzeThreats(data.metadata);
-      const result: MetaResult = {
-        filename: file.name,
-        metadata: data.metadata,
-        threats: issues,
-        score,
-      };
-
-      addToHistory({
-        tool: "Metadata",
-        input: file.name,
-        result: JSON.stringify({
-          score,
-          threats: issues.slice(0, 3),
-          keys: Object.keys(data.metadata).slice(0, 3),
-        }, null, 2),
-      });
-
-      setToolUsed("metadataUsed");
-
-      await fetch("/api/log-scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ token passed for audit log
-        },
-        body: JSON.stringify({
-          tool: "Metadata Extraction",
-          input: file.name,
-          result: {
-            score,
-            threats: issues,
-            fields: Object.keys(data.metadata),
-          },
-        }),
-      });
-
-      newResults.push(result);
     }
 
     setResults((prev) => [...prev, ...newResults]);
