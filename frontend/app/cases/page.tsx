@@ -412,7 +412,7 @@ export default function CasesPage() {
                     }`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[9px] font-mono text-slate-500 font-semibold">{c.case_number}</span>
+                      <span className="text-[9px] font-mono text-slate-550 font-semibold">{c.case_number}</span>
                       <span className={`${severityBadges[c.severity]}`}>
                         {c.severity}
                       </span>
@@ -443,7 +443,7 @@ export default function CasesPage() {
             </div>
           ) : loadingDetails && !activeCase ? (
             <div className="glass-card rounded-xl py-32 text-center bg-[#0b0f19]/40">
-              <p className="text-slate-550 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
+              <p className="text-slate-555 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
             </div>
           ) : activeCase ? (
             <div className="space-y-6">
@@ -459,12 +459,12 @@ export default function CasesPage() {
                       </span>
                     </div>
                     <h2 className="text-base font-bold text-white mt-2 uppercase font-mono tracking-wide">{activeCase.title}</h2>
-                    <p className="text-xs text-slate-450 mt-1.5 leading-relaxed font-sans">{activeCase.description || "No overview statement."}</p>
+                    <p className="text-xs text-slate-455 mt-1.5 leading-relaxed font-sans">{activeCase.description || "No overview statement."}</p>
                   </div>
                   
                   {/* Status Toggle Switch */}
                   <div className="space-y-1 bg-black/35 p-2 rounded-lg border border-white/5">
-                    <label className="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-1">Operational Status</label>
+                    <label className="block text-[8px] font-mono text-slate-550 uppercase tracking-wider mb-1">Operational Status</label>
                     <div className="flex gap-1">
                       {["open", "investigating", "closed"].map((st) => (
                         <button
@@ -473,7 +473,7 @@ export default function CasesPage() {
                           className={`px-2.5 py-0.5 text-[9px] uppercase tracking-wider font-mono rounded ${
                             activeCase.status === st
                               ? "bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold"
-                              : "text-slate-500 hover:text-slate-350"
+                              : "text-slate-550 hover:text-slate-350"
                           }`}
                         >
                           {st}
@@ -483,9 +483,9 @@ export default function CasesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[10px] font-mono text-slate-500">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[10px] font-mono text-slate-550">
                   <div>
-                    <span className="text-slate-650 block mb-0.5">Lead Investigator</span>
+                    <span className="text-slate-655 block mb-0.5">Lead Investigator</span>
                     <span className="text-slate-350 font-bold flex items-center gap-1"><User size={10} /> {activeCase.created_by}</span>
                   </div>
                   <div>
@@ -506,12 +506,12 @@ export default function CasesPage() {
                 <div className="glass-card rounded-xl p-5 bg-[#0b0f19]/60 flex flex-col justify-between">
                   <div>
                     <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
-                      <FileCode size={14} className="text-blue-500" /> Digital Evidence Vault
+                      <FileCode size={14} className="text-blue-550" /> Digital Evidence Vault
                     </h3>
                     
                     {/* Ingest forensic file dropzone */}
                     <div className="p-3.5 bg-black/40 border border-dashed border-white/5 rounded-lg mb-4 text-left">
-                      <label className="block text-[8px] font-mono text-slate-550 uppercase tracking-wider mb-2">Ingest Forensic File</label>
+                      <label className="block text-[8px] font-mono text-slate-555 uppercase tracking-wider mb-2">Ingest Forensic File</label>
                       <div className="flex gap-2 items-center flex-wrap">
                         <input
                           type="file"
@@ -533,7 +533,7 @@ export default function CasesPage() {
 
                     {/* Files list */}
                     {evidenceList.length === 0 ? (
-                      <p className="text-slate-550 font-mono text-xs py-4 text-center">Vault empty.</p>
+                      <p className="text-slate-555 font-mono text-xs py-4 text-center">Vault empty.</p>
                     ) : (
                       <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
                         {evidenceList.map((ev) => (
@@ -542,7 +542,7 @@ export default function CasesPage() {
                               <span className="font-bold text-slate-350 truncate max-w-[140px]">{ev.filename}</span>
                               <span className="text-slate-500">{(ev.file_size / 1024).toFixed(1)} KB</span>
                             </div>
-                            <div className="text-slate-550 space-y-0.5 text-[9px]">
+                            <div className="text-slate-555 space-y-0.5 text-[9px]">
                               <div className="flex items-center gap-1.5">
                                 <Hash size={9} /> <span className="text-blue-400">{ev.file_hash.slice(0, 20)}...</span>
                               </div>
@@ -563,10 +563,10 @@ export default function CasesPage() {
                 <div className="glass-card rounded-xl p-5 bg-[#0b0f19]/60 flex flex-col justify-between">
                   <div>
                     <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
-                      <LinkIcon size={14} className="text-blue-500" /> Scan Telemetry Linker
+                      <LinkIcon size={14} className="text-blue-555" /> Scan Telemetry Linker
                     </h3>
                     
-                    <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                    <p className="text-xs text-slate-555 leading-relaxed mb-4">
                       Link active scanning history logs directly to the case timeline to contextualize threat vectors.
                     </p>
 
@@ -616,12 +616,12 @@ export default function CasesPage() {
               {/* Forensics Chronological Timeline */}
               <div className="glass-card rounded-xl p-5 bg-[#0b0f19]/60">
                 <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
-                  <Clock size={14} className="text-blue-500" /> Forensic Timeline Events
+                  <Clock size={14} className="text-blue-550" /> Forensic Timeline Events
                 </h3>
 
                 {/* Analyst Notes Appender */}
                 <div className="mb-6 bg-black/25 p-4 border border-white/5 rounded-lg text-left">
-                  <label className="block text-[8px] font-mono text-slate-550 uppercase tracking-wider mb-2 select-none">Append Analyst Note</label>
+                  <label className="block text-[8px] font-mono text-slate-555 uppercase tracking-wider mb-2 select-none">Append Analyst Note</label>
                   <div className="flex gap-3">
                     <Input
                       type="text"
@@ -642,7 +642,7 @@ export default function CasesPage() {
 
                 {/* Timeline display */}
                 {timeline.length === 0 ? (
-                  <p className="text-slate-550 font-mono text-xs py-4 text-center">Timeline log empty.</p>
+                  <p className="text-slate-555 font-mono text-xs py-4 text-center">Timeline log empty.</p>
                 ) : (
                   <div className="pl-4 space-y-4 border-l border-white/5">
                     {timeline.map((event) => (
@@ -655,7 +655,7 @@ export default function CasesPage() {
                             event.event_type === "case_created" ? "bg-green-950/20 text-green-450 border-green-800/25" :
                             event.event_type === "evidence_uploaded" ? "bg-blue-955/20 text-blue-400 border-blue-800/25" :
                             event.event_type === "scan_associated" ? "bg-indigo-955/20 text-indigo-400 border-indigo-800/25" :
-                            event.event_type === "status_changed" ? "bg-amber-955/20 text-amber-450 border-amber-800/25" :
+                            event.event_type === "status_changed" ? "bg-amber-955/20 text-amber-455 border-amber-800/25" :
                             "bg-purple-955/20 text-purple-400 border-purple-800/25"
                           }`}>
                             {event.event_type.replace("_", " ").toUpperCase()}
@@ -663,7 +663,7 @@ export default function CasesPage() {
                           <span className="text-slate-500">
                             {new Date(event.timestamp).toLocaleString()}
                           </span>
-                          <span className="text-slate-550 font-bold uppercase">
+                          <span className="text-slate-555 font-bold uppercase">
                             (Inv: {event.user})
                           </span>
                         </div>
@@ -672,7 +672,7 @@ export default function CasesPage() {
                         {/* Nested Scan telemetry viewer */}
                         {event.metadata && event.metadata.result && (
                           <div className="mt-2.5 pl-3 border-l border-blue-500/20 bg-black/40 p-3 rounded-lg text-[10px] max-h-36 overflow-y-auto font-mono">
-                            <pre className="p-0 border-0 bg-transparent text-[9px] leading-4 text-slate-450">
+                            <pre className="p-0 border-0 bg-transparent text-[9px] leading-4 text-slate-455">
                               {JSON.stringify(event.metadata.result, null, 2)}
                             </pre>
                           </div>

@@ -73,14 +73,14 @@ function AuthForm() {
             <blockquote className="text-xl font-medium text-white leading-relaxed">
               "{testimonials[currentTestimonial].quote}"
             </blockquote>
-            <cite className="block text-[11px] font-mono text-slate-500 uppercase tracking-widest mt-4.5 not-italic">
+            <cite className="block text-[11px] font-mono text-slate-550 uppercase tracking-widest mt-4.5 not-italic">
               — {testimonials[currentTestimonial].author}
             </cite>
           </div>
         </div>
 
         {/* System metrics footer */}
-        <div className="flex gap-8 text-[10px] font-mono text-slate-500 z-10 border-t border-white/5 pt-6 select-none uppercase tracking-widest">
+        <div className="flex gap-8 text-[10px] font-mono text-slate-550 z-10 border-t border-white/5 pt-6 select-none uppercase tracking-widest">
           <span>SHA-256 SEALS COMPLIANCE</span>
           <span>•</span>
           <span>ISO27001 AUDITING READY</span>
