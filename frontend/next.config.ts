@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const apiBaseUrl =
+  process.env.CYGNAL_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,8 +13,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",         // Requests to /api/* on Next.js
-        destination: "http://localhost:5000/api/:path*", // Forward to Flask
+        source: "/api/:path*",
+        destination: `${apiBaseUrl}/api/:path*`,
       },
     ];
   },

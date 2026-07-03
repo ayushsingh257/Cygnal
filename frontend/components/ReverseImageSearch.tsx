@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 interface SearchResult {
   match_path: string;
@@ -17,6 +18,7 @@ export default function ReverseImageSearch() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
 
   const { setToolUsed, addToHistory } = useReportStore();
@@ -48,38 +50,29 @@ export default function ReverseImageSearch() {
     setLoading(true);
     setError("");
     setResults([]);
+    setProgress(0);
 
     try {
-      const response = await fetch("/api/reverse-image-search", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ Pass token to image search
+      const finalResult = await submitAndPoll(
+        "/api/reverse-image-search",
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
         },
-        body: formData,
-      });
+        setProgress
+      );
 
-      const text = await response.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        throw new Error("Invalid JSON from server: " + text);
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || "Unknown error occurred.");
-      }
-
-      setResults(data.results);
+      const searchResults = finalResult.results || [];
+      setResults(searchResults);
       setToolUsed("reverseImageUsed");
 
       addToHistory({
         tool: "Reverse Image Search",
         input: selectedFile.name,
-        result: JSON.stringify(data.results.slice(0, 3), null, 2),
+        result: JSON.stringify(searchResults.slice(0, 3), null, 2),
       });
 
-      // ✅ Send audit log with token
       await fetch("/api/log-scan", {
         method: "POST",
         headers: {
@@ -89,11 +82,11 @@ export default function ReverseImageSearch() {
         body: JSON.stringify({
           tool: "Reverse Image Search",
           input: selectedFile.name,
-          result: data.results,
+          result: searchResults,
         }),
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to perform reverse image search.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to perform reverse image search.");
     } finally {
       setLoading(false);
     }
@@ -108,8 +101,17 @@ export default function ReverseImageSearch() {
           onChange={handleFileChange}
         />
         <Button className="mt-2" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Searching..." : "Start Reverse Image Search"}
+          {loading ? `Searching (${progress}%)` : "Start Reverse Image Search"}
         </Button>
+
+        {loading && (
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-3 overflow-hidden">
+            <div
+              className="bg-purple-500 h-full rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
 
         {error && <p className="text-red-500 mt-2">{error}</p>}
 

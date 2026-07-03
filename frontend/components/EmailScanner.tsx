@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { submitAndPoll } from "@/lib/taskPoll";
 
 export default function EmailScanner() {
   const [url, setUrl] = useState("");
@@ -10,7 +11,8 @@ export default function EmailScanner() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
-  const [includeSubpages, setIncludeSubpages] = useState(false); // ✅ new toggle
+  const [progress, setProgress] = useState(0);
+  const [includeSubpages, setIncludeSubpages] = useState(false);
 
   const { setToolUsed, addToHistory } = useReportStore();
   const { user, token } = useAuthStore();
@@ -23,10 +25,22 @@ export default function EmailScanner() {
     return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
   }
 
+  const logScan = async (tool: string, emails: string[]) => {
+    await fetch("/api/log-scan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ tool, input: url, result: emails }),
+    });
+  };
+
   const handleScan = async () => {
     setResult(null);
     setError("");
     setStatus("");
+    setProgress(0);
 
     if (!url.trim()) {
       setError("❌ Please enter a URL.");
@@ -41,74 +55,54 @@ export default function EmailScanner() {
     setLoading(true);
 
     try {
-      // 🧪 Try normal scan first
-      let response = await fetch("http://127.0.0.1:5000/api/email-scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ THIS IS CRUCIAL
-        },
-        body: JSON.stringify({ url, includeSubpages }),
-      });
-
-      let data = await response.json();
-      console.log("[EmailScan] Normal:", data);
-
-      if (data.success && data.emails.length > 0) {
-        setResult(data.emails);
-        setStatus("Scanned with normal method.");
-        setToolUsed("emailUsed");
-        addToHistory({ tool: "Email Scanner", input: url, result: data.emails });
-
-        await fetch("http://127.0.0.1:5000/api/log-scan", {
+      const normalResult = await submitAndPoll(
+        "/api/email-scan",
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ Add this
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            tool: "Email Scanner (Normal)",
-            input: url,
-            result: data.emails,
-          }),
-        });
-      } else {
-        // 🔁 Fallback to JS scan
-        setStatus("No emails found. Retrying with JS scan...");
-        response = await fetch("http://127.0.0.1:5000/api/email-scan-js", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url, includeSubpages }),
-        });
+        },
+        setProgress
+      );
 
-        data = await response.json();
-        console.log("[EmailScan] JS fallback:", data);
-
-        if (data.success && data.emails.length > 0) {
-          setResult(data.emails);
-          setStatus("Scanned with JavaScript-based method.");
-          setToolUsed("emailUsed");
-          addToHistory({ tool: "Email Scanner (JS Fallback)", input: url, result: data.emails });
-
-          await fetch("http://127.0.0.1:5000/api/log-scan", {
+      if (normalResult.emails?.length > 0) {
+        setResult(normalResult.emails);
+        setStatus("Scanned with normal method.");
+        setToolUsed("emailUsed");
+        addToHistory({ tool: "Email Scanner", input: url, result: normalResult.emails });
+        await logScan("Email Scanner (Normal)", normalResult.emails);
+      } else {
+        setStatus("No emails found. Retrying with JS scan...");
+        setProgress(0);
+        const jsResult = await submitAndPoll(
+          "/api/email-scan-js",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // ✅ Add this
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-              tool: "Email Scanner (JS Fallback)",
-              input: url,
-              result: data.emails,
-            }),
-          });
+            body: JSON.stringify({ url, includeSubpages }),
+          },
+          setProgress
+        );
+
+        if (jsResult.emails?.length > 0) {
+          setResult(jsResult.emails);
+          setStatus("Scanned with JavaScript-based method.");
+          setToolUsed("emailUsed");
+          addToHistory({ tool: "Email Scanner (JS Fallback)", input: url, result: jsResult.emails });
+          await logScan("Email Scanner (JS Fallback)", jsResult.emails);
         } else {
-          setError(data.error || "❌ No emails found with fallback.");
+          setError("❌ No emails found with fallback.");
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Email Scan Fetch Error:", err);
-      setError("❌ Could not connect to backend.");
+      setError("❌ " + (err instanceof Error ? err.message : "Could not connect to backend."));
     } finally {
       setLoading(false);
     }
@@ -129,11 +123,10 @@ export default function EmailScanner() {
           onClick={handleScan}
           className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded"
         >
-          {loading ? "Scanning..." : "Scan"}
+          {loading ? `Scanning (${progress}%)` : "Scan"}
         </button>
       </div>
 
-      {/* ✅ Subpage toggle */}
       <div className="flex items-center mt-3 text-sm text-gray-300">
         <input
           type="checkbox"
@@ -144,7 +137,15 @@ export default function EmailScanner() {
         Scan linked subpages (slower, deeper)
       </div>
 
-      {/* ✅ Status display */}
+      {loading && (
+        <div className="w-full bg-gray-800 rounded-full h-2 mt-4 overflow-hidden">
+          <div
+            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
       {status && <p className="mt-2 text-blue-300 text-sm">{status}</p>}
 
       {error && <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>}

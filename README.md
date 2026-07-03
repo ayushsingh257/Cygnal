@@ -130,6 +130,16 @@ npm run dev
 ```
 *Frontend interface will run on `http://localhost:3001`.*
 
+### 5. Deploy to Vercel (Frontend)
+
+Set the Vercel **Root Directory** to `frontend`. Add the environment variable:
+
+```env
+CYGNAL_API_URL=https://your-flask-backend.example.com
+```
+
+The Flask API must be deployed separately. See [walkthrough.md](walkthrough.md) for full deployment notes.
+
 ---
 
 ## 🤝 Contributing
