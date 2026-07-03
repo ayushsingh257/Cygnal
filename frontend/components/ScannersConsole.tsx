@@ -14,7 +14,8 @@ import {
   Activity, 
   Search,
   History,
-  Terminal as TerminalIcon
+  Terminal as TerminalIcon,
+  Play
 } from "lucide-react";
 
 import HeaderScanner from "./HeaderScanner";
@@ -119,75 +120,90 @@ export default function ScannersConsole() {
   const currentTool = tools.find(t => t.id === activeTab) || tools[0];
   const ToolIcon = currentTool.icon;
 
+  // Group tools by categories for elegant side grouping
+  const categories = Array.from(new Set(tools.map(t => t.category)));
+
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start text-left font-sans">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left font-sans select-none">
       
-      {/* LEFT COLUMN: NAVIGATION LIST */}
-      <div className="xl:col-span-1 glass-card rounded-xl p-4 bg-[#0d1117]/60 space-y-4">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-3 select-none">
-          <TerminalIcon className="text-cyan-400 w-4 h-4" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-            Console Modules
-          </h3>
+      {/* LEFT COLUMN: NAVIGATION LIST (Lg: 3) */}
+      <div className="lg:col-span-3 space-y-6">
+        
+        {/* Modules directory container */}
+        <div className="glass-card rounded-xl p-4.5 bg-[#0b0f19]/60">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-3 mb-4">
+            <TerminalIcon className="text-blue-500 w-4 h-4" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              Tool Directories
+            </h3>
+          </div>
+
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+            {categories.map((cat) => (
+              <div key={cat} className="space-y-1">
+                <span className="block text-[9px] font-mono text-slate-550 uppercase tracking-widest px-2 mb-1.5">{cat}</span>
+                {tools
+                  .filter((t) => t.category === cat)
+                  .map((tool) => {
+                    const Icon = tool.icon;
+                    const isSelected = activeTab === tool.id;
+                    return (
+                      <button
+                        key={tool.id}
+                        onClick={() => setActiveTab(tool.id)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium tracking-wide transition-all duration-150 ${
+                          isSelected 
+                            ? "bg-blue-500/10 text-blue-400 font-semibold"
+                            : "text-slate-400 hover:text-white hover:bg-white/[0.02]"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Icon size={14} className={isSelected ? "text-blue-450" : "text-slate-500"} />
+                          <span className="truncate">{tool.name}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-1 max-h-[60vh] overflow-y-auto pr-1">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            const isSelected = activeTab === tool.id;
-            return (
-              <button
-                key={tool.id}
-                onClick={() => setActiveTab(tool.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-medium tracking-wide transition-all duration-150 ${
-                  isSelected 
-                    ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400"
-                    : "text-slate-400 border border-transparent hover:text-white hover:bg-white/[0.02]"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Icon size={15} className={isSelected ? "text-cyan-400" : "text-slate-500"} />
-                  <span className="truncate">{tool.name}</span>
-                </div>
-                <span className="text-[8px] uppercase tracking-wider px-2 py-0.5 bg-black/40 border border-white/5 rounded font-mono text-slate-500">
-                  {tool.category}
-                </span>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
-      {/* RIGHT COLUMN: WORKSPACE CONTAINER */}
-      <div className="xl:col-span-3 space-y-6">
+      {/* RIGHT COLUMN: ACTIVE WORKSPACE CONSOLE (Lg: 9) */}
+      <div className="lg:col-span-9 space-y-6">
         
-        {/* Active Tool Header */}
-        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/80">
-          <div className="flex items-center gap-3 border-b border-white/5 pb-3 select-none">
-            <div className="w-8 h-8 rounded-lg bg-cyan-950/20 border border-cyan-500/15 flex items-center justify-center">
-              <ToolIcon size={16} className="text-cyan-400" />
-            </div>
+        {/* Workspace Console Header & Active Form */}
+        <div className="glass-card rounded-xl p-6 bg-[#0b0f19]/65">
+          <div className="flex justify-between items-start flex-wrap gap-4 border-b border-white/5 pb-4 mb-6">
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">{currentTool.name}</h2>
-              <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">{currentTool.category} Engine</p>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[9px] text-blue-400 font-bold uppercase tracking-wider">Active Workspace</span>
+                <span className="badge-medium text-[8px]">
+                  {currentTool.category}
+                </span>
+              </div>
+              <h2 className="text-base font-bold text-white mt-1.5 uppercase font-mono tracking-wide">{currentTool.name}</h2>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed font-sans">{currentTool.desc}</p>
             </div>
           </div>
-          <p className="text-xs text-slate-400 mt-3 font-sans leading-relaxed">
-            {currentTool.desc}
-          </p>
+
+          <div className="space-y-4">
+            {currentTool.component}
+          </div>
         </div>
 
-        {/* Dynamic Scan Interface */}
-        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/50 min-h-[30vh]">
-          {currentTool.component}
-        </div>
-
-        {/* Global Historical Scan logs list */}
-        <div className="glass-card rounded-xl p-5 bg-[#0d1117]/85">
-          <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider border-b border-white/5 pb-2.5 mb-4 flex items-center gap-2 select-none">
-            <History size={14} className="text-cyan-400" /> Output Stream History
-          </h3>
-          <ScanHistory />
+        {/* Scan History list wrapper */}
+        <div className="glass-card rounded-xl p-5 bg-[#0b0f19]/60">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-2.5 mb-4">
+            <History size={14} className="text-blue-500" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              Operations History ({currentTool.name})
+            </h3>
+          </div>
+          
+          <ScanHistory toolFilter={currentTool.name} />
         </div>
 
       </div>
