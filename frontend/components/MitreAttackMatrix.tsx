@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Shield, Check, Info } from "lucide-react";
+import { Shield, Info } from "lucide-react";
 
 interface Technique {
   id: string;
@@ -117,47 +117,47 @@ export default function MitreAttackMatrix() {
   ];
 
   const severityClasses: Record<string, string> = {
-    low: "border-blue-900/50 text-blue-400 bg-blue-950/10 hover:bg-blue-950/20",
-    medium: "border-yellow-900/50 text-yellow-400 bg-yellow-950/10 hover:bg-yellow-950/20",
-    high: "border-orange-900/50 text-orange-400 bg-orange-950/10 hover:bg-orange-950/20",
-    critical: "border-red-900 text-red-400 bg-red-950/20 hover:bg-red-950/30 animate-pulse"
+    low: "border-white/5 text-zinc-400 bg-white/[0.01] hover:bg-white/[0.03] hover:text-zinc-200",
+    medium: "border-yellow-500/10 text-yellow-400/90 bg-yellow-950/5 hover:bg-yellow-950/10",
+    high: "border-orange-500/10 text-orange-400/90 bg-orange-950/5 hover:bg-orange-950/10",
+    critical: "border-red-500/10 text-red-400 bg-red-950/10 hover:bg-red-950/15"
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 font-mono select-none">
       
-      <div className="flex items-center gap-2 border-b border-white/5 pb-3">
-        <Shield className="text-cyan-400 w-5 h-5 glow-cyan" />
+      {/* Title */}
+      <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+        <Shield className="text-cyan-500 w-4 h-4" />
         <div>
-          <h3 className="text-lg font-bold font-mono">MITRE ATT&CK Matrix Mapping</h3>
-          <p className="text-[10px] text-gray-500 font-mono">SCANNERS THREAT MATRIX CORRELATION</p>
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider">MITRE ATT&CK Matrix Mapping</h3>
+          <p className="text-[9px] text-zinc-500">SCANNERS THREAT MATRIX CORRELATION</p>
         </div>
       </div>
 
-      {/* Grid containing Tactic Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* Columns Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {matrix.map((tactic) => (
-          <div key={tactic.id} className="space-y-3 bg-black/30 border border-white/5 p-3 rounded-lg flex flex-col justify-start">
-            <div className="text-left border-b border-white/5 pb-2">
-              <span className="text-xs font-mono font-bold text-gray-300">{tactic.name}</span>
-              <span className="block text-[9px] font-mono text-gray-600 uppercase">{tactic.id}</span>
+          <div key={tactic.id} className="space-y-2 bg-black/20 border border-white/5 p-3 rounded flex flex-col justify-start">
+            <div className="text-left border-b border-white/5 pb-1.5 mb-1.5">
+              <span className="text-[10px] font-bold text-zinc-300">{tactic.name}</span>
+              <span className="block text-[8px] text-zinc-650 uppercase">{tactic.id}</span>
             </div>
 
-            <div className="space-y-2 flex-1">
+            <div className="space-y-1.5 flex-1">
               {tactic.techniques.map((tech) => (
                 <button
                   key={tech.id}
                   onClick={() => setSelectedTech(tech)}
-                  className={`w-full text-left p-2.5 rounded border text-xs font-mono transition-all duration-200 ${
+                  className={`w-full text-left p-2 rounded border text-xs transition-all duration-150 ${
                     severityClasses[tech.severity]
                   }`}
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-[10px] opacity-75">{tech.id}</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 glow-cyan animate-ping" />
+                  <div className="flex justify-between items-center mb-1 text-[8px]">
+                    <span className="font-bold opacity-60">{tech.id}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/80" />
                   </div>
-                  <div className="truncate font-semibold text-gray-200">{tech.name}</div>
-                  <div className="text-[9px] text-gray-500 truncate mt-1">Tool: {tech.mappedTool}</div>
+                  <div className="truncate font-semibold text-zinc-200 text-[10px]">{tech.name}</div>
                 </button>
               ))}
             </div>
@@ -165,29 +165,29 @@ export default function MitreAttackMatrix() {
         ))}
       </div>
 
-      {/* Selected Technique Details overlay info box */}
+      {/* Details Box */}
       {selectedTech && (
-        <div className="glass-panel p-4 bg-zinc-950/80 border border-cyan-500/20 text-left relative transition-all duration-300">
+        <div className="p-4 bg-[#0c0c0e]/95 border border-white/10 text-left relative rounded transition-all duration-200">
           <button 
             onClick={() => setSelectedTech(null)} 
-            className="absolute top-3 right-3 text-xs font-mono text-gray-400 hover:text-white"
+            className="absolute top-3 right-3 text-[10px] text-zinc-500 hover:text-zinc-300"
           >
             [CLOSE]
           </button>
           
           <div className="flex items-center gap-2 mb-2">
-            <Info size={14} className="text-cyan-400" />
-            <h4 className="font-mono font-bold text-cyan-400 text-sm">
+            <Info size={12} className="text-cyan-500" />
+            <h4 className="font-bold text-cyan-400 text-xs uppercase">
               [{selectedTech.id}] {selectedTech.name}
             </h4>
-            <span className={`tag-severity tag-severity-${selectedTech.severity} text-[9px] ml-2`}>
+            <span className={`tag-severity tag-severity-${selectedTech.severity} text-[8px] ml-2`}>
               {selectedTech.severity}
             </span>
           </div>
 
-          <div className="space-y-2 text-xs font-mono text-gray-400">
-            <div><span className="text-gray-200">TACTICAL SUMMARY:</span> {selectedTech.description}</div>
-            <div><span className="text-gray-200">MAPPED SYSTEM SCANNER:</span> <span className="text-purple-400">{selectedTech.mappedTool}</span></div>
+          <div className="space-y-1.5 text-xs text-zinc-400">
+            <div><span className="text-zinc-500 uppercase text-[9px] mr-1.5">Summary:</span> {selectedTech.description}</div>
+            <div><span className="text-zinc-500 uppercase text-[9px] mr-1.5">Associated Tools:</span> <span className="text-cyan-450">{selectedTech.mappedTool}</span></div>
           </div>
         </div>
       )}

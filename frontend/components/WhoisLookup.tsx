@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { pollTask } from "@/lib/taskPoll";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export default function WhoisLookup() {
   const [domain, setDomain] = useState("");
@@ -16,11 +18,11 @@ export default function WhoisLookup() {
   const { user, token } = useAuthStore();
 
   if (!user) {
-    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🔒 Please log in to use this tool.</p>;
   }
 
   if (user.role !== "analyst" && user.role !== "admin") {
-    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🚫 Access denied. Only analysts and admins can use this tool.</p>;
   }
 
   const handleLookup = async () => {
@@ -29,7 +31,7 @@ export default function WhoisLookup() {
     setProgress(0);
 
     if (!domain.includes(".")) {
-      setError("❌ Please enter a valid domain (e.g. example.com)");
+      setError("Please enter a valid domain (e.g. example.com)");
       return;
     }
 
@@ -46,7 +48,6 @@ export default function WhoisLookup() {
       });
 
       const data = await response.json();
-      console.log("[WHOIS] Task Initialized:", data);
 
       if (data.success && data.task_id) {
         const finalResult = await pollTask(data.task_id, (pct) => setProgress(pct));
@@ -61,7 +62,6 @@ export default function WhoisLookup() {
             result: JSON.stringify(finalResult.result, null, 2),
           });
 
-          // Log scan
           await fetch("/api/log-scan", {
             method: "POST",
             headers: {
@@ -75,57 +75,53 @@ export default function WhoisLookup() {
             }),
           });
         } else {
-          setError("❌ No WHOIS results returned.");
+          setError("No WHOIS results returned.");
         }
       } else {
-        setError("❌ Failed to initiate WHOIS scan: " + (data.error || "Unknown error"));
+        setError("Failed to initiate WHOIS scan: " + (data.error || "Unknown error"));
       }
     } catch (err: any) {
       console.error("Fetch error:", err);
-      setError("❌ " + (err.message || "Failed to query backend."));
+      setError(err.message || "Failed to query backend.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-gray-900 text-white p-6 mt-10 rounded-lg shadow-lg max-w-xl mx-auto">
-      <h3 className="text-xl font-semibold mb-4">🌐 WHOIS Lookup</h3>
-
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="example.com"
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 font-mono"
-        />
-        <button
-          onClick={handleLookup}
-          disabled={loading || !domain}
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition disabled:opacity-50 font-semibold"
-        >
-          {loading ? `Scanning (${progress}%)` : "Lookup"}
-        </button>
+    <div className="space-y-4 text-left font-mono">
+      <div className="flex flex-col sm:flex-row gap-3 items-end">
+        <div className="flex-1 space-y-1.5">
+          <label className="block text-[10px] text-zinc-400 uppercase tracking-wider">Target Domain Name</label>
+          <Input
+            type="text"
+            placeholder="example.com"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+          />
+        </div>
+        <Button onClick={handleLookup} disabled={loading || !domain} className="w-full sm:w-auto h-9">
+          {loading ? `Scanning (${progress}%)` : "Lookup WHOIS"}
+        </Button>
       </div>
 
       {loading && (
-        <div className="w-full bg-gray-800 rounded-full h-2 mt-4 overflow-hidden">
+        <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            className="bg-cyan-500 h-full rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
-      {error && <p className="text-red-400 mt-4 font-mono">{error}</p>}
+      {error && <p className="text-red-500 text-xs">{error}</p>}
 
       {result && (
-        <div className="mt-4 bg-black/30 p-4 rounded text-sm whitespace-pre-wrap text-left border border-gray-800 font-mono">
+        <div className="p-4 bg-black/35 border border-white/5 rounded text-xs leading-relaxed text-zinc-300 divide-y divide-white/5 font-mono">
           {Object.entries(result).map(([key, val]) => (
-            <div key={key} className="py-0.5 border-b border-gray-900 last:border-0">
-              <span className="text-purple-400 font-semibold">{key}</span>:{" "}
-              <span>{Array.isArray(val) ? val.join(", ") : val ?? "N/A"}</span>
+            <div key={key} className="py-1.5 flex justify-between gap-4">
+              <span className="text-cyan-400 font-semibold uppercase">{key.replace("_", " ")}</span>
+              <span className="text-right text-zinc-200">{Array.isArray(val) ? val.join(", ") : val ?? "N/A"}</span>
             </div>
           ))}
         </div>

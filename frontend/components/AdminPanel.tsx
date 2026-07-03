@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/useAuthStore";
 import DashboardShell from "./DashboardShell";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import { 
   Users, 
   Trash2, 
-  ShieldAlert, 
   Settings, 
   Cpu, 
   Play, 
@@ -168,34 +169,34 @@ export default function AdminPanel() {
 
   return (
     <DashboardShell>
-      <div className="space-y-8 text-left font-mono">
+      <div className="space-y-6 text-left font-mono">
         
         {/* Title area */}
-        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <Settings className="text-cyan-400 w-6 h-6 glow-cyan" />
+        <div className="flex items-center gap-3 border-b border-white/5 pb-4 select-none">
+          <Settings className="text-cyan-500 w-5 h-5" />
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
               Administration Portal
             </h2>
-            <p className="text-xs text-gray-500">MANAGE USER ROLES & SYSTEM INTEGRATIONS</p>
+            <p className="text-[9px] text-zinc-500">MANAGE USER ROLES & SYSTEM INTEGRATIONS</p>
           </div>
         </div>
 
         {/* User management card */}
-        <div className="glass-panel p-5 bg-[#05050b]/60">
-          <h3 className="text-sm font-semibold text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5 uppercase">
-            <Users size={16} /> User Directories & Roles
+        <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase select-none">
+            <Users size={14} className="text-cyan-500" /> User Directory
           </h3>
 
           {loading ? (
-            <p className="text-gray-500 text-xs py-4 animate-pulse">Loading identity directory...</p>
+            <p className="text-zinc-550 text-xs py-4 animate-pulse">Loading identity directory...</p>
           ) : users.length === 0 ? (
-            <p className="text-gray-500 text-xs py-4 text-center">No users indexed.</p>
+            <p className="text-zinc-550 text-xs py-4 text-center">No users indexed.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/5 text-gray-500">
+                  <tr className="border-b border-white/5 text-zinc-500">
                     <th className="p-3 text-left">Username</th>
                     <th className="p-3 text-left">Email Address</th>
                     <th className="p-3 text-left">Assigned Role</th>
@@ -206,17 +207,17 @@ export default function AdminPanel() {
                   {users.map((u) => {
                     const self = isSelf(u.username);
                     return (
-                      <tr key={u.id ?? u.username} className="hover:bg-white/5 transition-all">
-                        <td className="p-3 font-semibold text-gray-200">{u.username}</td>
-                        <td className="p-3 text-gray-400">{u.email || "N/A"}</td>
+                      <tr key={u.id ?? u.username} className="hover:bg-white/[0.01] transition-all">
+                        <td className="p-3 font-semibold text-gray-250">{u.username}</td>
+                        <td className="p-3 text-zinc-400">{u.email || "N/A"}</td>
                         <td className="p-3">
                           {self ? (
-                            <span className="italic text-cyan-500 font-semibold uppercase">{u.role} (Self)</span>
+                            <span className="text-cyan-500 font-semibold uppercase">{u.role} (Self)</span>
                           ) : (
                             <select
                               value={u.role}
                               onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                              className="input-cyber font-mono text-xs px-2 py-1 bg-black/60"
+                              className="font-mono text-xs px-2 py-1 bg-[#09090b] border border-white/5 rounded text-white focus:border-cyan-500 focus:outline-none"
                             >
                               <option value="admin">admin</option>
                               <option value="analyst">analyst</option>
@@ -228,7 +229,7 @@ export default function AdminPanel() {
                           {self ? (
                             <button
                               disabled
-                              className="opacity-20 cursor-not-allowed text-gray-500 p-1.5"
+                              className="opacity-20 cursor-not-allowed text-zinc-650 p-1.5"
                               title="You cannot delete yourself"
                             >
                               <Trash2 size={14} />
@@ -236,7 +237,7 @@ export default function AdminPanel() {
                           ) : (
                             <button
                               onClick={() => handleDelete(u.username)}
-                              className="text-red-500 hover:text-red-400 hover:bg-red-950/20 p-1.5 rounded transition"
+                              className="text-red-500 hover:text-red-400 hover:bg-red-950/10 p-1.5 rounded transition"
                               title="Delete User"
                             >
                               <Trash2 size={14} />
@@ -253,35 +254,35 @@ export default function AdminPanel() {
         </div>
 
         {/* CUSTOM THREAT INTELLIGENCE BRIDGE */}
-        <div className="glass-panel p-5 bg-[#05050b]/60">
-          <h3 className="text-sm font-semibold text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5 uppercase">
-            <Cpu size={16} /> Threat Intelligence Fusion Bridge
+        <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+          <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase select-none">
+            <Cpu size={14} className="text-cyan-500" /> Threat Intelligence Fusion Bridge
           </h3>
           
-          <p className="text-xs text-gray-400 leading-relaxed mb-4">
+          <p className="text-xs text-zinc-400 leading-relaxed mb-4">
             Test the integrated backend connector to run security correlation queries against threat databases using custom indicators.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <input
+            <Input
               type="text"
               value={tiInput}
               onChange={(e) => setTiInput(e.target.value)}
               placeholder="e.g. Malicious IP, SHA-256 file signature..."
-              className="input-cyber w-full sm:flex-1 font-mono text-xs px-3 py-2"
+              className="w-full sm:flex-1"
             />
             <div className="flex gap-2 w-full sm:w-auto">
-              <button
+              <Button
                 onClick={handleTestTI}
-                className="btn-cyber-primary px-4 py-2 text-xs font-mono flex items-center gap-1.5 w-full justify-center"
+                className="w-full sm:w-auto h-9 flex items-center justify-center gap-1.5"
                 disabled={tiLoading}
               >
                 <Play size={12} />
                 {tiLoading ? "TESTING..." : "TEST CONNECTOR"}
-              </button>
+              </Button>
               <button
                 onClick={handleClear}
-                className="btn-cyber-secondary px-3 py-2 text-xs font-mono flex items-center gap-1"
+                className="btn-cyber-secondary px-3 py-2 text-xs font-mono flex items-center gap-1.5"
               >
                 <RotateCcw size={12} /> Clear
               </button>
@@ -289,11 +290,11 @@ export default function AdminPanel() {
           </div>
 
           {tiResponse && (
-            <div className="mt-4 p-4 bg-black/60 border border-white/5 rounded-md">
-              <div className="text-[10px] text-cyan-500 border-b border-white/5 pb-1 mb-2">
+            <div className="mt-4 p-4 bg-black/45 border border-white/5 rounded-md">
+              <div className="text-[9px] text-cyan-500 font-bold border-b border-white/5 pb-1.5 mb-2 select-none">
                 CONNECTOR BRIDGE OUTPUT:
               </div>
-              <pre className="text-xs text-cyan-600/80 leading-relaxed overflow-auto max-h-60">
+              <pre className="text-[10px] text-zinc-400 leading-relaxed overflow-auto max-h-60">
                 {JSON.stringify(tiResponse, null, 2)}
               </pre>
             </div>

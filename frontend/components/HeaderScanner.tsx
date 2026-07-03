@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { submitAndPoll } from "@/lib/taskPoll";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export default function HeaderScanner() {
   const [url, setUrl] = useState("");
@@ -16,11 +18,11 @@ export default function HeaderScanner() {
   const { user, token } = useAuthStore();
 
   if (!user) {
-    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🔒 Please log in to use this tool.</p>;
   }
 
   if (user.role !== "analyst" && user.role !== "admin") {
-    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🚫 Access denied. Only analysts and admins can use this tool.</p>;
   }
 
   const handleScan = async () => {
@@ -29,12 +31,12 @@ export default function HeaderScanner() {
     setProgress(0);
 
     if (!url.trim()) {
-      setError("❌ Please enter a URL.");
+      setError("Please enter a URL.");
       return;
     }
 
     if (!/^https?:\/\//i.test(url)) {
-      setError("❌ URL must start with http:// or https://");
+      setError("URL must start with http:// or https://");
       return;
     }
 
@@ -58,13 +60,11 @@ export default function HeaderScanner() {
         const lines = finalResult.headers
           .map(
             (header: { present: boolean; name: string }) =>
-              `${header.present ? "✅" : "❌"} ${header.name}: ${
-                header.present ? "Present" : "Missing"
-              }`
+              `${header.present ? "[OK]" : "[MISSING]"} ${header.name}`
           )
           .join("\n");
 
-        const finalOutput = `🔍 Header Scan Results for ${url}:\n\n${lines}`;
+        const finalOutput = `Header Scan Results for ${url}:\n\n${lines}`;
         setResult(finalOutput);
         setToolUsed("headerUsed");
         addToHistory({ tool: "Header Scanner", input: url, result: JSON.stringify(finalResult, null, 2) });
@@ -78,50 +78,48 @@ export default function HeaderScanner() {
           body: JSON.stringify({ tool: "Header Scanner", input: url, result: finalResult }),
         });
       } else {
-        setError("❌ Unexpected error. Try again.");
+        setError("Unexpected response structure from header scanner.");
       }
     } catch (err: unknown) {
       console.error("Header Scan Fetch Error:", err);
-      setError("❌ " + (err instanceof Error ? err.message : "Could not connect to backend."));
+      setError(err instanceof Error ? err.message : "Could not connect to backend.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-lg">
-      <h3 className="text-xl font-semibold mb-4">🔎 Header Scanner</h3>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="https://example.com"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="flex-1 px-4 py-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
-        />
-        <button
-          onClick={handleScan}
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded"
-        >
-          {loading ? `Scanning (${progress}%)` : "Scan"}
-        </button>
+    <div className="space-y-4 text-left font-mono">
+      <div className="flex flex-col sm:flex-row gap-3 items-end">
+        <div className="flex-1 space-y-1.5">
+          <label className="block text-[10px] text-zinc-400 uppercase tracking-wider">Target Endpoint URL</label>
+          <Input
+            type="text"
+            placeholder="https://example.com"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+        </div>
+        <Button onClick={handleScan} disabled={loading} className="w-full sm:w-auto h-9">
+          {loading ? `Scanning (${progress}%)` : "Verify Headers"}
+        </Button>
       </div>
 
       {loading && (
-        <div className="w-full bg-gray-800 rounded-full h-2 mt-4 overflow-hidden">
+        <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            className="bg-cyan-500 h-full rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
       {error && (
-        <p className="mt-4 text-red-400 whitespace-pre-wrap">{error}</p>
+        <p className="text-red-500 text-xs">{error}</p>
       )}
 
       {result && (
-        <pre className="mt-4 bg-black/30 p-4 rounded text-sm whitespace-pre-wrap">
+        <pre className="p-4 bg-black/35 border border-white/5 rounded text-xs whitespace-pre-wrap leading-relaxed text-zinc-300">
           {result}
         </pre>
       )}

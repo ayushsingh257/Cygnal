@@ -335,8 +335,8 @@ export default function CasesPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Create Incident Case Panel */}
-          <div className="glass-panel p-5 bg-[#05050b]/60">
-            <h3 className="text-sm font-semibold font-mono text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+          <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+            <h3 className="text-sm font-semibold font-mono text-white border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
               <FolderPlus size={16} /> File New Incident
             </h3>
             
@@ -388,8 +388,8 @@ export default function CasesPage() {
           </div>
 
           {/* Incident Cases Directory List */}
-          <div className="glass-panel p-5 bg-[#05050b]/60">
-            <h3 className="text-sm font-semibold font-mono text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+          <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+            <h3 className="text-sm font-semibold font-mono text-white border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
               <Folder size={16} /> Case File Index ({cases.length})
             </h3>
             
@@ -432,22 +432,22 @@ export default function CasesPage() {
         <div className="lg:col-span-8 space-y-6">
           
           {!selectedCaseId ? (
-            <div className="glass-panel py-28 text-center flex flex-col items-center justify-center bg-[#05050b]/40 h-full border-dashed border-white/5">
-              <Folder className="w-12 h-12 text-gray-600 mb-3" />
-              <h3 className="text-md font-semibold font-mono text-gray-300">DFIR Case Investigation console</h3>
-              <p className="text-xs text-gray-500 mt-1 max-w-xs font-mono">
+            <div className="glass-panel py-28 text-center flex flex-col items-center justify-center bg-[#0c0c0e]/40 h-full border-dashed border-white/5">
+              <Folder className="w-12 h-12 text-zinc-600 mb-3" />
+              <h3 className="text-xs font-bold font-mono text-zinc-300 uppercase tracking-wider">DFIR Case Investigation console</h3>
+              <p className="text-xs text-zinc-500 mt-1 max-w-xs font-mono">
                 Select an incident card from the index to verify hashes, audit notes, correlate scans, and plot IOC pathways.
               </p>
             </div>
           ) : loadingDetails && !activeCase ? (
-            <div className="glass-panel py-28 text-center bg-[#05050b]/40">
-              <p className="text-gray-500 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
+            <div className="glass-panel py-28 text-center bg-[#0c0c0e]/40">
+              <p className="text-zinc-500 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
             </div>
           ) : activeCase ? (
             <div className="space-y-6">
               
               {/* Active Incident Case Header */}
-              <div className="glass-panel p-5 bg-[#05050b]/60 relative overflow-hidden radar-sweep">
+              <div className="glass-panel p-5 bg-[#0c0c0e]/85 relative overflow-hidden">
                 <div className="flex justify-between items-start flex-wrap gap-4 border-b border-white/5 pb-4 mb-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -501,9 +501,9 @@ export default function CasesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Evidence vault Panel */}
-                <div className="glass-panel p-5 bg-[#05050b]/60 flex flex-col justify-between">
+                <div className="glass-panel p-5 bg-[#0c0c0e]/80 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold font-mono text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
                       <FileCode size={16} /> Digital Evidence Vault
                     </h3>
                     
@@ -557,9 +557,9 @@ export default function CasesPage() {
                 </div>
 
                 {/* Scan Telemetry Linker Panel */}
-                <div className="glass-panel p-5 bg-[#05050b]/60 flex flex-col justify-between">
+                <div className="glass-panel p-5 bg-[#0c0c0e]/80 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold font-mono text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
                       <LinkIcon size={16} /> Scan Telemetry Linker
                     </h3>
                     
@@ -602,7 +602,7 @@ export default function CasesPage() {
               </div>
 
               {/* IOC Relationship Map & Attack path visualizer */}
-              <div className="glass-panel p-5 bg-[#05050b]/60">
+              <div className="glass-panel p-5 bg-[#0c0c0e]/80">
                 <IocGraph 
                   caseTitle={activeCase.title} 
                   evidenceList={evidenceList} 
@@ -611,8 +611,8 @@ export default function CasesPage() {
               </div>
 
               {/* Forensics Chronological Timeline */}
-              <div className="glass-panel p-5 bg-[#05050b]/60">
-                <h3 className="text-sm font-semibold font-mono text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+              <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+                <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
                   <Clock size={16} /> Forensic Timeline Events
                 </h3>
 

@@ -49,7 +49,6 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
   // 2. Gather evidence files
   evidenceList.slice(0, 3).forEach((ev, idx) => {
     const id = `evidence_${idx}`;
-    // Position evidence on the left side
     const yCoord = 70 + idx * 75;
     nodes.push({
       id,
@@ -66,7 +65,6 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
   const associatedScans = timeline.filter(t => t.event_type === "scan_associated").slice(0, 3);
   associatedScans.forEach((scan, idx) => {
     const id = `scan_${idx}`;
-    // Position scans on the right side
     const yCoord = 70 + idx * 75;
     nodes.push({
       id,
@@ -79,36 +77,31 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
     edges.push({ from: "case_root", to: id, type: "correlated_scan" });
   });
 
-  const nodeColorClasses: Record<string, { fill: string; stroke: string; glow: string; text: string }> = {
-    case: { fill: "fill-purple-950/70", stroke: "stroke-purple-500", glow: "shadow-purple-500/50", text: "text-purple-400 font-bold" },
-    evidence: { fill: "fill-cyan-950/70", stroke: "stroke-cyan-400", glow: "shadow-cyan-400/50", text: "text-cyan-400" },
-    scan: { fill: "fill-blue-950/70", stroke: "stroke-blue-500", glow: "shadow-blue-500/50", text: "text-blue-400" },
-    analyst: { fill: "fill-zinc-950/70", stroke: "stroke-zinc-500", glow: "shadow-zinc-500/50", text: "text-gray-400" }
+  const nodeColorClasses: Record<string, { fill: string; stroke: string; text: string }> = {
+    case: { fill: "fill-zinc-950", stroke: "stroke-cyan-500", text: "text-cyan-400 font-bold" },
+    evidence: { fill: "fill-zinc-950", stroke: "stroke-zinc-700", text: "text-zinc-400" },
+    scan: { fill: "fill-zinc-950", stroke: "stroke-zinc-700", text: "text-zinc-400" },
+    analyst: { fill: "fill-zinc-950", stroke: "stroke-zinc-800", text: "text-zinc-500" }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-mono select-none">
       <div className="flex items-center gap-2 border-b border-white/5 pb-2">
-        <Activity size={14} className="text-cyan-400 glow-cyan animate-pulse" />
-        <h4 className="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider">
+        <Activity size={14} className="text-cyan-500" />
+        <h4 className="text-xs font-bold text-white uppercase tracking-wider">
           IOC Correlation Graph
         </h4>
       </div>
 
-      <div className="w-full bg-black/45 border border-white/5 rounded-lg p-2 flex justify-center items-center overflow-x-auto">
+      <div className="w-full bg-[#09090b]/40 border border-white/5 rounded-md p-2 flex justify-center items-center overflow-x-auto">
         <svg 
           viewBox="0 0 440 300" 
           className="w-full max-w-[440px] aspect-[44/30] font-mono select-none"
         >
-          {/* Defs for gradients/glowing filters */}
+          {/* Defs for subtle shadows */}
           <defs>
-            <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.5" />
             </filter>
           </defs>
 
@@ -127,15 +120,15 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
                   y1={fromNode.y}
                   x2={toNode.x}
                   y2={toNode.y}
-                  className={`stroke-[1.5] ${
-                    isGlow ? "stroke-cyan-500/30" : "stroke-white/5"
+                  className={`stroke-[1] ${
+                    isGlow ? "stroke-cyan-500/20" : "stroke-white/5"
                   }`}
                 />
                 
-                {/* Animated trace particle floating along the lines */}
-                <circle r="2.5" className="fill-cyan-400">
+                {/* Minimal animated trace particles */}
+                <circle r="1.5" className="fill-cyan-500/60">
                   <animateMotion
-                    dur="4s"
+                    dur="5s"
                     repeatCount="indefinite"
                     path={`M ${fromNode.x} ${fromNode.y} L ${toNode.x} ${toNode.y}`}
                   />
@@ -149,29 +142,29 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
             const colors = nodeColorClasses[node.type];
             return (
               <g key={node.id} className="cursor-help" title={node.metadata}>
-                {/* Node outer glow ring */}
+                {/* Node circle */}
                 <circle
                   cx={node.x}
                   cy={node.y}
-                  r={node.type === "case" ? 22 : 14}
-                  className={`${colors.fill} ${colors.stroke} stroke-[1.5]`}
-                  filter={node.type === "case" ? "url(#glow-purple)" : node.type === "evidence" ? "url(#glow-cyan)" : undefined}
+                  r={node.type === "case" ? 18 : 12}
+                  className={`${colors.fill} ${colors.stroke} stroke-[1]`}
+                  filter="url(#soft-shadow)"
                 />
                 
                 {/* Node Icons */}
-                <g transform={`translate(${node.x - 7}, ${node.y - 7})`}>
-                  {node.type === "case" && <Shield className="w-3.5 h-3.5 text-purple-400" />}
-                  {node.type === "evidence" && <FileCode className="w-3.5 h-3.5 text-cyan-400" />}
-                  {node.type === "scan" && <Search className="w-3.5 h-3.5 text-blue-400" />}
-                  {node.type === "analyst" && <User className="w-3.5 h-3.5 text-gray-500" />}
+                <g transform={`translate(${node.x - 6}, ${node.y - 6})`}>
+                  {node.type === "case" && <Shield className="w-3 h-3 text-cyan-400" />}
+                  {node.type === "evidence" && <FileCode className="w-3 h-3 text-zinc-400" />}
+                  {node.type === "scan" && <Search className="w-3 h-3 text-zinc-400" />}
+                  {node.type === "analyst" && <User className="w-3 h-3 text-zinc-550" />}
                 </g>
 
                 {/* Node Label */}
                 <text
                   x={node.x}
-                  y={node.y + (node.type === "case" ? 34 : 24)}
+                  y={node.y + (node.type === "case" ? 28 : 22)}
                   textAnchor="middle"
-                  className="fill-gray-300 text-[8px] tracking-wide"
+                  className="fill-zinc-400 text-[8px] font-sans font-medium"
                 >
                   {node.label}
                 </text>
@@ -182,11 +175,11 @@ export default function IocGraph({ caseTitle, evidenceList, timeline }: IocGraph
       </div>
       
       {/* Visual Guide Legend */}
-      <div className="flex justify-center gap-4 text-[9px] font-mono text-gray-500 border-t border-white/5 pt-2">
-        <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Case Center</div>
-        <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> Evidence</div>
-        <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Scans</div>
-        <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-zinc-500" /> Analyst</div>
+      <div className="flex justify-center gap-4 text-[9px] text-zinc-500 border-t border-white/5 pt-2 select-none">
+        <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500" /> Case Hub</div>
+        <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-zinc-650" /> Evidence</div>
+        <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-zinc-650" /> Scans</div>
+        <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-zinc-800" /> Analyst</div>
       </div>
     </div>
   );
