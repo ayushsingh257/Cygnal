@@ -70,7 +70,7 @@ export default function Home() {
         <div className="p-4 bg-slate-950/70 border border-white/5 rounded-lg font-mono text-[10px] text-slate-400 space-y-2">
           <div className="text-blue-450 font-bold border-b border-white/5 pb-1 select-none">CYGNAL_CONSOLE_PROBE: /api/lookups</div>
           <div className="flex gap-2">
-            <span className="text-slate-500">example.com</span>
+            <span className="text-slate-550">example.com</span>
             <span className="text-emerald-450">[RESOLVED]</span>
             <span className="text-slate-600">IP: 93.184.216.34</span>
           </div>
@@ -83,7 +83,7 @@ export default function Home() {
       desc: "Compile indicators of compromise, set priority severities, and assign analysts to cases.",
       preview: (
         <div className="p-4 bg-slate-950/70 border border-white/5 rounded-lg text-xs space-y-3">
-          <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 border-b border-white/5 pb-1.5 select-none">
+          <div className="flex justify-between items-center text-[10px] font-mono text-slate-550 border-b border-white/5 pb-1.5 select-none">
             <span>CASE #0412</span>
             <span className="badge-critical text-[8px]">Critical</span>
           </div>
@@ -132,7 +132,7 @@ export default function Home() {
       {/* Background Grids */}
       <div className="pointer-events-none fixed inset-0 z-0 select-none">
         <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-[#030712]/40" />
-        <div className="absolute top-[15%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-950/5 blur-[140px] opacity-60" />
+        <div className="absolute top-[15%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-955/5 blur-[140px] opacity-60" />
       </div>
 
       {/* Floating Header */}
@@ -160,7 +160,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero & Login Splitted Container Grid */}
+      {/* Hero & Login Splitted Grid */}
       <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-32 pb-16 space-y-28 select-none">
         
         <section className="grid lg:grid-cols-12 gap-12 items-center">
@@ -208,7 +208,7 @@ export default function Home() {
         {/* Dynamic Carousel / Platform Tabs */}
         <section id="features" className="space-y-8 select-none">
           <div className="text-center space-y-2">
-            <span className="text-[10px] font-bold text-blue-450 tracking-[0.2em] uppercase">PLATFORM MODULES</span>
+            <span className="text-[10px] font-bold text-blue-455 tracking-[0.2em] uppercase">PLATFORM MODULES</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight uppercase">
               Orchestrated Workspaces
             </h2>
@@ -228,7 +228,7 @@ export default function Home() {
                   }`}
                 >
                   <h3 className="text-xs font-bold font-mono uppercase tracking-wider">{tab.title}</h3>
-                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{tab.desc}</p>
+                  <p className="text-xs text-slate-550 mt-1.5 leading-relaxed">{tab.desc}</p>
                 </button>
               ))}
             </div>
@@ -245,7 +245,7 @@ export default function Home() {
         {/* Workflow Timeline Section */}
         <section id="workflows" className="space-y-10">
           <div className="text-center space-y-2">
-            <span className="text-[10px] font-bold text-blue-450 tracking-[0.2em] uppercase">TRIAGE PROCESS</span>
+            <span className="text-[10px] font-bold text-blue-455 tracking-[0.2em] uppercase">TRIAGE PROCESS</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight uppercase">
               Forensic Lifespans
             </h2>
@@ -270,7 +270,7 @@ export default function Home() {
               }
             ].map((s, idx) => (
               <div key={idx} className="glass-card rounded-xl p-6 bg-[#0b0f19]/35 border border-white/5 space-y-3">
-                <div className="text-xs font-mono font-bold text-blue-450 uppercase tracking-widest">Pipeline Step {s.step}</div>
+                <div className="text-xs font-mono font-bold text-blue-455 uppercase tracking-widest">Pipeline Step {s.step}</div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">{s.name}</h3>
                 <p className="text-xs text-slate-500 leading-relaxed">{s.desc}</p>
               </div>
@@ -281,7 +281,7 @@ export default function Home() {
         {/* Integrations matrix */}
         <section id="integrations" className="glass-card rounded-xl p-8 bg-[#0b0f19]/30 border border-white/5 grid md:grid-cols-2 gap-8 items-center text-left">
           <div className="space-y-4">
-            <span className="text-[10px] font-bold text-blue-450 tracking-[0.2em] uppercase">INTEGRATIONS</span>
+            <span className="text-[10px] font-bold text-blue-455 tracking-[0.2em] uppercase">INTEGRATIONS</span>
             <h3 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">SOC integrations Matrix</h3>
             <p className="text-xs text-slate-450 leading-relaxed">
               Cygnal operates a pluggable architecture connector interface to link active scans alerts and telemetry indicators to common platforms like Slack, Sentinel, AWS, and Jira.
@@ -295,7 +295,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 gap-4 text-center select-none font-mono">
             <div className="p-4 bg-black/25 rounded-lg border border-white/5">
-              <span className="text-2xl font-black text-blue-450">&lt; 3s</span>
+              <span className="text-2xl font-black text-blue-455">&lt; 3s</span>
               <span className="block text-[8px] text-slate-500 uppercase tracking-widest mt-1">Worker Triage</span>
             </div>
             <div className="p-4 bg-black/25 rounded-lg border border-white/5">

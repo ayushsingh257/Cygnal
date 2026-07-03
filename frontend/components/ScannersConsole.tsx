@@ -158,7 +158,7 @@ export default function ScannersConsole() {
                         }`}
                       >
                         <div className="flex items-center gap-2.5 truncate">
-                          <Icon size={14} className={isSelected ? "text-blue-450" : "text-slate-500"} />
+                          <Icon size={14} className={isSelected ? "text-blue-455" : "text-slate-500"} />
                           <span className="truncate">{tool.name}</span>
                         </div>
                       </button>
