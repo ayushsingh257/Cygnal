@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/useAuthStore";
+import DashboardShell from "./DashboardShell";
+import { 
+  Users, 
+  Trash2, 
+  ShieldAlert, 
+  Settings, 
+  Cpu, 
+  Play, 
+  RotateCcw 
+} from "lucide-react";
 
 type User = {
   id?: number;
@@ -19,7 +29,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
 
-  // For Phase 34: Threat Intelligence Bridge test
+  // For Custom Threat Intelligence Bridge
   const [tiInput, setTiInput] = useState("");
   const [tiResponse, setTiResponse] = useState<any>(null);
   const [tiLoading, setTiLoading] = useState(false);
@@ -32,10 +42,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!authReady) return;
-    if (!user) {
-      toast.error("Unauthorized: Admins only.");
-      router.push("/");
-    } else if (user.role !== "admin") {
+    if (!user || user.role !== "admin") {
       toast.error("Unauthorized: Admins only.");
       router.push("/");
     } else {
@@ -157,192 +164,143 @@ export default function AdminPanel() {
 
   const isSelf = (username: string) => user?.username === username;
 
+  if (!user || user.role !== "admin") return null;
+
   return (
-    <div className="p-8 bg-gradient-to-br from-black to-gray-900 min-h-screen text-white flex justify-center items-start">
-      <div className="w-full max-w-4xl">
-        <h1 className="text-4xl font-bold mb-6 text-purple-400 flex items-center">
-          🛠️ Admin Panel
-        </h1>
+    <DashboardShell>
+      <div className="space-y-8 text-left font-mono">
+        
+        {/* Title area */}
+        <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+          <Settings className="text-cyan-400 w-6 h-6 glow-cyan" />
+          <div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent uppercase tracking-wider">
+              Administration Portal
+            </h2>
+            <p className="text-xs text-gray-500">MANAGE USER ROLES & SYSTEM INTEGRATIONS</p>
+          </div>
+        </div>
 
-        <style jsx>{`
-          .tooltip {
-            position: relative;
-            display: inline-block;
-          }
-          .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-          }
-          .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-          }
-          .custom-section {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            border-radius: 12px;
-            border: 2px solid #6b46c1;
-            padding: 20px;
-            margin-bottom: 20px;
-            max-width: 800px;
-            box-shadow: 0 4px 15px rgba(107, 70, 193, 0.3);
-          }
-          .custom-button {
-            background: linear-gradient(90deg, #6b46c1, #a78bfa);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s;
-          }
-          .custom-button:hover {
-            transform: scale(1.05);
-          }
-          .custom-input {
-            background: #333;
-            border: 2px solid #6b46c1;
-            border-radius: 8px;
-            padding: 8px;
-            color: white;
-            width: 70%;
-          }
-          .custom-table {
-            background: transparent;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-            max-width: 800px;
-          }
-          .custom-table th,
-          .custom-table td {
-            padding: 10px;
-            background: #2d2d2d;
-            border-radius: 8px;
-          }
-          .custom-table th {
-            background: #4a5568;
-          }
-          .custom-pre {
-            background: #222;
-            border: 2px solid #6b46c1;
-            border-radius: 8px;
-          }
-        `}</style>
-
-        {/* USER MANAGEMENT */}
-        <section className="custom-section">
-          <h2 className="text-2xl font-semibold mb-4 text-purple-300">Manage Users</h2>
+        {/* User management card */}
+        <div className="glass-panel p-5 bg-[#05050b]/60">
+          <h3 className="text-sm font-semibold text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5 uppercase">
+            <Users size={16} /> User Directories & Roles
+          </h3>
 
           {loading ? (
-            <p className="text-gray-400">Loading users...</p>
+            <p className="text-gray-500 text-xs py-4 animate-pulse">Loading identity directory...</p>
           ) : users.length === 0 ? (
-            <p className="text-gray-400">No users found.</p>
+            <p className="text-gray-500 text-xs py-4 text-center">No users indexed.</p>
           ) : (
-            <table className="custom-table text-left w-full">
-              <thead>
-                <tr>
-                  <th className="p-2">Username</th>
-                  <th className="p-2">Email</th>
-                  <th className="p-2">Role</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => {
-                  const self = isSelf(u.username);
-                  return (
-                    <tr key={u.id ?? u.username}>
-                      <td className="p-2">{u.username}</td>
-                      <td className="p-2">{u.email || "N/A"}</td>
-                      <td className="p-2">
-                        {self ? (
-                          <div className="tooltip">
-                            <span className="italic text-gray-400">{u.role}</span>
-                            <span className="tooltip-text">You cannot change your own role</span>
-                          </div>
-                        ) : (
-                          <select
-                            value={u.role}
-                            onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                            className="custom-input text-white"
-                          >
-                            <option value="admin">admin</option>
-                            <option value="analyst">analyst</option>
-                            <option value="viewer">viewer</option>
-                          </select>
-                        )}
-                      </td>
-                      <td className="p-2">
-                        {self ? (
-                          <div className="tooltip">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-white/5 text-gray-500">
+                    <th className="p-3 text-left">Username</th>
+                    <th className="p-3 text-left">Email Address</th>
+                    <th className="p-3 text-left">Assigned Role</th>
+                    <th className="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {users.map((u) => {
+                    const self = isSelf(u.username);
+                    return (
+                      <tr key={u.id ?? u.username} className="hover:bg-white/5 transition-all">
+                        <td className="p-3 font-semibold text-gray-200">{u.username}</td>
+                        <td className="p-3 text-gray-400">{u.email || "N/A"}</td>
+                        <td className="p-3">
+                          {self ? (
+                            <span className="italic text-cyan-500 font-semibold uppercase">{u.role} (Self)</span>
+                          ) : (
+                            <select
+                              value={u.role}
+                              onChange={(e) => handleRoleChange(u.username, e.target.value)}
+                              className="input-cyber font-mono text-xs px-2 py-1 bg-black/60"
+                            >
+                              <option value="admin">admin</option>
+                              <option value="analyst">analyst</option>
+                              <option value="viewer">viewer</option>
+                            </select>
+                          )}
+                        </td>
+                        <td className="p-3 text-center">
+                          {self ? (
                             <button
                               disabled
-                              className="custom-button bg-gray-500 cursor-not-allowed"
+                              className="opacity-20 cursor-not-allowed text-gray-500 p-1.5"
+                              title="You cannot delete yourself"
                             >
-                              Delete
+                              <Trash2 size={14} />
                             </button>
-                            <span className="tooltip-text">You cannot delete yourself</span>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleDelete(u.username)}
-                            className="custom-button"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                          ) : (
+                            <button
+                              onClick={() => handleDelete(u.username)}
+                              className="text-red-500 hover:text-red-400 hover:bg-red-950/20 p-1.5 rounded transition"
+                              title="Delete User"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
-        </section>
+        </div>
 
-        {/* PHASE 34: CUSTOM TI BRIDGE TEST */}
-        <section className="custom-section">
-          <h2 className="text-2xl font-semibold mb-4 text-purple-300">🔌 Test Custom Threat Intelligence Bridge</h2>
-          <div className="flex items-center gap-4 mb-4">
+        {/* CUSTOM THREAT INTELLIGENCE BRIDGE */}
+        <div className="glass-panel p-5 bg-[#05050b]/60">
+          <h3 className="text-sm font-semibold text-cyan-400 border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5 uppercase">
+            <Cpu size={16} /> Threat Intelligence Fusion Bridge
+          </h3>
+          
+          <p className="text-xs text-gray-400 leading-relaxed mb-4">
+            Test the integrated backend connector to run security correlation queries against threat databases using custom indicators.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             <input
               type="text"
               value={tiInput}
               onChange={(e) => setTiInput(e.target.value)}
-              placeholder="Enter IP or hash..."
-              className="custom-input"
+              placeholder="e.g. Malicious IP, SHA-256 file signature..."
+              className="input-cyber w-full sm:flex-1 font-mono text-xs px-3 py-2"
             />
-            <button
-              onClick={handleTestTI}
-              className="custom-button"
-              disabled={tiLoading}
-            >
-              {tiLoading ? "Testing..." : "Submit"}
-            </button>
-            <button
-              onClick={handleClear}
-              className="custom-button bg-gray-600"
-            >
-              Clear
-            </button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button
+                onClick={handleTestTI}
+                className="btn-cyber-primary px-4 py-2 text-xs font-mono flex items-center gap-1.5 w-full justify-center"
+                disabled={tiLoading}
+              >
+                <Play size={12} />
+                {tiLoading ? "TESTING..." : "TEST CONNECTOR"}
+              </button>
+              <button
+                onClick={handleClear}
+                className="btn-cyber-secondary px-3 py-2 text-xs font-mono flex items-center gap-1"
+              >
+                <RotateCcw size={12} /> Clear
+              </button>
+            </div>
           </div>
+
           {tiResponse && (
-            <pre className="custom-pre text-sm p-4 max-h-96 overflow-auto">
-              {JSON.stringify(tiResponse, null, 2)}
-            </pre>
+            <div className="mt-4 p-4 bg-black/60 border border-white/5 rounded-md">
+              <div className="text-[10px] text-cyan-500 border-b border-white/5 pb-1 mb-2">
+                CONNECTOR BRIDGE OUTPUT:
+              </div>
+              <pre className="text-xs text-cyan-600/80 leading-relaxed overflow-auto max-h-60">
+                {JSON.stringify(tiResponse, null, 2)}
+              </pre>
+            </div>
           )}
-        </section>
+        </div>
+
       </div>
-    </div>
+    </DashboardShell>
   );
 }
