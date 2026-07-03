@@ -8,6 +8,8 @@ import { saveAs } from "file-saver";
 import { useReportStore } from "@/store/useReportStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { submitAndPoll } from "@/lib/taskPoll";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 type MetaResult = {
   filename: string;
@@ -27,11 +29,11 @@ export default function MetadataTool() {
   const { user, token } = useAuthStore();
 
   if (!user) {
-    return <p className="text-red-400 font-semibold">🔒 Please log in to use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🔒 Please log in to use this tool.</p>;
   }
 
   if (user.role !== "analyst" && user.role !== "admin") {
-    return <p className="text-red-400 font-semibold">🚫 Access denied. Only analysts and admins can use this tool.</p>;
+    return <p className="text-red-400 text-xs font-mono">🚫 Access denied. Only analysts and admins can use this tool.</p>;
   }
 
   useEffect(() => {
@@ -63,23 +65,23 @@ export default function MetadataTool() {
     const modified = new Date(meta.modificationDate || meta.Modified || "");
 
     if (!isNaN(created.getTime()) && created.getTime() > Date.now()) {
-      issues.push("⚠️ Future creation date");
+      issues.push("Future creation date detected");
       score = "Medium";
     }
     if (!isNaN(created.getTime()) && !isNaN(modified.getTime()) && modified < created) {
-      issues.push("⚠️ Modified before creation");
+      issues.push("Modification date predates creation date");
       score = "Medium";
     }
     if (meta.author && meta.creator && meta.author !== meta.creator) {
-      issues.push("⚠️ Author and creator mismatch");
+      issues.push("Author and software creator identity mismatch");
       score = "Medium";
     }
     if (meta.title && /(tracker|spy|surveil|monitor)/i.test(meta.title)) {
-      issues.push("🚨 Suspicious title keyword");
+      issues.push("Suspicious title parameter match");
       score = "High";
     }
     if (meta.Software && /crack|spy|anonym/i.test(meta.Software)) {
-      issues.push("🚨 Suspicious software identifier");
+      issues.push("Suspicious software tool identifier signature");
       score = "High";
     }
     return { issues, score };
@@ -187,93 +189,111 @@ export default function MetadataTool() {
   };
 
   return (
-    <div className="p-4 bg-gray-900 rounded-xl shadow-md text-white max-w-5xl mx-auto mt-6">
-      <h2 className="text-2xl font-bold mb-4">📄 Metadata Recon Tool</h2>
-
-      <input
-        type="file"
-        multiple
-        onChange={handleFileChange}
-        accept=".jpg,.jpeg,.png,.pdf,.docx"
-        className="mb-2"
-      />
-      <p className="text-xs text-gray-400 mb-4">
-        Supported: JPG, PNG, PDF, DOCX | Max: {MAX_FILE_SIZE_MB}MB each
-      </p>
+    <div className="space-y-4 text-left font-mono">
+      <div className="flex flex-col md:flex-row gap-4 items-end">
+        <div className="flex-1 space-y-1.5 w-full">
+          <label className="block text-[10px] text-zinc-400 uppercase tracking-wider">Select Target Files</label>
+          <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            accept=".jpg,.jpeg,.png,.pdf,.docx"
+            className="w-full bg-[#09090b] border border-white/5 rounded-md px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
+          />
+          <p className="text-[9px] text-zinc-500">
+            Supported: JPG, PNG, PDF, DOCX | Max size: {MAX_FILE_SIZE_MB}MB each
+          </p>
+        </div>
+        {files.length > 0 && (
+          <Button onClick={handleUpload} disabled={loading} className="w-full md:w-auto h-9">
+            {loading ? "Extracting..." : `Extract Metadata (${files.length})`}
+          </Button>
+        )}
+      </div>
 
       {files.length > 0 && (
-        <div className="mb-4">
-          <ul className="list-disc list-inside text-sm mb-2 text-gray-300">
+        <div className="p-3 bg-black/20 border border-white/5 rounded-md">
+          <div className="text-[10px] text-zinc-500 mb-1">STAGED FILE STACK:</div>
+          <ul className="text-xs text-zinc-300 space-y-0.5 list-disc list-inside">
             {files.map((f) => (
-              <li key={f.name}>{f.name}</li>
+              <li key={f.name} className="truncate">{f.name}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="flex gap-2">
           <button
-            onClick={handleUpload}
-            disabled={loading}
-            className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+            onClick={downloadAllMetadata}
+            className="btn-cyber-secondary px-3 py-1.5 text-[10px] uppercase font-bold"
           >
-            {loading ? "Processing..." : "Extract Metadata"}
+            Export All (ZIP)
+          </button>
+          <button
+            onClick={clearResults}
+            className="btn-cyber-secondary px-3 py-1.5 text-[10px] text-red-400 hover:text-red-300 border-red-500/10 hover:border-red-500/35 uppercase font-bold"
+          >
+            Clear logs
           </button>
         </div>
       )}
 
-      <div className="mb-4 flex gap-2">
-        <button
-          onClick={downloadAllMetadata}
-          className="bg-green-600 px-3 py-2 rounded hover:bg-green-700 text-sm"
-          disabled={results.length === 0}
-        >
-          ⬇ Export All Metadata (JSON + CSV)
-        </button>
-        <button
-          onClick={clearResults}
-          className="bg-red-600 px-3 py-2 rounded hover:bg-red-700 text-sm"
-          disabled={results.length === 0}
-        >
-          🗑 Clear Results
-        </button>
-      </div>
-
-      <div className="max-h-[50vh] overflow-y-auto space-y-4 p-2">
-        {results.slice(0, 2).map((res, idx) => (
-          <div key={idx} className="bg-gray-800 p-2 rounded shadow w-full">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-lg font-semibold">{res.filename}</h3>
-                <p className="text-xs text-yellow-400">Threat Score: {res.score}</p>
-                {res.threats.map((t, i) => (
-                  <p key={i} className="text-xs text-yellow-300">{t}</p>
-                ))}
+      <div className="max-h-[50vh] overflow-y-auto space-y-4 pr-1">
+        {results.map((res, idx) => (
+          <div key={idx} className="bg-black/25 border border-white/5 p-4 rounded-md space-y-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-gray-250 truncate">{res.filename}</h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] text-zinc-500 uppercase">THREAT SCORE:</span>
+                  <span className={`tag-severity tag-severity-${res.score.toLowerCase()}`}>
+                    {res.score}
+                  </span>
+                </div>
+                {res.threats.length > 0 && (
+                  <div className="mt-2 space-y-0.5">
+                    {res.threats.map((t, i) => (
+                      <div key={i} className="text-[10px] text-yellow-500/90">⚠️ {t}</div>
+                    ))}
+                  </div>
+                )}
               </div>
               <textarea
                 value={res.note || ""}
                 onChange={(e) => handleNoteChange(idx, e.target.value)}
-                placeholder="Analyst note..."
-                className="w-48 text-xs bg-gray-700 text-white border rounded p-1 resize-none"
+                placeholder="Analyst note logs..."
+                className="w-full sm:w-60 text-xs bg-[#09090b] text-white border border-white/5 rounded p-2 h-16 resize-none focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
-            <ul className="text-xs mt-1 space-y-1">
-              <li><span className="text-blue-400 font-semibold">Author:</span> <span className="text-gray-300">{res.metadata.author || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Title:</span> <span className="text-gray-300">{res.metadata.title || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Created:</span> <span className="text-gray-300">{res.metadata.created || res.metadata.creationDate || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Modified:</span> <span className="text-gray-300">{res.metadata.modified || res.metadata.modDate || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Subject:</span> <span className="text-gray-300">{res.metadata.subject || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Creator:</span> <span className="text-gray-300">{res.metadata.creator || "No result found"}</span></li>
-              <li><span className="text-blue-400 font-semibold">Producer:</span> <span className="text-gray-300">{res.metadata.producer || "No result found"}</span></li>
-            </ul>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/5">
+              <div className="space-y-1.5">
+                <div className="text-[10px] text-zinc-500">CORRELATED PARAMETERS:</div>
+                <ul className="text-xs space-y-1 text-zinc-350">
+                  <li className="truncate"><span className="text-cyan-400 font-semibold uppercase text-[9px] mr-1.5">Author:</span> {res.metadata.author || "N/A"}</li>
+                  <li className="truncate"><span className="text-cyan-400 font-semibold uppercase text-[9px] mr-1.5">Title:</span> {res.metadata.title || "N/A"}</li>
+                  <li className="truncate"><span className="text-cyan-400 font-semibold uppercase text-[9px] mr-1.5">Created:</span> {res.metadata.created || res.metadata.creationDate || "N/A"}</li>
+                  <li className="truncate"><span className="text-cyan-400 font-semibold uppercase text-[9px] mr-1.5">Modified:</span> {res.metadata.modified || res.metadata.modDate || "N/A"}</li>
+                </ul>
+              </div>
 
-            {res.metadata?.GPSLatitude && res.metadata?.GPSLongitude && (
-              <MapDisplay
-                latitude={res.metadata.GPSLatitude}
-                longitude={res.metadata.GPSLongitude}
-              />
-            )}
+              {res.metadata?.GPSLatitude && res.metadata?.GPSLongitude && (
+                <div className="h-32 border border-white/5 rounded overflow-hidden">
+                  <MapDisplay
+                    latitude={res.metadata.GPSLatitude}
+                    longitude={res.metadata.GPSLongitude}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         ))}
+
         {results.length >= 2 && (
-          <MetadataDiff file1={results[0]} file2={results[1]} />
+          <div className="border-t border-white/5 pt-4">
+            <MetadataDiff file1={results[0]} file2={results[1]} />
+          </div>
         )}
       </div>
     </div>

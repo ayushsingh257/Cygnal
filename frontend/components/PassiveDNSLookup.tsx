@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useReportStore } from "@/store/useReportStore";
 import { submitAndPoll } from "@/lib/taskPoll";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export default function PassiveDNSLookup() {
   const [domain, setDomain] = useState("");
@@ -49,42 +51,43 @@ export default function PassiveDNSLookup() {
   };
 
   return (
-    <div className="bg-zinc-900 p-6 rounded-lg shadow-md mt-6">
-      <h2 className="text-xl font-bold mb-4">🌐 Passive DNS Lookup</h2>
-      <p className="text-sm text-gray-400 mb-3">
-        Get historical A/AAAA/NS records using VirusTotal Passive DNS.
+    <div className="space-y-4 text-left font-mono">
+      <p className="text-xs text-zinc-400 leading-relaxed">
+        Fetch passive historical A, AAAA, and NS records using VirusTotal intelligence lookup integration.
       </p>
 
-      <input
-        type="text"
-        placeholder="Enter domain (e.g. example.com)"
-        value={domain}
-        onChange={(e) => setDomain(e.target.value)}
-        className="w-full mb-4 px-4 py-2 rounded bg-zinc-800 border border-zinc-700"
-      />
-
-      <button
-        onClick={handleLookup}
-        disabled={loading || !domain}
-        className="btn-cygnal-primary disabled:opacity-50"
-      >
-        {loading ? `Looking up (${progress}%)` : "Fetch DNS Records"}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-3 items-end">
+        <div className="flex-1 space-y-1.5 w-full">
+          <label className="block text-[10px] text-zinc-400 uppercase tracking-wider">Target Domain</label>
+          <Input
+            type="text"
+            placeholder="e.g. example.com"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+          />
+        </div>
+        <Button onClick={handleLookup} disabled={loading || !domain} className="w-full sm:w-auto h-9">
+          {loading ? `Polling (${progress}%)` : "Fetch DNS Logs"}
+        </Button>
+      </div>
 
       {loading && (
-        <div className="w-full bg-zinc-800 rounded-full h-2 mt-4 overflow-hidden">
+        <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-purple-500 h-full rounded-full transition-all duration-300"
+            className="bg-cyan-500 h-full rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
-      {error && <p className="text-red-400 mt-3">{error}</p>}
+      {error && <p className="text-red-500 text-xs">{error}</p>}
 
       {result && (
-        <div className="mt-6 bg-zinc-800 p-4 rounded-lg overflow-auto text-sm max-h-80">
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+        <div className="p-4 bg-black/35 border border-white/5 rounded text-xs leading-relaxed text-zinc-300">
+          <h4 className="font-bold text-cyan-400 uppercase tracking-wider mb-2">Passive DNS History Records</h4>
+          <pre className="text-xs overflow-auto max-h-60 leading-relaxed text-zinc-450">
+            {JSON.stringify(result, null, 2)}
+          </pre>
         </div>
       )}
     </div>

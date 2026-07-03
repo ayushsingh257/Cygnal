@@ -8,7 +8,6 @@ export default function ScanHistory() {
   const scanHistory = useReportStore((state) => state.scanHistory);
   const [showHistory, setShowHistory] = useState(false);
 
-  // 🔽 JSON Export
   const exportAsJSON = () => {
     const blob = new Blob([JSON.stringify(scanHistory, null, 2)], {
       type: "application/json",
@@ -16,7 +15,6 @@ export default function ScanHistory() {
     saveAs(blob, "cygnal_session_log.json");
   };
 
-  // 🔽 CSV Export
   const exportAsCSV = () => {
     const rows = [
       ["Tool", "Input", "Timestamp", "Result"],
@@ -35,53 +33,57 @@ export default function ScanHistory() {
   };
 
   return (
-    <div className="text-white text-center">
-      {/* ONE TOGGLE BUTTON ONLY */}
+    <div className="space-y-4 text-center font-mono">
       <button
         onClick={() => setShowHistory(!showHistory)}
-        className="btn-cygnal text-lg px-6 py-3 mb-6" /* Added mb-6 for bottom spacing */
+        className="btn-cyber-secondary px-4 py-2 text-xs uppercase font-bold"
       >
-        {showHistory ? "📉 Hide Scan History" : "📈 Show Scan History"}
+        {showHistory ? "Hide Scan Console Logs" : "Show Scan Console Logs"}
       </button>
 
-      {/* CONDITIONAL HISTORY DISPLAY */}
       {showHistory && (
-        <div className="bg-gray-900 text-white mt-6 p-6 rounded-lg shadow max-w-4xl mx-auto border border-purple-700">
-          <h2 className="text-2xl font-bold mb-4 text-pink-400 flex items-center justify-center gap-2">
-            📄 Session Scan History
-          </h2>
-
-          {/* 🔽 Download Buttons */}
-          <div className="flex justify-center gap-4 mb-6">
-            <button onClick={exportAsJSON} className="btn-cygnal px-4 py-2 text-sm">
-              ⬇ Export JSON
-            </button>
-            <button onClick={exportAsCSV} className="btn-cygnal px-4 py-2 text-sm">
-              ⬇ Export CSV
-            </button>
+        <div className="glass-panel p-5 bg-[#0c0c0e]/80 text-left border border-white/5 max-w-4xl mx-auto space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/5 pb-2.5 gap-2 select-none">
+            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+              Session Action Telemetry Logs
+            </h3>
+            <div className="flex gap-2">
+              <button onClick={exportAsJSON} className="btn-cyber-secondary px-2.5 py-1 text-[9px] uppercase font-semibold">
+                Export JSON
+              </button>
+              <button onClick={exportAsCSV} className="btn-cyber-secondary px-2.5 py-1 text-[9px] uppercase font-semibold">
+                Export CSV
+              </button>
+            </div>
           </div>
 
           {scanHistory.length === 0 ? (
-            <p className="text-gray-400">No scans performed in this session yet.</p>
+            <p className="text-zinc-500 text-xs py-4 text-center">No active queries ran in this session context.</p>
           ) : (
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 text-left">
+            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
               {scanHistory.map((entry, index) => (
                 <div
                   key={index}
-                  className="bg-gray-800 p-4 rounded border border-gray-700 shadow-sm"
+                  className="bg-black/25 border border-white/5 p-3 rounded-md space-y-2"
                 >
-                  <div className="text-sm text-gray-300 mb-1">
-                    <strong>🛠 Tool:</strong> {entry.tool} <br />
-                    <strong>🔎 Input:</strong> {entry.input}
+                  <div className="text-[10px] text-zinc-400 space-y-0.5">
+                    <div>
+                      <span className="text-zinc-500 uppercase">MODULE:</span>{" "}
+                      <span className="text-cyan-400 font-semibold">{entry.tool}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 uppercase">TARGET PARAMETER:</span>{" "}
+                      <span className="text-zinc-300 font-semibold break-all">{entry.input}</span>
+                    </div>
                   </div>
-                  <div className="bg-black/30 rounded p-2 text-xs whitespace-pre-wrap mb-2 border border-gray-700">
+                  <pre className="p-3 bg-black/45 border border-white/5 rounded text-[10px] leading-relaxed text-zinc-400 overflow-x-auto max-h-48 whitespace-pre-wrap">
                     {typeof entry.result === "string"
                       ? entry.result
                       : JSON.stringify(entry.result, null, 2)}
+                  </pre>
+                  <div className="text-right text-[9px] text-zinc-500">
+                    LOGGED: {new Date(entry.timestamp).toLocaleString()}
                   </div>
-                  <p className="text-right text-xs text-gray-500">
-                    🕒 {new Date(entry.timestamp).toLocaleString()}
-                  </p>
                 </div>
               ))}
             </div>

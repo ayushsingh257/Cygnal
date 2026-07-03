@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useReportStore } from "../store/useReportStore";
 import { submitAndPoll } from "@/lib/taskPoll";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 const IPReputationTool: React.FC = () => {
   const [ip, setIp] = useState("");
@@ -49,51 +51,70 @@ const IPReputationTool: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow mb-6 border border-gray-200">
-      <h2 className="text-xl font-bold mb-4 text-blue-700">🛡️ IP Reputation Checker</h2>
-      <p className="text-sm text-gray-600 mb-3">
-        This tool uses AbuseIPDB to analyze the threat score and recent abuse reports for a given IP address.
+    <div className="space-y-4 text-left font-mono">
+      <p className="text-xs text-zinc-400 leading-relaxed">
+        This tool uses <strong>AbuseIPDB</strong> definitions to verify threat indices and historical abuse flags for IPv4/IPv6 addresses.
       </p>
-      <form onSubmit={handleSubmit} className="flex gap-4 mb-4 flex-wrap">
-        <input
-          type="text"
-          placeholder="Enter IP address (e.g. 8.8.8.8)"
-          value={ip}
-          onChange={(e) => setIp(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
-          disabled={loading}
-        >
-          {loading ? `Checking (${progress}%)` : "Check Reputation"}
-        </button>
+
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-end">
+        <div className="flex-1 space-y-1.5 w-full">
+          <label className="block text-[10px] text-zinc-400 uppercase tracking-wider">Target IP Address</label>
+          <Input
+            type="text"
+            placeholder="e.g. 8.8.8.8"
+            value={ip}
+            onChange={(e) => setIp(e.target.value)}
+            required
+          />
+        </div>
+        <Button type="submit" disabled={loading} className="w-full sm:w-auto h-9">
+          {loading ? `Checking (${progress}%)` : "Query Reputation"}
+        </Button>
       </form>
 
       {loading && (
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-3 overflow-hidden">
+        <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-blue-600 h-full rounded-full transition-all duration-300"
+            className="bg-cyan-500 h-full rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
-      {error && <div className="text-red-600 text-sm mb-3">{error}</div>}
+      {error && <div className="text-red-500 text-xs">{error}</div>}
 
       {result && (
-        <div className="bg-gray-50 p-4 border rounded text-sm">
-          <h3 className="font-semibold text-gray-700 mb-2">Reputation Result:</h3>
-          <p><strong>IP:</strong> {result.ipAddress}</p>
-          <p><strong>Abuse Score:</strong> {result.abuseConfidenceScore}/100</p>
-          <p><strong>Total Reports:</strong> {result.totalReports}</p>
-          <p><strong>Last Reported:</strong> {result.lastReportedAt || "Never"}</p>
-          <p><strong>Country:</strong> {result.countryCode || "N/A"}</p>
-          <p><strong>ISP:</strong> {result.isp || "N/A"}</p>
-          <p><strong>Usage Type:</strong> {result.usageType || "N/A"}</p>
-          <p><strong>Domain:</strong> {result.domain || "N/A"}</p>
+        <div className="p-4 bg-black/35 border border-white/5 rounded text-xs text-zinc-300 divide-y divide-white/5 font-mono">
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">Target Host IP</span>
+            <span className="text-zinc-200">{result.ipAddress}</span>
+          </div>
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">Abuse Confidence Score</span>
+            <span className={`px-1.5 py-0.2 rounded font-bold ${
+              result.abuseConfidenceScore > 50 
+                ? "bg-red-950/20 text-red-400 border border-red-500/20" 
+                : "bg-green-950/20 text-green-400 border border-green-500/20"
+            }`}>
+              {result.abuseConfidenceScore}/100
+            </span>
+          </div>
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">Incident Reports</span>
+            <span className="text-zinc-200">{result.totalReports} total reports</span>
+          </div>
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">Registry Country</span>
+            <span className="text-zinc-200">{result.countryCode || "N/A"}</span>
+          </div>
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">ISP Origin</span>
+            <span className="text-zinc-200 truncate max-w-[200px]" title={result.isp}>{result.isp || "N/A"}</span>
+          </div>
+          <div className="py-1.5 flex justify-between gap-4">
+            <span className="text-cyan-400 font-semibold uppercase text-[10px]">Domain Registry</span>
+            <span className="text-zinc-200">{result.domain || "N/A"}</span>
+          </div>
         </div>
       )}
     </div>
