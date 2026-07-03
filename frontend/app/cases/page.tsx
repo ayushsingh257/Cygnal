@@ -5,21 +5,18 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import DashboardShell from "@/components/DashboardShell";
 import IocGraph from "@/components/IocGraph";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "react-hot-toast";
 import { 
   FolderPlus, 
   Folder, 
-  ChevronRight, 
   Clock, 
   FileCode, 
   Plus, 
   Link as LinkIcon, 
-  AlertCircle,
-  FileText,
-  User,
-  Hash,
+  User, 
+  Hash, 
   Upload
 } from "lucide-react";
 
@@ -317,58 +314,63 @@ export default function CasesPage() {
 
   if (!user) return null;
 
-  // Severity indicator border colors
   const severityBorders: Record<string, string> = {
     low: "border-green-500/20 hover:border-green-500/40",
     medium: "border-yellow-500/20 hover:border-yellow-500/40",
     high: "border-orange-500/20 hover:border-orange-500/40",
-    critical: "border-red-500/40 hover:border-red-500/70 shadow-md shadow-red-950/10"
+    critical: "border-red-500/35 hover:border-red-500/60"
+  };
+
+  const severityBadges: Record<string, string> = {
+    low: "badge-low",
+    medium: "badge-medium",
+    high: "badge-high",
+    critical: "badge-critical"
   };
 
   return (
     <DashboardShell>
       <Toaster />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start text-left">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start text-left font-sans">
         
         {/* LEFT COLUMN: DIRECTORY & CREATION (Lg: 4) */}
         <div className="lg:col-span-4 space-y-6">
           
           {/* Create Incident Case Panel */}
-          <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-            <h3 className="text-sm font-semibold font-mono text-white border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
-              <FolderPlus size={16} /> File New Incident
+          <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+            <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 font-mono uppercase tracking-wider">
+              <FolderPlus size={15} className="text-cyan-450" /> File New Incident
             </h3>
             
             <form onSubmit={handleCreateCase} className="space-y-4">
-              <div>
-                <label className="block text-[10px] text-gray-500 mb-1 font-mono uppercase">Case Title</label>
-                <input
+              <div className="space-y-1">
+                <label className="block text-[10px] text-slate-500 font-mono uppercase tracking-wider">Case Title</label>
+                <Input
                   type="text"
                   placeholder="e.g. Server-04 Data Ingress Sweep"
                   value={newCaseTitle}
                   onChange={(e) => setNewCaseTitle(e.target.value)}
-                  className="input-cyber w-full font-mono text-xs px-3 py-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] text-gray-500 mb-1 font-mono uppercase">Incident Description</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] text-slate-500 font-mono uppercase tracking-wider">Incident Description</label>
                 <textarea
                   placeholder="Details of suspicious vectors..."
                   value={newCaseDesc}
                   onChange={(e) => setNewCaseDesc(e.target.value)}
-                  className="input-cyber w-full font-mono text-xs px-3 py-2 h-16 resize-none"
+                  className="cyber-input w-full h-16 resize-none"
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] text-gray-500 mb-1 font-mono uppercase">Severity Tier</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] text-slate-500 font-mono uppercase tracking-wider">Severity Tier</label>
                 <select
                   value={newCaseSeverity}
                   onChange={(e) => setNewCaseSeverity(e.target.value)}
-                  className="input-cyber w-full font-mono text-xs px-3 py-2"
+                  className="cyber-input w-full"
                 >
                   <option value="low">Low Impact</option>
                   <option value="medium">Medium Security</option>
@@ -377,48 +379,48 @@ export default function CasesPage() {
                 </select>
               </div>
 
-              <button 
+              <Button 
                 type="submit" 
-                className="w-full btn-cyber-primary py-2 text-xs font-mono" 
+                className="w-full text-xs font-mono py-2.5 tracking-widest uppercase" 
                 disabled={createLoading}
               >
                 {createLoading ? "FILE RECORDING..." : "COMMIT INCIDENT CASE"}
-              </button>
+              </Button>
             </form>
           </div>
 
           {/* Incident Cases Directory List */}
-          <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-            <h3 className="text-sm font-semibold font-mono text-white border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
-              <Folder size={16} /> Case File Index ({cases.length})
+          <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+            <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 font-mono uppercase tracking-wider">
+              <Folder size={15} className="text-cyan-455" /> Case File Index ({cases.length})
             </h3>
             
             {loadingCases ? (
-              <p className="text-gray-500 font-mono text-xs py-4 animate-pulse">Loading active indices...</p>
+              <p className="text-slate-550 font-mono text-xs py-4 animate-pulse">Loading active indices...</p>
             ) : cases.length === 0 ? (
-              <p className="text-gray-500 font-mono text-xs py-4 text-center">No cases filed.</p>
+              <p className="text-slate-550 font-mono text-xs py-4 text-center">No cases filed.</p>
             ) : (
               <div className="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
                 {cases.map((c) => (
                   <div
                     key={c.id}
                     onClick={() => setSelectedCaseId(c.id)}
-                    className={`p-3 rounded border transition cursor-pointer flex flex-col justify-between ${
+                    className={`p-3 rounded-lg border transition cursor-pointer flex flex-col justify-between ${
                       selectedCaseId === c.id
-                        ? "bg-purple-950/15 border-purple-500"
-                        : `bg-black/35 ${severityBorders[c.severity]}`
+                        ? "bg-cyan-950/10 border-cyan-500/40"
+                        : `bg-[#0d1117]/30 ${severityBorders[c.severity]}`
                     }`}
                   >
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[10px] font-mono font-bold text-gray-500">{c.case_number}</span>
-                      <span className={`tag-severity tag-severity-${c.severity}`}>
+                      <span className="text-[9px] font-mono text-slate-500 font-semibold">{c.case_number}</span>
+                      <span className={`${severityBadges[c.severity]}`}>
                         {c.severity}
                       </span>
                     </div>
-                    <h4 className="font-semibold text-xs text-gray-200 truncate">{c.title}</h4>
-                    <div className="flex justify-between items-center mt-2.5 text-[9px] text-gray-500 font-mono">
+                    <h4 className="font-semibold text-xs text-slate-200 truncate">{c.title}</h4>
+                    <div className="flex justify-between items-center mt-2.5 text-[9px] text-slate-500 font-mono">
                       <span>Investigator: {c.created_by}</span>
-                      <span className="capitalize px-1.5 py-0.2 bg-zinc-950 border border-white/5 rounded text-cyan-500">{c.status}</span>
+                      <span className="capitalize px-1.5 py-0.5 bg-black/40 border border-white/5 rounded text-cyan-400 text-[8px] font-bold tracking-wider">{c.status}</span>
                     </div>
                   </div>
                 ))}
@@ -432,46 +434,46 @@ export default function CasesPage() {
         <div className="lg:col-span-8 space-y-6">
           
           {!selectedCaseId ? (
-            <div className="glass-panel py-28 text-center flex flex-col items-center justify-center bg-[#0c0c0e]/40 h-full border-dashed border-white/5">
-              <Folder className="w-12 h-12 text-zinc-600 mb-3" />
-              <h3 className="text-xs font-bold font-mono text-zinc-300 uppercase tracking-wider">DFIR Case Investigation console</h3>
-              <p className="text-xs text-zinc-500 mt-1 max-w-xs font-mono">
+            <div className="glass-card rounded-xl py-28 text-center flex flex-col items-center justify-center bg-[#0d1117]/30 h-full border-dashed border-white/5 select-none">
+              <Folder className="w-10 h-10 text-slate-600 mb-3" />
+              <h3 className="text-xs font-bold font-mono text-slate-350 uppercase tracking-wider">DFIR Case Investigation console</h3>
+              <p className="text-[11px] text-slate-500 mt-1.5 max-w-xs leading-relaxed font-sans">
                 Select an incident card from the index to verify hashes, audit notes, correlate scans, and plot IOC pathways.
               </p>
             </div>
           ) : loadingDetails && !activeCase ? (
-            <div className="glass-panel py-28 text-center bg-[#0c0c0e]/40">
-              <p className="text-zinc-500 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
+            <div className="glass-card rounded-xl py-28 text-center bg-[#0d1117]/40 select-none">
+              <p className="text-slate-500 font-mono text-xs animate-pulse">Synchronizing case details buffer...</p>
             </div>
           ) : activeCase ? (
             <div className="space-y-6">
               
               {/* Active Incident Case Header */}
-              <div className="glass-panel p-5 bg-[#0c0c0e]/85 relative overflow-hidden">
+              <div className="glass-card rounded-xl p-5 bg-[#0d1117]/85 relative overflow-hidden">
                 <div className="flex justify-between items-start flex-wrap gap-4 border-b border-white/5 pb-4 mb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-purple-400 font-bold">{activeCase.case_number}</span>
-                      <span className={`tag-severity tag-severity-${activeCase.severity}`}>
+                      <span className="font-mono text-xs text-cyan-400 font-bold">{activeCase.case_number}</span>
+                      <span className={`${severityBadges[activeCase.severity]}`}>
                         {activeCase.severity}
                       </span>
                     </div>
-                    <h2 className="text-xl font-bold font-mono text-white mt-2">{activeCase.title}</h2>
-                    <p className="text-xs text-gray-400 mt-2 font-mono leading-relaxed">{activeCase.description || "No overview statement."}</p>
+                    <h2 className="text-lg font-bold text-white mt-2 uppercase font-mono tracking-wide">{activeCase.title}</h2>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed font-sans">{activeCase.description || "No overview statement."}</p>
                   </div>
                   
                   {/* Status Toggle Switch */}
-                  <div className="space-y-1 bg-black/45 p-1.5 rounded border border-white/5">
-                    <label className="block text-[8px] font-mono text-gray-500 uppercase tracking-wider">Operational Status</label>
+                  <div className="space-y-1 bg-black/35 p-2 rounded-lg border border-white/5">
+                    <label className="block text-[8px] font-mono text-slate-500 uppercase tracking-wider select-none mb-1">Operational Status</label>
                     <div className="flex gap-1">
                       {["open", "investigating", "closed"].map((st) => (
                         <button
                           key={st}
                           onClick={() => handleUpdateStatus(st)}
-                          className={`px-2 py-0.5 text-[9px] capitalize font-mono rounded ${
+                          className={`px-2.5 py-0.5 text-[9px] uppercase tracking-wider font-mono rounded ${
                             activeCase.status === st
-                              ? "bg-purple-900/30 text-purple-400 border border-purple-500/50"
-                              : "text-gray-500 hover:text-gray-300"
+                              ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold"
+                              : "text-slate-500 hover:text-slate-350"
                           }`}
                         >
                           {st}
@@ -481,18 +483,18 @@ export default function CasesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[10px] font-mono text-gray-400">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[10px] font-mono text-slate-500 select-none">
                   <div>
-                    <span className="text-gray-600 block">Lead Investigator</span>
-                    <span className="text-gray-300 font-bold flex items-center gap-1"><User size={10} /> {activeCase.created_by}</span>
+                    <span className="text-slate-600 block mb-0.5">Lead Investigator</span>
+                    <span className="text-slate-350 font-bold flex items-center gap-1"><User size={10} /> {activeCase.created_by}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600 block">Filed At</span>
-                    <span className="text-gray-300">{new Date(activeCase.created_at).toLocaleString()}</span>
+                    <span className="text-slate-600 block mb-0.5">Filed At</span>
+                    <span className="text-slate-355">{new Date(activeCase.created_at).toLocaleString()}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600 block">Last Activity</span>
-                    <span className="text-gray-300">{new Date(activeCase.updated_at).toLocaleString()}</span>
+                    <span className="text-slate-600 block mb-0.5">Last Activity</span>
+                    <span className="text-slate-355">{new Date(activeCase.updated_at).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -501,51 +503,52 @@ export default function CasesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Evidence vault Panel */}
-                <div className="glass-panel p-5 bg-[#0c0c0e]/80 flex flex-col justify-between">
+                <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
-                      <FileCode size={16} /> Digital Evidence Vault
+                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
+                      <FileCode size={15} className="text-cyan-400" /> Digital Evidence Vault
                     </h3>
                     
                     {/* Simulated Drop zone file upload */}
-                    <div className="p-3 bg-black/45 border border-dashed border-white/5 rounded mb-4">
-                      <label className="block text-[8px] font-mono text-gray-500 uppercase tracking-wider mb-2">Ingest Forensic File</label>
+                    <div className="p-3 bg-black/40 border border-dashed border-white/5 rounded-lg mb-4 text-left">
+                      <label className="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-2 select-none">Ingest Forensic File</label>
                       <div className="flex gap-2 items-center flex-wrap">
                         <input
                           type="file"
                           onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                          className="text-[10px] file:bg-zinc-800 file:text-white file:border-0 file:rounded file:px-2 file:py-0.5 file:mr-2 text-gray-400"
+                          className="text-[10px] file:bg-zinc-800 file:text-white file:border-0 file:rounded file:px-2.5 file:py-1 file:mr-2 text-slate-400 font-mono"
                         />
                         {uploadFile && (
-                          <button 
+                          <Button 
                             onClick={handleUploadEvidence} 
                             disabled={uploadLoading}
-                            className="btn-cyber-primary px-3 py-1 text-[9px] font-mono flex items-center gap-1"
+                            size="sm"
+                            className="flex items-center gap-1"
                           >
-                            <Upload size={10} /> {uploadLoading ? "INGESTING..." : "INGEST"}
-                          </button>
+                            <Upload size={9} /> {uploadLoading ? "INGESTING..." : "INGEST"}
+                          </Button>
                         )}
                       </div>
                     </div>
 
                     {/* Files list */}
                     {evidenceList.length === 0 ? (
-                      <p className="text-gray-500 font-mono text-xs py-4 text-center">Vault empty.</p>
+                      <p className="text-slate-550 font-mono text-xs py-4 text-center">Vault empty.</p>
                     ) : (
                       <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
                         {evidenceList.map((ev) => (
-                          <div key={ev.id} className="p-2.5 bg-black/25 border border-white/5 rounded text-[10px] font-mono">
+                          <div key={ev.id} className="p-2.5 bg-black/20 border border-white/5 rounded-lg text-[10px] font-mono">
                             <div className="flex justify-between items-center mb-1">
-                              <span className="font-bold text-gray-300 truncate max-w-[140px]">{ev.filename}</span>
-                              <span className="text-gray-500">{(ev.file_size / 1024).toFixed(1)} KB</span>
+                              <span className="font-bold text-slate-350 truncate max-w-[140px]">{ev.filename}</span>
+                              <span className="text-slate-500">{(ev.file_size / 1024).toFixed(1)} KB</span>
                             </div>
-                            <div className="text-gray-500 space-y-0.5 text-[9px]">
-                              <div className="flex items-center gap-1">
-                                <Hash size={8} /> <span className="text-cyan-400">{ev.file_hash.slice(0, 20)}...</span>
+                            <div className="text-slate-500 space-y-0.5 text-[9px]">
+                              <div className="flex items-center gap-1.5">
+                                <Hash size={9} /> <span className="text-cyan-400">{ev.file_hash.slice(0, 20)}...</span>
                               </div>
-                              <div>Mime: {ev.file_type}</div>
-                              <div className="flex justify-between border-t border-white/5 mt-1 pt-1 text-[8px] text-gray-600">
-                                <span>Inv: {ev.uploaded_by}</span>
+                              <div>MIME Type: {ev.file_type}</div>
+                              <div className="flex justify-between border-t border-white/5 mt-1.5 pt-1 text-[8px] text-slate-600 select-none">
+                                <span>Uploaded By: {ev.uploaded_by}</span>
                                 <span>{new Date(ev.uploaded_at).toLocaleDateString()}</span>
                               </div>
                             </div>
@@ -557,13 +560,13 @@ export default function CasesPage() {
                 </div>
 
                 {/* Scan Telemetry Linker Panel */}
-                <div className="glass-panel p-5 bg-[#0c0c0e]/80 flex flex-col justify-between">
+                <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
-                      <LinkIcon size={16} /> Scan Telemetry Linker
+                    <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
+                      <LinkIcon size={15} className="text-cyan-400" /> Scan Telemetry Linker
                     </h3>
                     
-                    <p className="text-[11px] text-gray-400 font-mono leading-relaxed mb-4">
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
                       Link active scanning history logs directly to the case timeline to contextualize threat vectors.
                     </p>
 
@@ -571,7 +574,7 @@ export default function CasesPage() {
                       <select
                         value={selectedScanId}
                         onChange={(e) => setSelectedScanId(e.target.value)}
-                        className="input-cyber w-full font-mono text-[10px] p-2 bg-black/50 border-white/5"
+                        className="cyber-input w-full text-[10px] p-2"
                       >
                         <option value="">-- Select Scan Log --</option>
                         {scanHistory.map((log) => {
@@ -587,14 +590,14 @@ export default function CasesPage() {
                         })}
                       </select>
 
-                      <button
+                      <Button
                         onClick={handleAssociateScan}
                         disabled={associateLoading || !selectedScanId}
-                        className="w-full btn-cyber-primary py-2 text-xs font-mono flex items-center justify-center gap-1.5"
+                        className="w-full text-xs font-mono flex items-center justify-center gap-1.5 py-2.5 tracking-wider"
                       >
                         <Plus size={12} />
                         {associateLoading ? "LINKING..." : "LINK SCAN HISTORY"}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -602,7 +605,7 @@ export default function CasesPage() {
               </div>
 
               {/* IOC Relationship Map & Attack path visualizer */}
-              <div className="glass-panel p-5 bg-[#0c0c0e]/80">
+              <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
                 <IocGraph 
                   caseTitle={activeCase.title} 
                   evidenceList={evidenceList} 
@@ -611,61 +614,64 @@ export default function CasesPage() {
               </div>
 
               {/* Forensics Chronological Timeline */}
-              <div className="glass-panel p-5 bg-[#0c0c0e]/80">
-                <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5">
-                  <Clock size={16} /> Forensic Timeline Events
+              <div className="glass-card rounded-xl p-5 bg-[#0d1117]/60">
+                <h3 className="text-xs font-bold font-mono text-white border-b border-white/5 pb-2.5 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Clock size={15} className="text-cyan-400" /> Forensic Timeline Events
                 </h3>
 
                 {/* Analyst Notes Appender */}
-                <div className="mb-6 bg-black/45 p-3.5 border border-white/5 rounded">
-                  <label className="block text-[8px] font-mono text-gray-500 uppercase tracking-wider mb-2">Append Analyst Note</label>
-                  <div className="flex gap-2">
-                    <input
+                <div className="mb-6 bg-black/25 p-4 border border-white/5 rounded-lg text-left">
+                  <label className="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-2 select-none">Append Analyst Note</label>
+                  <div className="flex gap-3">
+                    <Input
                       type="text"
                       placeholder="e.g. Malicious indicators associated with domain registry..."
                       value={newNote}
                       onChange={(e) => setNewNote(e.target.value)}
-                      className="input-cyber flex-1 font-mono text-xs px-3 py-1.5"
+                      className="flex-1"
                     />
-                    <button 
+                    <Button 
                       onClick={handleAddNote} 
                       disabled={noteLoading || !newNote.trim()} 
-                      className="btn-cyber-primary px-4 py-1.5 text-xs font-mono"
+                      className="px-5 text-xs font-mono tracking-wider py-2"
                     >
                       {noteLoading ? "POSTING..." : "POST NOTE"}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
                 {/* Timeline display */}
                 {timeline.length === 0 ? (
-                  <p className="text-gray-500 font-mono text-xs py-4 text-center">Timeline log empty.</p>
+                  <p className="text-slate-550 font-mono text-xs py-4 text-center">Timeline log empty.</p>
                 ) : (
-                  <div className="pl-4">
+                  <div className="pl-4 space-y-4 border-l border-white/5">
                     {timeline.map((event) => (
-                      <div key={event.id} className="timeline-item text-xs font-mono text-left">
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <span className={`px-2 py-0.2 rounded text-[8px] font-bold ${
-                            event.event_type === "case_created" ? "bg-green-950/40 text-green-400 border border-green-800" :
-                            event.event_type === "evidence_uploaded" ? "bg-cyan-950/40 text-cyan-400 border border-cyan-800" :
-                            event.event_type === "scan_associated" ? "bg-blue-950/40 text-blue-400 border border-blue-800" :
-                            event.event_type === "status_changed" ? "bg-yellow-950/40 text-yellow-400 border border-yellow-800" :
-                            "bg-purple-950/40 text-purple-400 border border-purple-800"
+                      <div key={event.id} className="relative text-xs font-sans text-left pl-3">
+                        {/* Dot indicator */}
+                        <span className="absolute left-[-16px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-[#060814] bg-cyan-400" />
+
+                        <div className="flex items-center gap-2 mb-1 flex-wrap font-mono text-[9px]">
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold border ${
+                            event.event_type === "case_created" ? "bg-green-950/20 text-green-400 border-green-800/25" :
+                            event.event_type === "evidence_uploaded" ? "bg-cyan-950/20 text-cyan-400 border-cyan-800/25" :
+                            event.event_type === "scan_associated" ? "bg-blue-950/20 text-blue-400 border-blue-800/25" :
+                            event.event_type === "status_changed" ? "bg-yellow-950/20 text-yellow-400 border-yellow-800/25" :
+                            "bg-purple-950/20 text-purple-400 border-purple-800/25"
                           }`}>
                             {event.event_type.replace("_", " ").toUpperCase()}
                           </span>
-                          <span className="text-[9px] text-gray-500">
+                          <span className="text-slate-500">
                             {new Date(event.timestamp).toLocaleString()}
                           </span>
-                          <span className="text-[9px] text-gray-400">
+                          <span className="text-slate-550 font-bold uppercase">
                             (Inv: {event.user})
                           </span>
                         </div>
-                        <p className="text-gray-200 mt-1 pl-1 text-xs leading-relaxed">{event.description}</p>
+                        <p className="text-slate-300 mt-1 pl-1 text-[11.5px] leading-relaxed font-sans">{event.description}</p>
                         
                         {/* Nested Scan telemetry viewer */}
                         {event.metadata && event.metadata.result && (
-                          <div className="mt-2 pl-2 border-l-2 border-cyan-500/20 bg-zinc-950/80 p-2.5 rounded text-[10px] max-h-36 overflow-y-auto">
+                          <div className="mt-2.5 pl-3 border-l border-cyan-500/20 bg-black/40 p-3 rounded-lg text-[10px] max-h-36 overflow-y-auto font-mono">
                             <pre className="p-0 border-0 bg-transparent text-[9px] leading-4 text-cyan-500/80">
                               {JSON.stringify(event.metadata.result, null, 2)}
                             </pre>

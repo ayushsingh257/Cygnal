@@ -7,15 +7,15 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const buttonVariants = {
-  default: "btn-cyber-primary",
-  outline: "btn-cyber-secondary",
-  danger: "btn-cyber-danger",
+  default: "btn-cyber text-white",
+  outline: "border border-white/5 bg-[#0d1117]/65 hover:bg-white/[0.03] text-slate-350 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest",
+  danger: "border border-red-500/25 bg-red-950/15 hover:bg-red-900/20 text-red-450 transition-colors text-xs font-mono uppercase tracking-widest",
 };
 
 const sizeVariants = {
-  default: "px-4 py-2 text-sm",
-  sm: "px-3 py-1 text-xs",
-  lg: "px-5 py-3 text-base",
+  default: "px-4 py-2 rounded-md",
+  sm: "px-2.5 py-1 text-[10px] tracking-wide rounded",
+  lg: "px-6 py-3.5 rounded-lg text-sm",
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -24,7 +24,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "rounded-lg font-medium transition-all duration-200 outline-none flex items-center justify-center gap-2",
+          "inline-flex items-center justify-center font-semibold transition-all duration-200 outline-none select-none disabled:opacity-50 disabled:cursor-not-allowed",
           buttonVariants[variant],
           sizeVariants[size],
           className

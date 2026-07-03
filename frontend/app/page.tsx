@@ -5,8 +5,18 @@ import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import DashboardShell from "@/components/DashboardShell";
 import ScannersConsole from "@/components/ScannersConsole";
-import CyberGlobe from "@/components/CyberGlobe";
-import { Shield, Terminal, Cpu, Database, Activity, GitBranch } from "lucide-react";
+import { 
+  Shield, 
+  Terminal, 
+  Cpu, 
+  Database, 
+  Activity, 
+  GitBranch, 
+  ArrowRight,
+  ChevronDown,
+  Layers,
+  FolderLock
+} from "lucide-react";
 
 const LoginForm = dynamic(() => import("@/components/LoginForm"), { ssr: false });
 const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: false });
@@ -14,37 +24,10 @@ const RegisterForm = dynamic(() => import("@/components/RegisterForm"), { ssr: f
 export default function Home() {
   const { user, loadUserFromStorage } = useAuthStore();
   const [showLogin, setShowLogin] = useState(true);
-  const [threatLogs, setThreatLogs] = useState<string[]>([
-    "SYSINIT: Secure sandbox environment established.",
-    "INTEL: Threat database definitions synchronized.",
-    "MONITOR: System sensors online."
-  ]);
 
   useEffect(() => {
     loadUserFromStorage();
   }, []);
-
-  // Simulated threat intelligence stream
-  useEffect(() => {
-    if (user) return;
-
-    const feeds = [
-      "MALWARE: Static matching finished on SHA-256: 4f1a23b9 - Verdict: SUSPICIOUS",
-      "RECON: Active Port sweep registered on sensor node 02.",
-      "SECURITY: Missing CSP header detected for Host: api.internal_audit.org",
-      "INTEL: IOC blocklist updated: 42 malicious IPs appended.",
-      "WHOIS: Registry query executed for domain: secops-tracker.net",
-      "IP: Bad reputation threshold crossed for source IP: 185.220.101.4"
-    ];
-
-    const interval = setInterval(() => {
-      const feed = feeds[Math.floor(Math.random() * feeds.length)];
-      const time = new Date().toLocaleTimeString();
-      setThreatLogs((prev) => [...prev.slice(-4), `[${time}] ${feed}`]);
-    }, 4500);
-
-    return () => clearInterval(interval);
-  }, [user]);
 
   if (user) {
     return (
@@ -54,121 +37,181 @@ export default function Home() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-[#09090b] text-[#f4f4f5] flex flex-col justify-between p-6 relative overflow-hidden cyber-grid select-none">
-      
-      {/* Subtle SaaS glow grids */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-purple-950/5 filter blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-cyan-950/5 filter blur-[150px] rounded-full pointer-events-none" />
+  const features = [
+    {
+      icon: Terminal,
+      title: "Intake Automation",
+      desc: "Trigger domain sweeps, port scans, and malware analyses instantly using distributed task polling queues."
+    },
+    {
+      icon: FolderLock,
+      title: "Incident Governance",
+      desc: "File cases, upload digital evidence with SHA-256 integrity verifications, and map IOC paths."
+    },
+    {
+      icon: Database,
+      title: "Security Ledger Logs",
+      desc: "Anchor system activity to strict historical audit trails, ensuring absolute regulatory compliance."
+    },
+    {
+      icon: Cpu,
+      title: "Threat Intel Bridges",
+      desc: "Integrate custom threat databases directly to verify indicator reputations during active investigation phases."
+    }
+  ];
 
-      {/* TOP HEADER */}
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between border-b border-white/5 pb-4 bg-black/5 backdrop-filter blur-sm z-10">
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-cyan-500" />
-          <span className="font-mono text-xs font-semibold tracking-wider uppercase text-white">
-            Cygnal SecOps
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-500">
-          <span>CONSOLE ACCESS PROTOCOL</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-        </div>
+  return (
+    <div className="relative min-h-screen bg-[#060814] text-slate-100 font-sans select-none flex flex-col justify-between overflow-x-hidden">
+      
+      {/* Background Grids */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute inset-0 cyber-grid-dense opacity-[0.22]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060814] via-transparent to-[#060814]/40" />
+        <div className="absolute top-[10%] left-[25%] w-[600px] h-[600px] rounded-full bg-cyan-950/10 blur-[130px] opacity-70" />
       </div>
 
-      {/* HERO / SPLIT CONTAINER */}
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center my-auto py-8 z-10">
+      {/* Header */}
+      <header className="relative z-10 w-full border-b border-white/5 bg-[#060814]/40 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4.5">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+              <Shield className="h-4.5 w-4.5 text-cyan-400" />
+            </div>
+            <span className="text-xs font-black tracking-[0.25em] text-white font-mono uppercase">
+              Cygnal Portal
+            </span>
+          </div>
+
+          <a 
+            href="#gateway"
+            className="btn-cyber text-[10px] tracking-widest font-mono py-2 px-5"
+          >
+            Access Gateway <ArrowRight size={12} className="ml-1" />
+          </a>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 py-12 space-y-20">
         
-        {/* LEFT COLUMN: HERO TEXT & MAP */}
-        <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+        {/* Hero & Authenticator Splitted Grid */}
+        <section className="grid lg:grid-cols-12 gap-12 items-center pt-8">
           
-          <div className="space-y-3">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white font-sans uppercase">
-              Intelligent Threat <br />
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Recon & Analytics
+          {/* Hero text */}
+          <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="inline-flex items-center gap-2 rounded border border-cyan-500/25 bg-cyan-950/20 px-3.5 py-1 text-[9px] font-mono font-bold text-cyan-400 uppercase tracking-widest">
+              <Activity className="h-3 w-3 text-cyan-400 animate-pulse" />
+              SOCIETY SECURITY & INVESTIGATION PLATFORM
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-mono font-extrabold tracking-tight text-white leading-[1.1]">
+              INCIDENT RECON
+              <span className="block text-slate-500 text-lg sm:text-xl font-light uppercase tracking-[0.25em] mt-2">
+                & THREAT GOVERNANCE
               </span>
             </h1>
-            <p className="text-zinc-400 max-w-lg text-xs md:text-sm font-mono leading-relaxed">
-              Unify digital forensics, network surface sweeps, file EXIF analysis, and IOC relationship maps under a single cooperative operations console.
+
+            <p className="max-w-md text-xs sm:text-sm text-slate-400 leading-relaxed font-sans font-medium">
+              Run automated OSINT recon modules, index evidence parameters under SHA-256, and preserve access control audit trials in one secure portal.
             </p>
-          </div>
 
-          {/* Interactive minimalist globe */}
-          <div className="w-full max-w-[360px] mx-auto lg:mx-0">
-            <CyberGlobe />
-          </div>
-
-          {/* Simulated Terminal logs */}
-          <div className="w-full max-w-xl bg-black/40 p-3.5 border border-white/5 rounded-md font-mono text-left">
-            <div className="flex items-center gap-2 border-b border-white/5 pb-1.5 mb-2.5">
-              <Terminal size={12} className="text-zinc-500" />
-              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Live intelligence feed</span>
+            <div className="flex gap-3.5 pt-2">
+              <a href="#gateway" className="btn-cyber text-[10px] tracking-widest font-mono py-3.5 px-6">
+                GET STARTED <ArrowRight size={12} className="ml-1" />
+              </a>
+              <a
+                href="#features"
+                className="inline-flex items-center gap-2 rounded border border-white/5 bg-slate-950/40 hover:bg-slate-950 px-5 py-3 text-[9px] font-mono text-slate-400 uppercase tracking-widest transition-all"
+              >
+                CAPABILITIES <ChevronDown size={12} />
+              </a>
             </div>
-            <div className="space-y-1 text-[10px] text-zinc-400">
-              {threatLogs.map((log, i) => (
-                <div key={i} className="truncate">
-                  <span className="text-cyan-600/70 mr-1.5">&gt;</span>
-                  {log}
-                </div>
-              ))}
-              <div className="text-zinc-500 text-[10px] mt-1.5 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
-                Awaiting telemetry...
+          </div>
+
+          {/* Login/Signup Form Gateway block */}
+          <div id="gateway" className="lg:col-span-5 w-full">
+            <div className="glass-card rounded-xl p-6 border border-white/10 relative overflow-hidden bg-[#0d1117]/60">
+              
+              {/* Tab selector */}
+              <div className="flex border-b border-white/5 mb-6 text-xs select-none">
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
+                    showLogin ? "border-b border-cyan-400 text-cyan-400 font-bold" : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setShowLogin(false)}
+                  className={`flex-1 pb-3 font-mono uppercase tracking-widest transition-all ${
+                    !showLogin ? "border-b border-cyan-400 text-cyan-400 font-bold" : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  Enlist Node
+                </button>
               </div>
-            </div>
-          </div>
 
-        </div>
-
-        {/* RIGHT COLUMN: ACCESS FORM */}
-        <div className="lg:col-span-5 w-full max-w-[380px] mx-auto">
-          <div className="glass-panel p-6 border border-white/5 bg-[#0c0c0e]/80">
-            
-            {/* Toggles */}
-            <div className="flex border-b border-white/5 mb-5 select-none">
-              <button
-                onClick={() => setShowLogin(true)}
-                className={`flex-1 pb-2.5 text-xs font-mono font-bold tracking-wider transition-all duration-150 border-b-2 ${
-                  showLogin 
-                    ? "border-cyan-500 text-cyan-400" 
-                    : "border-transparent text-zinc-500 hover:text-zinc-400"
-                }`}
-              >
-                🔐 LOGIN
-              </button>
-              <button
-                onClick={() => setShowLogin(false)}
-                className={`flex-1 pb-2.5 text-xs font-mono font-bold tracking-wider transition-all duration-150 border-b-2 ${
-                  !showLogin 
-                    ? "border-cyan-500 text-cyan-400" 
-                    : "border-transparent text-zinc-500 hover:text-zinc-400"
-                }`}
-              >
-                👤 REGISTER
-              </button>
-            </div>
-
-            {/* Embedded login/register card */}
-            <div className="min-h-[290px]">
               {showLogin ? <LoginForm /> : <RegisterForm />}
             </div>
-
-            {/* Terms notice */}
-            <div className="mt-4 pt-3.5 border-t border-white/5 text-[8px] text-zinc-650 font-mono text-center leading-relaxed">
-              WARNING: ACCESS RESTRICTED TO AUTHORIZED ANALYSTS ONLY. AUDIT LOGS INGESTED CHRONOLOGICALLY.
-            </div>
-
           </div>
-        </div>
 
-      </div>
+        </section>
 
-      {/* FOOTER */}
-      <footer className="w-full max-w-7xl mx-auto flex justify-between items-center border-t border-white/5 pt-4 text-[9px] text-zinc-600 font-mono z-10">
-        <span>© 2026 CYGNAL OPERATIONS CENTER</span>
-        <span>BUILD: 2.0-SaaS</span>
+        {/* Feature Highlights Section */}
+        <section id="features" className="space-y-8 pt-8">
+          <div className="text-center space-y-2 select-none">
+            <span className="text-[10px] font-mono text-cyan-400 tracking-[0.25em] uppercase">SYSTEM CAPABILITIES</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase font-mono">
+              Operations Matrix
+            </h2>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {features.map((f, idx) => {
+              const Icon = f.icon;
+              return (
+                <div key={idx} className="glass-card rounded-xl p-5 border border-white/5 bg-[#0a0d1a]/30 space-y-3.5 hover:border-cyan-500/20 transition-all duration-200">
+                  <div className="h-9 w-9 rounded-lg bg-cyan-950/20 border border-cyan-500/10 flex items-center justify-center">
+                    <Icon className="h-4.5 w-4.5 text-cyan-400" />
+                  </div>
+                  <h3 className="text-xs font-bold font-mono text-white uppercase tracking-wider">{f.title}</h3>
+                  <p className="text-[11px] text-slate-550 leading-relaxed font-sans">{f.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Statistics block */}
+        <section className="glass-card rounded-xl p-6 border border-white/5 bg-[#0a0d1a]/20 grid grid-cols-2 md:grid-cols-4 gap-6 text-center select-none">
+          <div>
+            <span className="text-2xl font-black font-mono text-cyan-400">98.2%</span>
+            <span className="block text-[8px] font-mono text-slate-650 uppercase tracking-widest mt-1">SLA Accuracy</span>
+          </div>
+          <div>
+            <span className="text-2xl font-black font-mono text-white">&lt; 3s</span>
+            <span className="block text-[8px] font-mono text-slate-650 uppercase tracking-widest mt-1">Triage Latency</span>
+          </div>
+          <div>
+            <span className="text-2xl font-black font-mono text-cyan-400">10</span>
+            <span className="block text-[8px] font-mono text-slate-650 uppercase tracking-widest mt-1">OSINT Decoders</span>
+          </div>
+          <div>
+            <span className="text-2xl font-black font-mono text-white">100%</span>
+            <span className="block text-[8px] font-mono text-slate-650 uppercase tracking-widest mt-1">Audit Validity</span>
+          </div>
+        </section>
+
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 w-full border-t border-white/5 bg-[#060814]/40 py-6 text-center select-none">
+        <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+          Cygnal Incident Control Engine © {new Date().getFullYear()} — Secure Operations Command
+        </span>
       </footer>
 
-    </main>
+    </div>
   );
 }
