@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Shield, ArrowRight, Activity, Terminal, Lock, CheckCircle, Database, AlertCircle, Compass, Globe, Mail, FileText, Eye, Binary, Camera, Cpu, BarChart2, HardDrive, Layers, RefreshCw } from "lucide-react";
 import Hero from "@/components/ui/animated-shader-hero";
-import { Shield, ArrowRight, Activity, Terminal, Lock, CheckCircle, Database, AlertCircle, Compass } from "lucide-react";
+import ParticleLoader from "@/components/ui/particle-loader";
+import { Sparkles } from "@/components/ui/sparkles";
+
 
 
 export default function MarketingLandingPage() {
@@ -44,42 +47,10 @@ export default function MarketingLandingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#091413] text-slate-100 flex flex-col items-center justify-center p-6 select-none font-sans overflow-hidden">
-        {/* Decorative ambient gradient */}
-        <div className="absolute w-[400px] h-[400px] bg-[#408A71]/[0.04] rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="space-y-6 text-center z-10 max-w-sm">
-          {/* Animated Glowing Icon */}
-          <div className="relative flex items-center justify-center mx-auto w-16 h-16 rounded-2xl bg-[#285A48]/20 border border-[#408A71]/15 shadow-[0_0_30px_rgba(64,138,113,0.1)]">
-            <Shield className="w-8 h-8 text-[#B0E4CC] animate-pulse" />
-            <div className="absolute inset-0 rounded-2xl border border-dashed border-[#B0E4CC]/20 animate-spin" style={{ animationDuration: '8s' }} />
-          </div>
-
-          <div className="space-y-2">
-            <h1 className="text-xs font-bold tracking-[0.3em] uppercase text-white font-mono">
-              Cygnal
-            </h1>
-            <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">
-              Operational Handshake Active
-            </p>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full bg-[#091413]/60 h-1 rounded-full overflow-hidden p-0.5 border border-white/5">
-            <div 
-              className="bg-[#408A71] h-full rounded-full transition-all duration-700" 
-              style={{ width: `${(loadingStep + 1) * 20}%` }}
-            />
-          </div>
-
-          {/* Log steps */}
-          <div className="h-10 flex items-center justify-center">
-            <span className="text-[10px] font-mono text-[#B0E4CC]/80 tracking-wide animate-pulse">
-              {loadingMessages[loadingStep]}
-            </span>
-          </div>
-        </div>
-      </div>
+      <ParticleLoader 
+        progress={(loadingStep + 1) * 20} 
+        statusMessage={loadingMessages[loadingStep]} 
+      />
     );
   }
 
@@ -132,10 +103,10 @@ export default function MarketingLandingPage() {
           icons: ["✨"]
         }}
         headline={{
-          line1: "Cooperative Forensics",
-          line2: "Audit Custody Seals"
+          line1: "Cygnal",
+          line2: ""
         }}
-        subtitle="Aggregating passive multi-sensor network diagnostics, document properties metadata extractions, and timeline incident cases inside a unified workspace."
+        subtitle="Enterprise Digital Forensics, Incident Response & OSINT Investigation Platform."
         buttons={{
           primary: {
             text: "Launch Cygnal Workspace",
@@ -215,6 +186,177 @@ export default function MarketingLandingPage() {
           <div className="glass-card rounded-xl p-5 bg-[#0f2422]/20 text-left space-y-2">
             <span className="text-[9px] font-bold text-[#408A71] uppercase tracking-widest font-mono block">Compliance Auditors</span>
             <p className="text-[11.5px] text-slate-400 leading-relaxed">Verify forensic timeline custody signatures and audit security scores.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* WHAT IS CYGNAL & PROBLEMS SOLVED */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 text-left">
+            <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
+              Overview
+            </h2>
+            <h3 className="text-3xl font-black text-white tracking-tight uppercase">What is Cygnal?</h3>
+            <p className="text-sm text-slate-350 leading-relaxed">
+              Cygnal is an enterprise-grade cooperative security operations and digital forensics investigation cockpit. We unify multi-sensor data collection, passive threat intelligence lookup engines, document properties metadata extractions, and compliance audit trails into a single collaborative workspace.
+            </p>
+            <p className="text-sm text-[#a3c2b4] leading-relaxed">
+              Built for high-velocity incident response, Cygnal enables security teams to collaborate on investigations in real-time, seal evidentiary indicators under cryptographic hashes, and query operational logs with a local AI assistant.
+            </p>
+          </div>
+
+          <div className="glass-panel rounded-2xl p-8 bg-[#0f2422]/15 border border-[#408A71]/15 space-y-6 text-left">
+            <h4 className="text-xs font-bold text-[#B0E4CC] uppercase tracking-widest font-mono">Critical Problems Solved</h4>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h5 className="text-xs font-bold text-white uppercase tracking-wider font-mono">1. Tool sprawl & context switching</h5>
+                <p className="text-xs text-slate-400">Consolidates DNS registries, WHOIS data, email headers, reverse images, and malware scanning utilities inside a single browser dashboard.</p>
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs font-bold text-white uppercase tracking-wider font-mono">2. Loss of Custody & Untracked Evidence</h5>
+                <p className="text-xs text-slate-400">Secures incident files in an immutable SHA-256 custody vault and logs all actions to a persistent chronological event ledger.</p>
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs font-bold text-white uppercase tracking-wider font-mono">3. Time-to-Containment Delays</h5>
+                <p className="text-xs text-slate-400">Speeds up analysis using a natural-language AI copilot that cross-references system events and local databases to suggest mitigations.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WHO IS IT BUILT FOR */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
+            Target Audiences
+          </h2>
+          <p className="text-lg font-bold text-white uppercase">Engineered for Enterprise Security Units</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">SOC Teams</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Streamline day-to-day operations, standardise incident triage, and monitor active sensor feeds from a centralised operational command dashboard.
+            </p>
+          </div>
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">DFIR Investigators</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Extract metadata, analyze email headers, track indicators of compromise (IOCs), and upload binary hashes to maintain strict chains of custody.
+            </p>
+          </div>
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">Threat Intelligence Teams</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Audit IP reputation scores, pull domain DNS records, search WHOIS ownership data, and identify advanced persistent threats (APTs).
+            </p>
+          </div>
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">Law Enforcement</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Gather digital evidence, verify document checksums, reconstruct incident timelines, and export certified custody reports for legal submission.
+            </p>
+          </div>
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">Enterprise Security Teams</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Defend internal infrastructure, manage incident workflows, assign roles, audit access logs, and generate executive summaries for compliance.
+            </p>
+          </div>
+          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
+            <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">Security Operations Centers</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Collaborate in real-time, delegate investigation cases, verify security scores, and orchestrate policy overrides for external APIs.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* WHAT CYGNAL OFFERS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
+            Core Offerings
+          </h2>
+          <p className="text-lg font-bold text-white uppercase">What Cygnal Offers</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { icon: Database, title: "Incident Case Management", desc: "Collaboratively register, track, and delegate security incidents inside collaborative workspaces." },
+            { icon: Shield, title: "Digital Forensics", desc: "Extract hidden indicators, document metadata, and digital files from evidentiary files." },
+            { icon: Compass, title: "OSINT Investigation", desc: "Gather passive intelligence, WHOIS registries, and geolocation records in seconds." },
+            { icon: AlertCircle, title: "Threat Intelligence", desc: "Sweep IOC patterns and auto-detect CVE links to mitigate incoming cyber hazards." },
+            { icon: Globe, title: "WHOIS Lookup", desc: "Acquire domain ownership details, registrar properties, and record creation timelines." },
+            { icon: Layers, title: "Header Analysis", desc: "Triage HTTP security directives, CSP policies, HSTS flags, and server configurations." },
+            { icon: RefreshCw, title: "DNS Intelligence", desc: "Resolve A, AAAA, MX, NS, TXT, and CNAME histories to identify network deviations." },
+            { icon: Mail, title: "Email Header Analysis", desc: "Map transmission routing hops and verify SPF, DKIM, and DMARC credentials." },
+            { icon: FileText, title: "Metadata Analysis", desc: "Uncover author metrics, software watermarks, and change times in office documents." },
+            { icon: Eye, title: "Reverse Image Search", desc: "Triage camera device details, visual signatures, and embedded coordinates." },
+            { icon: Binary, title: "Malware Scanning", desc: "Submit payload hashes to VirusTotal sandboxes and get threat metrics reports." },
+            { icon: Camera, title: "Screenshot Capture", desc: "Generate headless browser snapshots to archive suspicious landing targets." },
+            { icon: Cpu, title: "AI Investigation Assistant", desc: "Interrogate case logs using natural language backed by SQLite RAG queries." },
+            { icon: BarChart2, title: "Automated Reporting", desc: "Compile timeline indicators and evidence tables into presentation-ready reports." },
+            { icon: HardDrive, title: "Evidence Chain of Custody", desc: "Seal uploaded binaries and document attachments with cryptographic SHA-256 stamps." },
+            { icon: Activity, title: "Timeline Reconstruction", desc: "Correlate actions, sensor alerts, and case updates on a time-sorted ledger." }
+          ].map((item, idx) => (
+            <div key={idx} className="glass-card rounded-xl p-5 bg-[#0f2422]/15 text-left border border-white/5 space-y-3">
+              <div className="h-9 w-9 bg-[#408A71]/10 border border-[#408A71]/20 rounded-lg flex items-center justify-center text-[#B0E4CC]">
+                <item.icon size={16} />
+              </div>
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{item.title}</h4>
+              <p className="text-[11px] text-slate-455 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TRUSTED BY / SPARKLES VALIDATION BANNER */}
+      <section className="relative overflow-hidden w-full bg-[#091413] pt-20 pb-28 border-t border-white/5 select-none z-10 flex flex-col items-center">
+        <div className="max-w-4xl mx-auto w-full px-6 text-center space-y-8">
+          <div className="text-center space-y-3 font-mono cursor-default group">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-slate-350 transition-all duration-300">
+              <span className="bg-gradient-to-r from-[#B0E4CC] to-[#408A71] bg-clip-text text-transparent group-hover:from-white group-hover:to-[#B0E4CC] transition-all duration-350">
+                Trusted by Global Intelligence Units
+              </span>
+            </h2>
+            <p className="text-[#a3c2b4]/70 tracking-widest uppercase text-[10px] sm:text-xs group-hover:text-[#B0E4CC] transition-colors duration-350">
+              deployed across critical enterprise security operations centers
+            </p>
+          </div>
+          
+          {/* Sparkles Box */}
+          <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[#408A71]/15 bg-[#0f2422]/10 flex flex-col justify-center items-center group transition-all duration-500 hover:border-[#408A71]/40 hover:bg-[#0f2422]/15 hover:shadow-[0_0_30px_rgba(64,138,113,0.12)]">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#091413] via-transparent to-transparent pointer-events-none z-10" />
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[120%] h-36 rounded-full bg-[radial-gradient(circle_at_center,rgba(64,138,113,0.12)_0%,transparent_75%)] blur-xl pointer-events-none group-hover:bg-[radial-gradient(circle_at_center,rgba(176,228,204,0.2)_0%,transparent_75%)] transition-all duration-500" />
+            
+            <Sparkles 
+              density={400} 
+              speed={0.6} 
+              size={1.1} 
+              color="#B0E4CC" 
+              hover={true} 
+              className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80" 
+            />
+            
+            {/* Badges */}
+            <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-50 group-hover:opacity-90 transition-opacity duration-500 px-6">
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
+                <Shield className="w-4 h-4 text-[#B0E4CC]" /> SOC 2 TYPE II
+              </div>
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
+                <Lock className="w-4 h-4 text-[#B0E4CC]" /> FIPS 140-3
+              </div>
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
+                <Activity className="w-4 h-4 text-[#B0E4CC]" /> ISO/IEC 27001
+              </div>
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
+                <CheckCircle className="w-4 h-4 text-[#B0E4CC]" /> COMMON CRITERIA
+              </div>
+            </div>
           </div>
         </div>
       </section>
