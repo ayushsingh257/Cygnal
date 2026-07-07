@@ -37,6 +37,17 @@ jobs:
         python -m compileall -f -q -x "venv|tests|\.pytest_cache" .
 
 
+    - name: Verify Requirements Imports
+      run: |
+        python -c "import fitz; print('fitz imported successfully')"
+        python -c "import whois; print('whois imported successfully')"
+        python -c "import docx; print('docx imported successfully')"
+        python -c "import selenium; print('selenium imported successfully')"
+        python -c "import bs4; print('bs4 imported successfully')"
+        python -c "import lxml; print('lxml imported successfully')"
+        python -c "import bcrypt; print('bcrypt imported successfully')"
+        python -c "import jwt; print('jwt imported successfully')"
+
     - name: Run Backend Test Suite
       working-directory: api
       env:
