@@ -4,7 +4,23 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v1.5.0-RC1] — 2026-07-07 — Autonomous Investigation Workspace v1.5 Sprints
+
+### Added
+- **Sprint 2: Interactive SVG Knowledge Graph**
+  - **Backend: `api/routes/v2/cases.py`** — Added `GET /api/cases/<case_id>/graph` endpoint returning case, evidence, indicators, and cross-case evidence correlations.
+  - **Frontend: `app/cases/page.tsx`** — Fully implemented high-performance SVG link graph using a custom client-side Force-Directed Layout, search filters, zoom/pan controls, neighbor highlighting, and live HUD overlays.
+  - **Tests: `api/tests/test_extractor.py`** — Added `test_get_case_graph` integration test checking graph retrieval.
+- **Sprint 1: Automatic IOC Extraction Engine**
+  - **Backend: `api/services/extractor.py`** — Added regex-based parser supporting all 14 entity patterns (IPv6, registry paths, process names, system domains, and hashes).
+  - **Backend: `api/routes/v2/cases.py`** — Implemented `POST /api/cases/<case_id>/extract-iocs` returning parsed entities, and linking timeline events.
+  - **Backend: `api/database.py`** — Created SQLite tables `case_indicators` and `evidence_relations` with index optimizations.
+  - **Tests: `api/tests/test_extractor.py`** — Added 3 integration and unit tests for extractor service and routes.
+
+---
+
 ## [Era 5] — 2026-07-07 — Analytics, Reports & AI RAG Workspace
+
 
 ### Added
 - **Backend: `api/routes/v2/ai.py`** — SQLite-context RAG engine that correlates user prompts against live cases, timeline events, evidence hashes, and scanner logs. Returns structured investigator analysis reports.
