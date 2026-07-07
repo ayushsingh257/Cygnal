@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from database import DB_PATH
 from jwt_utils import decode_token
+from services.extractor import extract_entities_from_text
 
 cases_bp = Blueprint("cases_bp", __name__)
 
@@ -311,6 +312,165 @@ def upload_evidence(case_id):
 def json_dumps(data):
     import json
     return json.dumps(data)
+
+@cases_bp.route("/cases/<case_id>/extract-iocs", methods=["POST"])
+def extract_case_iocs(case_id):
+    user = get_current_user()
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Verify case exists
+        cursor.execute("SELECT id, case_number FROM cases WHERE id = ?;", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            conn.close()
+            return jsonify({"success": False, "error": "Case not found."}), 404
+        
+        case_num = case_row[1]
+        
+        payload = request.get_json(silent=True) or {}
+        text = payload.get("text", "").strip()
+        evidence_id = payload.get("evidence_id", "").strip()
+        
+        # If evidence ID is supplied, enrich from database file details
+        if evidence_id:
+            cursor.execute("SELECT filename, file_hash, file_type FROM evidence WHERE id = ? AND case_id = ?;", (evidence_id, case_id))
+            ev = cursor.fetchone()
+            if not ev:
+                conn.close()
+                return jsonify({"success": False, "error": "Evidence not found."}), 404
+            
+            filename, file_hash, file_type = ev
+            # Try reading evidence file text if text is empty
+            if not text:
+                file_path = os.path.join(UPLOAD_FOLDER, f"{evidence_id}_{filename}")
+                if os.path.exists(file_path):
+                    try:
+                        _, ext = os.path.splitext(filename.lower())
+                        if ext in ('.txt', '.eml', '.log', '.json', '.xml', '.csv', '.ini', '.yaml', '.yml'):
+                            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                                text = f.read()
+                        else:
+                            text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
+                    except:
+                        text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
+                else:
+                    text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
+        
+        if not text:
+            conn.close()
+            return jsonify({"success": False, "error": "No text content or evidence ID provided for extraction."}), 400
+            
+        # Run extractor service
+        extracted = extract_entities_from_text(text)
+        
+        now_str = datetime.utcnow().isoformat() + "Z"
+        
+        # Insert extracted indicators to case_indicators table (avoid exact duplicates)
+        cursor.execute("SELECT indicator_value, indicator_type FROM case_indicators WHERE case_id = ?;", (case_id,))
+        existing = {(row[0], row[1]) for row in cursor.fetchall()}
+        
+        inserted = []
+        for item in extracted:
+            val = item["value"]
+            t = item["type"]
+            if (val, t) in existing:
+                continue
+                
+            # Confidence & severity heuristics
+            confidence = 80
+            severity = "medium"
+            
+            if t == "hash":
+                confidence = 90
+            elif t in ("ip", "domain", "url"):
+                confidence = 85
+                
+            # Cross-reference local threat intelligence feed
+            cursor.execute("SELECT type, tags FROM threat_intel WHERE indicator = ?;", (val,))
+            ti_match = cursor.fetchone()
+            if ti_match:
+                confidence = 100
+                severity = "critical" if "ransomware" in str(ti_match[1]).lower() or "botnet" in str(ti_match[1]).lower() else "high"
+                
+            ind_id = str(uuid.uuid4())
+            cursor.execute("""
+                INSERT INTO case_indicators (id, case_id, indicator_value, indicator_type, confidence_score, severity, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?);
+            """, (ind_id, case_id, val, t, confidence, severity, now_str))
+            
+            inserted.append({
+                "id": ind_id,
+                "value": val,
+                "type": t,
+                "severity": severity,
+                "confidence": confidence
+            })
+            
+        # Update case timeline automatically if elements were added
+        if inserted:
+            timeline_id = str(uuid.uuid4())
+            desc = f"Extracted {len(inserted)} indicators of compromise from inputs automatically."
+            cursor.execute("""
+                INSERT INTO timeline (id, case_id, event_type, description, timestamp, user, metadata)
+                VALUES (?, ?, 'iocs_extracted', ?, ?, ?, ?);
+            """, (timeline_id, case_id, desc, now_str, user, json_dumps({
+                "count": len(inserted),
+                "indicators": [ind["value"] for ind in inserted[:5]]
+            })))
+            
+        # Update evidence relationships where applicable
+        if evidence_id:
+            cursor.execute("SELECT file_hash, filename FROM evidence WHERE id = ?;", (evidence_id,))
+            current_ev = cursor.fetchone()
+            if current_ev:
+                curr_hash, curr_name = current_ev
+                
+                # Compare against other evidence files
+                cursor.execute("SELECT id, filename, file_hash FROM evidence WHERE id != ? AND case_id = ?;", (evidence_id, case_id))
+                other_evidences = cursor.fetchall()
+                for o_id, o_name, o_hash in other_evidences:
+                    reason = ""
+                    weight = 0
+                    if o_hash == curr_hash:
+                        reason = f"Duplicate file hash matching file '{o_name}'"
+                        weight = 100
+                    else:
+                        # Check for filename matches (excluding extension)
+                        curr_base = os.path.splitext(curr_name)[0]
+                        o_base = os.path.splitext(o_name)[0]
+                        if curr_base and curr_base == o_base:
+                            reason = f"Shared filename prefix: '{curr_base}'"
+                            weight = 70
+                            
+                    if reason:
+                        # Insert relationship (avoid duplicates)
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM evidence_relations 
+                            WHERE (source_evidence_id = ? AND target_evidence_id = ?) 
+                               OR (source_evidence_id = ? AND target_evidence_id = ?);
+                        """, (evidence_id, o_id, o_id, evidence_id))
+                        if cursor.fetchone()[0] == 0:
+                            rel_id = str(uuid.uuid4())
+                            cursor.execute("""
+                                INSERT INTO evidence_relations (id, source_evidence_id, target_evidence_id, correlation_reason, weight, created_at)
+                                VALUES (?, ?, ?, ?, ?, ?);
+                            """, (rel_id, evidence_id, o_id, reason, weight, now_str))
+
+        cursor.execute("UPDATE cases SET updated_at = ? WHERE id = ?;", (now_str, case_id))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "case_id": case_id,
+            "extracted_count": len(inserted),
+            "indicators": inserted
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 

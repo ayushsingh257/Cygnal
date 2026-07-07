@@ -126,6 +126,40 @@ def init_lookup_db():
             );
         """)
         
+        # 9. Case Indicators table (Sprint 1)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS case_indicators (
+                id TEXT PRIMARY KEY,
+                case_id TEXT,
+                indicator_value TEXT NOT NULL,
+                indicator_type TEXT NOT NULL,
+                confidence_score INTEGER DEFAULT 100,
+                severity TEXT DEFAULT 'medium',
+                created_at TEXT,
+                FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_case_indicators_case_id ON case_indicators(case_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_case_indicators_value ON case_indicators(indicator_value);")
+
+        # 10. Evidence Relations table (Sprint 1)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS evidence_relations (
+                id TEXT PRIMARY KEY,
+                source_evidence_id TEXT NOT NULL,
+                target_evidence_id TEXT NOT NULL,
+                correlation_reason TEXT NOT NULL,
+                weight INTEGER DEFAULT 50,
+                created_at TEXT,
+                FOREIGN KEY(source_evidence_id) REFERENCES evidence(id) ON DELETE CASCADE,
+                FOREIGN KEY(target_evidence_id) REFERENCES evidence(id) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_relations_source ON evidence_relations(source_evidence_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_relations_target ON evidence_relations(target_evidence_id);")
+
+
+        
         # SAFE MIGRATION ROUTINE checks
         cursor.execute("PRAGMA table_info(users);")
         user_cols = [row[1] for row in cursor.fetchall()]
