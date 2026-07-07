@@ -1,4 +1,4 @@
-name: Cygnal 2.0 Continuous Integration
+name: Cygnal CI
 
 on:
   push:
@@ -7,18 +7,18 @@ on:
     branches: [ main ]
 
 jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Backend CI — Python / Flask
+  # ─────────────────────────────────────────────────────────────────────────────
   backend-ci:
-    name: Backend CI (Python)
+    name: Backend CI (Python 3.11)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
@@ -26,28 +26,35 @@ jobs:
         cache-dependency-path: requirements.txt
 
     - name: Install Backend Dependencies
-      working-directory: .
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest
 
-    - name: Verify Python Syntax & Compilations
+    - name: Verify Python Syntax (Dynamic Compilation)
+      working-directory: api
       run: |
-        python -m py_compile backend.py database.py task_manager.py port_scanner.py routes/v2/auth.py routes/v2/admin.py routes/v2/scanners.py routes/v2/cases.py
+        python -m compileall -f -q -x "venv|tests|\.pytest_cache" .
 
-    - name: Run Backend Tests
-      run: pytest tests/ -v
 
+    - name: Run Backend Test Suite
+      working-directory: api
+      env:
+        PYTHONPATH: ${{ github.workspace }}/api
+      run: pytest tests/ -v --tb=short
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Frontend CI — Next.js / TypeScript
+  # ─────────────────────────────────────────────────────────────────────────────
   frontend-ci:
-    name: Frontend CI (Next.js)
+    name: Frontend CI (Node.js 20)
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
+    - name: Set up Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -58,8 +65,6 @@ jobs:
       working-directory: frontend
       run: npm ci
 
-    - name: Run Build Verification
+    - name: Run Production Build Verification
       working-directory: frontend
       run: npm run build
-      env:
-        CYGNAL_API_URL: http://localhost:5000
