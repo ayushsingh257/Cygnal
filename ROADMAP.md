@@ -1,130 +1,135 @@
-# Cygnal Development Roadmap — Version 1.0
+# Cygnal Product Evolution Roadmap: Version Series
 
-Cygnal v1.0 is built incrementally in logical development eras. Each era represents a fully operational package that passes compilation and verification tests before the next era begins.
+This document maps the version-based product evolution of Cygnal, detailing how the platform transforms from the v1.0 baseline into a highly scalable, collaborative, AI-integrated security command center.
+
+---
+
+## 🗺️ Product Evolution Pipeline
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│  ✅  Era 1: Core Documentation & System Design Specifications  │
-└───────────────────────────────────┬────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────┐
-│  ✅  Era 2: Secure Identity, RBAC Registry & Auth Root Pages   │
-└───────────────────────────────────┬────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────┐
-│  ✅  Era 3: Case Ledger Workspace, Timeline & SOC Dashboard    │
-└───────────────────────────────────┬────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────┐
-│  ✅  Era 4: Scanners Multi-Sensor Engine & Policy Overrides    │
-└───────────────────────────────────┬────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────┐
-│  ✅  Era 5: Analytics, A4 Reports & AI RAG Investigation Chat  │
-└────────────────────────────────────────────────────────────────┘
+  Cygnal v1.0 (Baseline) ──────► Cygnal v1.5 (Autonomous) ─────► Cygnal v2.0 (Enterprise)
+   • Unified console              • AI Copilot / Auto-IOC         • PostgreSQL & Celery/Redis
+   • 10 Local Scanners            • Interactive SVG Graph         • SAML / SSO / MFA
+   • Local SQLite RAG Chat        • Narrated AI Timelines         • Docker & Kubernetes
+   
+                                             │
+                                             ▼
+  Cygnal v5.0 (Commercial) ◄───── Cygnal v4.0 (Plugin SDK) ◄───── Cygnal v3.0 / v3.5 (Connected)
+   • Hosted SaaS Billing          • Plugin Marketplace            • SIEM/EDR Inbound Webhooks
+   • Cloud HSM Signatures         • Scanners & Connectors SDK     • Autonomic AI Agent Loops
 ```
 
 ---
 
-## 📅 Era Specifications
+## 🎛️ Detailed Version Specifications
 
-### ✅ Era 1: System Design Specifications
-**Status:** Complete  
-**Objectives:** Establish the entire documentation suite mapping product features, security guidelines, UI/UX designs, database models, and API interfaces before any application code is compiled.  
-**Deliverables:**
-- `README.md`, `ROADMAP.md`, `TECHSTACK.md`, `CHANGELOG.md`
-- `/docs` markdown suite: API specs, user roles, implementation phases, architecture
-
----
-
-### ✅ Era 2: Identity Registry & Authentication
-**Status:** Complete  
-**Objectives:** Configure SQLite database migration routines, JWT token management, bcrypt password hashing, and all root-level auth pages.  
-**Deliverables:**
-- Backend: `database.py`, `jwt_utils.py`, `auth_utils.py`, `routes/v2/auth.py`
-- Frontend: `/login`, `/register`, `/forgot-password`, `/email-verification`, `/profile-setup`, `/welcome`
-- Auth store: `useAuthStore.ts` (Zustand with localStorage persistence)
-- Tests: `tests/test_auth.py` — 3/3 passing
+### 🟢 Cygnal v1.0: Core Forensics & OSINT Engine
+*   **Purpose:** Provide a single local workspace for incident triaging, running basic scanners, and tracking evidence file custody hashes.
+*   **Business Value:** Eliminates the initial chaos of switching between separate scanner utilities and text files to organize incident logs.
+*   **Technical Goals:** Establish a modular Flask REST API, Next.js app layout, SQLite database instance, and JWT/bcrypt credentials security.
+*   **Architecture Changes:** Monolith Flask backend using local file storage for uploads; API routing proxied by Next.js app server.
+*   **Database Changes:** Tables for users, cases, timeline, evidence, lookups, threat_intel, reports, and tool_permissions.
+*   **Backend Work:** REST routes for CRUD operations on cases, timeline event creation, scanner tasks, and basic PDF compilation.
+*   **Frontend Work:** Authenticated shell with role-filtered sidebar links, cases worksheet, scanners dashboard, and telemetry charts.
+*   **AI Improvements:** Heuristic-driven SQLite RAG chat parses references to case numbers, IPs, and file hashes.
+*   **Testing Requirements:** Backend tests using python-pytest verifying CRUD operations, token generation, and scanner outputs.
+*   **Deployment Requirements:** Run Flask and Node servers concurrently on a local developer workstation.
+*   **Success Criteria:** 36/36 unit tests passing; clean production Next.js builds.
+*   **Dependencies:** Python standard libraries, Next.js 16.2.
+*   **Expected Users:** Local SOC analysts and digital forensics investigators.
+*   **Workspace Alignment:** Delivers the initial telemetry ingestion panel and case timeline log structure.
 
 ---
 
-### ✅ Era 3: Case Ledger Workspace, Timeline & SOC Dashboard
-**Status:** Complete  
-**Objectives:** Build incident case management API, SHA-256 forensic evidence custody vault, chronological timeline logger, IOC SVG indicator graph, SOC Operations Hub dashboard with stat widgets, and DashboardShell navigation layout.  
-**Deliverables:**
-- Backend: `routes/v2/cases.py` — Cases CRUD, timeline events, SHA-256 evidence upload
-- Frontend: `components/DashboardShell.tsx` — Role-filtered sidebar navigation shell
-- Frontend: `app/dashboard/page.tsx` — SOC Operations Hub with stat cards, activity feed, health score ring, scanner module status grid
-- Frontend: `app/cases/page.tsx` — Case workspace with timeline ledger, evidence vault, IOC link graph
-- CSS: `globals.css` — Complete enterprise design system (tokens, animations, badges, data tables)
-- Tests: `tests/test_cases.py` — 3/3 passing (case creation, timeline, SHA-256 upload)
-- Branding: All "Sentinel" references replaced with "Cygnal" throughout
+### 🔵 Cygnal v1.5: Autonomous Investigation Workspace
+*   **Purpose:** Make investigations automatic by extracting and enriching indicators of compromise (IOCs) without manual user intervention.
+*   **Business Value:** Minimizes Mean Time to Investigate (MTTI) by automatically correlating evidence and scanning targets upon ingestion.
+*   **Technical Goals:** Implement regular-expression based entity parsers, compile relationship graph APIs, and build narrative timeline builders.
+*   **Architecture Changes:** Addition of regex services modules and inline SVG node layout engines.
+*   **Database Changes:** Addition of `case_indicators` and `evidence_relations` tables.
+*   **Backend Work:** Creation of `POST /api/cases/<id>/extract-iocs` and `GET /api/cases/<id>/graph` endpoints.
+*   **Frontend Work:** Deployment of custom node-link SVG graph layouts and vertical timeline tracks showing enriched scanner logs.
+*   **AI Improvements:** Automatically parse indicators and prompt: *"I found 3 IPs and 1 hash. Scan all?"* to orchestrate scans.
+*   **Testing Requirements:** Tests verifying regex extractor accuracy and graph relation nodes assembly.
+*   **Success Criteria:** Auto-extraction recall rate above 90%; graph visualizer renders nodes in under 2 seconds.
+*   **Dependencies:** exifread, dnspython.
+*   **Expected Users:** Incident response teams and security operations leads.
+*   **Workspace Alignment:** Automates context gathering and replaces static checklists with interactive visual graphs.
 
 ---
 
-### ✅ Era 4: Multi-Sensor Engine & Policy Overrides
-**Status:** Complete  
-**Objectives:** Implement the full suite of 10 investigation scanners, background execution task manager, department/team permission middleware, and per-scanner policy override controls.  
-**Planned Scanners:**
-- WHOIS Lookup (domain/IP ownership, registrar, creation dates)
-- HTTP Header Scanner (security headers, CSP, HSTS analysis)
-- Metadata Extractor (EXIF, PDF/Office document properties)
-- DNS Intelligence (A, MX, NS, TXT, historical records)
-- Email Header Analyzer (routing hops, SPF, DKIM, DMARC)
-- IP Reputation (threat feeds, ASN, geolocation, abuse scores)
-- Malware Scanner (hash submission, VirusTotal-style result)
-- Screenshot Capture (headless browser page archival)
-- Reverse Image Search (EXIF + visual fingerprinting)
-- Threat Intelligence (IOC correlation, CVE lookup)
+### 🟡 Cygnal v2.0: Enterprise-Grade Workspace Hardening
+*   **Purpose:** Harden the platform for deployment inside enterprise security zones and data centers.
+*   **Business Value:** Meets compliance requirements for concurrent multi-user load, data replication, and single sign-on (SSO) credentials.
+*   **Technical Goals:** Replace SQLite with PostgreSQL, install distributed Celery background worker tasks, and set up Docker configs.
+*   **Architecture Changes:** Decouple database writes using a PostgreSQL backend; configure Celery workers with a Redis broker.
+*   **Database Changes:** Enforce transaction-safe locking mechanisms and index target audit logs.
+*   **Backend Work:** Migrate raw SQL queries to an ORM model (SQLAlchemy/Prisma); configure Celery tasks for all 10 scanners.
+*   **Frontend Work:** Update Next.js loading screens with custom skeleton states and support multi-factor auth (MFA) entry forms.
+*   **AI Improvements:** AI RAG uses PostgreSQL full-text search indexes to fetch and correlate matching cases across thousands of records.
+*   **Testing Requirements:** Integration tests verifying Celery task progress tracking and database locking during multi-user writes.
+*   **Deployment Requirements:** Multi-container Docker Compose configuration (`postgres`, `redis`, `celery-worker`, `backend`, `frontend`).
+*   **Success Criteria:** Zero database lockups under concurrent write loads; task queuing latency under 1 second.
+*   **Dependencies:** docker, redis, celery, psycopg2.
+*   **Expected Users:** Corporate security operations, compliance officers, and IT administrators.
+*   **Workspace Alignment:** Provides the scalability and access controls required for real-world production environments.
 
 ---
 
-### ✅ Era 5: Analytics, A4 Reports & AI RAG Investigation Chat
-**Status:** Complete — 2026-07-07  
-**Objectives:** Role-tailored analytics dashboards, A4-formatted investigation PDF reports, and SQLite-backed RAG AI chat copilot for natural language investigation queries.  
-**Deliverables:**
-- SVG telemetry visualizations (bar, area, trend charts) per user role — `app/analytics/page.tsx`
-- A4 forensic report compiler with letterhead, evidence table, share tokens — `app/reports/page.tsx` + public `share/[token]`
-- SQLite RAG AI chat with live database context injection — `app/chat/page.tsx` + `api/routes/v2/ai.py`
-- AI case summaries and IOC correlation recommendations via RAG engine
-- Multi-agent AI parallel pipeline orchestrator — `app/agents/page.tsx` + `POST /api/ai/agents`
-- Sparkles particle homepage validation banner, redesigned Login/Register pages
-- Admin cockpit, system audit ledger, profile page, settings page
-- Tests: `test_ai.py` + `test_reports.py` — 4 new tests, **36/36 total passing**
+### 🟠 Cygnal v2.5: Collaborative Security Cockpit
+*   **Purpose:** Enable multiple security analysts to investigate incident cases together in real-time.
+*   **Business Value:** Eliminates duplicate work, improves information sharing during high-stress alerts, and speeds up analyst shift handoffs.
+*   **Technical Goals:** Integrate WebSocket server connections, implement case locking, and establish comment registries.
+*   **Architecture Changes:** Add a WebSocket routing layer (e.g., Flask-SocketIO or FastAPI WebSockets) to broadcast case changes.
+*   **Database Changes:** Add `case_locks` and `case_comments` tables.
+*   **Backend Work:** Broadcast case status, timeline logs, and analyst assignments in real-time to active WebSocket clients.
+*   **Frontend Work:** Implement live collaborative indicators, pop-up change toast notifications, case editing locks, and chat threads.
+*   **AI Improvements:** AI monitors active comment threads to inject summary tips: *"Another analyst recently completed a metadata extraction on similar hashes; click here to link findings."*
+*   **Testing Requirements:** Mock WebSocket connection testing to verify message broadcasts.
+*   **Success Criteria:** Case changes sync to concurrent browser windows in under 200 milliseconds.
+*   **Expected Users:** Multi-analyst SOC teams and shift leads.
+*   **Workspace Alignment:** Transforms Cygnal from an isolated console into a team cockpit.
 
 ---
 
-## 🗂 Feature & Tool Status Matrix
+### 🔴 Cygnal v3.0 / v3.5: Connected Integrations & Agentic Loops
+*   **Purpose:** Automatically ingest alerts from SIEMs and let AI coordinate scans.
+*   **Business Value:** Connects Cygnal to enterprise telemetry sources, allowing alerts to flow and trigger investigations automatically.
+*   **Technical Goals:** Create webhook endpoints for inbound alerts and implement autonomic AI agent decision engines.
+*   **Architecture Changes:** Add webhook ingestion gateway services and agent execution routers.
+*   **Database Changes:** Add `inbound_alerts` and `agent_logs` tables.
+*   **Backend Work:** Parse Splunk/Sentinel webhook formats; register autonomous AI loops that evaluate indicators and schedule Celery scans.
+*   **Frontend Work:** Setup alert triage boards, agent log terminal panels, and playbook correlation views.
+*   **AI Improvements:** AI decides which scanners to launch based on alert patterns, running DNS/WHOIS/Threat Intel dynamically.
+*   **Success Criteria:** Inbound SIEM alert is auto-investigated and populated with graphs and timelines within 60 seconds.
+*   **Expected Users:** Lead Incident Responders and automated SOC operations managers.
+*   **Workspace Alignment:** Removes manual steps from alert creation to completed investigation.
 
-| Feature | Category | Status |
-|---|---|---|
-| User Registration + JWT Auth | Identity | ✅ Complete |
-| Role-Based Access Control (RBAC) | Identity | ✅ Complete |
-| Database Schema & Migrations | Core | ✅ Complete |
-| Incident Case Management | Investigation | ✅ Complete |
-| SHA-256 Evidence Custody Vault | Forensics | ✅ Complete |
-| Chronological Timeline Ledger | Investigation | ✅ Complete |
-| IOC SVG Link Graph | Visualization | ✅ Complete |
-| SOC Operations Hub Dashboard | Dashboard | ✅ Complete |
-| Security Health Score | Dashboard | ✅ Complete (mock) |
-| DashboardShell Navigation | UX | ✅ Complete |
-| WHOIS Lookup Scanner | Scanner | ✅ Complete |
-| HTTP Header Scanner | Scanner | ✅ Complete |
-| Metadata Extractor | Scanner | ✅ Complete |
-| DNS Intelligence | Scanner | ✅ Complete |
-| Email Header Analyzer | Scanner | ✅ Complete |
-| IP Reputation Feed | Scanner | ✅ Complete |
-| Malware File Scanner | Scanner | ✅ Complete |
-| Screenshot Capture Tool | Scanner | ✅ Complete |
-| Reverse Image Search | Scanner | ✅ Complete |
-| Threat Intelligence Lookup | Scanner | ✅ Complete |
-| Analytics Dashboards | Reporting | ✅ Complete |
-| A4 PDF Report Generator | Reporting | ✅ Complete |
-| RAG AI Investigation Chat | AI | ✅ Complete |
-| AI Case Summaries | AI | ✅ Complete |
-| AI IOC Correlation | AI | ✅ Complete (RAG-linked) |
-| Multi-Agent AI Workflows | AI | ✅ Complete |
+---
+
+### 🟣 Cygnal v4.0: Extensible Plugin SDK
+*   **Purpose:** Enable developers to write custom scanners, AI agents, and integrations.
+*   **Business Value:** Drives rapid feature growth and ecosystem support by letting the community maintain niche security connectors.
+*   **Technical Goals:** Define abstract base classes (`ScannerInterface`, `TIInterface`), design plugin manifest files, and build a local registry.
+*   **Architecture Changes:** Setup dynamic import loaders in the Flask backend to register plugin routes from directories.
+*   **Database Changes:** Add `plugins` registration table.
+*   **Backend Work:** Expose standard parameters for plugins; construct validation engines for plugin manifests.
+*   **Frontend Work:** Build a Plugin Store UI where users can enable or disable community extensions.
+*   **AI Improvements:** AI parses custom plugin capabilities to recommend relevant actions: *"You enabled Shodan Plugin; would you like me to scan?"*
+*   **Expected Users:** Security developers, DevOps engineers, and custom integrations teams.
+*   **Workspace Alignment:** Keeps the core codebase lightweight and clean.
+
+---
+
+### 🟤 Cygnal v5.0: Commercial Cloud SaaS
+*   **Purpose:** Host Cygnal as a multi-tenant cloud application.
+*   **Business Value:** Provides an easy, zero-setup option for SMBs and organizations.
+*   **Technical Goals:** Implement multi-tenant schema isolation, integrate payment systems, and utilize HSM for evidence encryption.
+*   **Architecture Changes:** Scale services via Kubernetes cluster sets; configure MinIO/S3 for cloud evidence file assets.
+*   **Database Changes:** Add `organizations`, `billing`, and `tenant_settings` tables.
+*   **Backend Work:** Tenant routing controls; Stripe billing integration webhooks.
+*   **Frontend Work:** Add Billing HUD, Organization Settings, and SaaS subscription selectors.
+*   **Testing Requirements:** Penetration testing and automated multi-tenant data leakage checks.
+*   **Success Criteria:** Complete tenant data isolation; scalable Kubernetes autoscaling.
+*   **Expected Users:** SMBs, managed service providers (MSPs), and corporate teams.
+*   **Workspace Alignment:** Expands Cygnal into a global cloud SaaS product.
