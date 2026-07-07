@@ -41,7 +41,9 @@ jobs:
       working-directory: api
       env:
         PYTHONPATH: ${{ github.workspace }}/api
-      run: pytest tests/ -v --tb=short
+      run: |
+        pytest tests/ -v || { echo "=== CYGNAL BACKEND LOG ==="; [ -f cygnal_backend.log ] && cat cygnal_backend.log || echo "No log file found"; exit 1; }
+
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Frontend CI — Next.js / TypeScript
