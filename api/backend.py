@@ -16,6 +16,8 @@ from database import init_lookup_db
 from routes.v2.auth import auth_bp
 from routes.v2.cases import cases_bp
 from routes.v2.scanners import scanners_bp
+from routes.v2.ai import ai_bp
+from routes.v2.reports import reports_bp
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -40,6 +42,8 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.register_blueprint(auth_bp, url_prefix="/api")
 app.register_blueprint(cases_bp, url_prefix="/api")
 app.register_blueprint(scanners_bp, url_prefix="/api")
+app.register_blueprint(ai_bp, url_prefix="/api")
+app.register_blueprint(reports_bp, url_prefix="/api")
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)

@@ -417,12 +417,14 @@ const Hero: React.FC<HeroProps> = ({
         <div className="text-center space-y-6 max-w-5xl mx-auto px-4">
           {/* Main Heading with Animation */}
           <div className="space-y-2">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#B0E4CC] via-[#408A71] to-[#285A48] bg-clip-text text-transparent animate-fade-in-up animation-delay-200">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#B0E4CC] via-[#408A71] to-[#285A48] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-200">
               {headline.line1}
             </h1>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#408A71] via-[#285A48] to-[#091413] bg-clip-text text-transparent animate-fade-in-up animation-delay-400">
-              {headline.line2}
-            </h1>
+            {headline.line2 && (
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#408A71] via-[#285A48] to-[#091413] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-400">
+                {headline.line2}
+              </h1>
+            )}
           </div>
           
           {/* Subtitle with Animation */}

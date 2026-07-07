@@ -41,7 +41,6 @@ export default function LoginPage() {
         toast.success("Credential validation complete!");
         
         setTimeout(() => {
-          // If default setup is empty, route to setup. Otherwise dashboard.
           if (data.user.role === "admin") {
             router.push("/dashboard");
           } else if (!data.user.department || !data.user.team) {
@@ -61,99 +60,111 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col justify-between p-6 relative font-sans overflow-hidden select-none">
+    <div className="min-h-screen bg-[#091413] text-slate-100 flex flex-col justify-between p-6 relative font-sans overflow-hidden select-none">
       <Toaster />
       
-      {/* Background visual shadows */}
-      <div className="absolute top-[20%] left-[30%] w-[500px] h-[500px] bg-blue-500/[0.02] rounded-full blur-[130px] pointer-events-none" />
+      {/* Ambient background glow shadows */}
+      <div className="absolute top-[20%] left-[30%] w-[500px] h-[500px] bg-[#408A71]/[0.03] rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute -bottom-[10%] right-[10%] w-[400px] h-[400px] bg-[#B0E4CC]/[0.02] rounded-full blur-[120px] pointer-events-none" />
 
-      <header className="w-full max-w-6xl mx-auto flex items-center justify-between py-4">
+      <header className="w-full max-w-6xl mx-auto flex items-center justify-between py-4 z-10">
         <Link href="/" className="flex items-center gap-2.5">
-          <Shield className="h-5 w-5 text-blue-500" />
+          <Shield className="h-5 w-5 text-[#B0E4CC]" />
           <span className="text-xs font-bold tracking-[0.25em] text-white uppercase">
             Cygnal
           </span>
         </Link>
-        <Link href="/" className="text-[10px] font-mono text-slate-500 hover:text-slate-350 uppercase tracking-widest">
+        <Link href="/" className="text-[10px] font-mono text-slate-400 hover:text-[#B0E4CC] uppercase tracking-widest transition-colors">
           Back to Portal
         </Link>
       </header>
 
-      <main className="flex-1 flex items-center justify-center py-12">
-        <div className="w-full max-w-[380px] bg-[#0b0f19]/60 backdrop-blur-xl border border-white/5 rounded-2xl p-8 shadow-2xl space-y-6">
+      <main className="flex-1 flex items-center justify-center py-12 z-10">
+        <div className="w-full max-w-[390px] bg-[#0f2422]/20 backdrop-blur-xl border border-[#408A71]/15 rounded-2xl p-8 shadow-[0_0_50px_rgba(64,138,113,0.1)] space-y-6">
           
           <div className="text-center space-y-1.5">
-            <h2 className="text-xl font-extrabold tracking-wide text-white uppercase">
+            <h2 className="text-xl font-extrabold tracking-wide text-white uppercase font-mono">
               Establish Link
             </h2>
-            <p className="text-[9px] text-slate-500 uppercase tracking-widest font-mono">
+            <p className="text-[9px] text-[#a3c2b4] uppercase tracking-widest font-mono opacity-80">
               Validate credentials to access cockpit
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5 text-left">
-              <label className="text-[10px] font-mono text-slate-450 uppercase tracking-wider block">
+              <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
                 Investigator Node ID
               </label>
               <div className="relative">
-                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
                 <input
                   type="text"
                   required
                   placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="cyber-input pl-11"
+                  className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5 text-left">
               <div className="flex justify-between items-center">
-                <label className="text-[10px] font-mono text-slate-450 uppercase tracking-wider block">
+                <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
                   Credential Secret
                 </label>
                 <Link 
                   href="/forgot-password" 
-                  className="text-[9px] font-mono text-blue-450 hover:underline uppercase tracking-wider"
+                  className="text-[9px] font-mono text-[#B0E4CC] hover:underline uppercase tracking-wider transition-colors"
                 >
                   Forgot?
                 </Link>
               </div>
               <div className="relative">
-                <Key className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-550" />
+                <Key className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
                 <input
                   type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="cyber-input pl-11 pr-11"
+                  className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-11 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-350 transition-colors"
+                  className="absolute right-3.5 top-3.5 text-[#408A71]/70 hover:text-[#B0E4CC] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="btn-cyber-primary w-full py-3.5 text-xs font-semibold tracking-widest uppercase mt-2"
-            >
-              {loading ? "Authenticating..." : "Establish Connection Link"}
-            </button>
+            <div className="pt-2">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#285A48] via-[#408A71] to-[#B0E4CC] hover:opacity-95 text-white py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(64,138,113,0.2)] transition-all disabled:opacity-50"
+              >
+                {loading ? "Authenticating..." : "Establish Connection Link"}
+              </button>
+            </div>
           </form>
+
+          <div className="text-center pt-2">
+            <span className="text-[10px] text-slate-400">
+              New investigator?{" "}
+              <Link href="/register" className="text-[#B0E4CC] hover:underline font-semibold">
+                Enlist Node
+              </Link>
+            </span>
+          </div>
 
         </div>
       </main>
 
-      <footer className="w-full text-center py-4">
+      <footer className="w-full text-center py-4 z-10">
         <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
           SSL Cryptographic Handshake Active
         </span>
