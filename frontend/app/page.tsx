@@ -53,7 +53,7 @@ export default function MarketingLandingPage() {
 
           <div className="space-y-2">
             <h1 className="text-xs font-bold tracking-[0.3em] uppercase text-white font-mono">
-              Cygnal Sentinel
+              Cygnal
             </h1>
             <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">
               Operational Handshake Active
@@ -136,7 +136,7 @@ export default function MarketingLandingPage() {
             href="/register" 
             className="btn-cyber-primary px-8 py-4 text-xs font-bold tracking-widest flex items-center gap-2 group w-full sm:w-auto justify-center"
           >
-            Launch Sentinel Node <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            Launch Cygnal Workspace <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <Link 
             href="/login" 
