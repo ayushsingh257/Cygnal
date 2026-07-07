@@ -19,7 +19,7 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  🟡  Era 4: Scanners Multi-Sensor Engine & Policy Overrides    │
+│  ✅  Era 4: Scanners Multi-Sensor Engine & Policy Overrides    │
 └───────────────────────────────────┬────────────────────────────┘
                                     │
                                     ▼
@@ -66,8 +66,8 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
 
 ---
 
-### 🟡 Era 4: Multi-Sensor Engine & Policy Overrides
-**Status:** Next  
+### ✅ Era 4: Multi-Sensor Engine & Policy Overrides
+**Status:** Complete  
 **Objectives:** Implement the full suite of 10 investigation scanners, background execution task manager, department/team permission middleware, and per-scanner policy override controls.  
 **Planned Scanners:**
 - WHOIS Lookup (domain/IP ownership, registrar, creation dates)
@@ -109,16 +109,16 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
 | SOC Operations Hub Dashboard | Dashboard | ✅ Complete |
 | Security Health Score | Dashboard | ✅ Complete (mock) |
 | DashboardShell Navigation | UX | ✅ Complete |
-| WHOIS Lookup Scanner | Scanner | 🟡 Era 4 |
-| HTTP Header Scanner | Scanner | 🟡 Era 4 |
-| Metadata Extractor | Scanner | 🟡 Era 4 |
-| DNS Intelligence | Scanner | 🟡 Era 4 |
-| Email Header Analyzer | Scanner | 🟡 Era 4 |
-| IP Reputation Feed | Scanner | 🟡 Era 4 |
-| Malware File Scanner | Scanner | 🟡 Era 4 |
-| Screenshot Capture Tool | Scanner | 🟡 Era 4 |
-| Reverse Image Search | Scanner | 🟡 Era 4 |
-| Threat Intelligence Lookup | Scanner | 🟡 Era 4 |
+| WHOIS Lookup Scanner | Scanner | ✅ Complete |
+| HTTP Header Scanner | Scanner | ✅ Complete |
+| Metadata Extractor | Scanner | ✅ Complete |
+| DNS Intelligence | Scanner | ✅ Complete |
+| Email Header Analyzer | Scanner | ✅ Complete |
+| IP Reputation Feed | Scanner | ✅ Complete |
+| Malware File Scanner | Scanner | ✅ Complete |
+| Screenshot Capture Tool | Scanner | ✅ Complete |
+| Reverse Image Search | Scanner | ✅ Complete |
+| Threat Intelligence Lookup | Scanner | ✅ Complete |
 | Analytics Dashboards | Reporting | ⬜ Era 5 |
 | A4 PDF Report Generator | Reporting | ⬜ Era 5 |
 | RAG AI Investigation Chat | AI | ⬜ Era 5 |
