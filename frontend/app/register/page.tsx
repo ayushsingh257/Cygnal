@@ -168,7 +168,8 @@ export default function RegisterPage() {
               disabled={loading}
               className="btn-cyber-primary w-full py-3.5 text-xs font-semibold tracking-widest uppercase mt-4"
             >
-              {loading ? "Enlisting..." : "Enlist Sentinel Node"}
+              {loading ? "Registering..." : "Create Cygnal Account"}
+
             </button>
           </form>
 

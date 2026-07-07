@@ -48,9 +48,11 @@ def test_invalid_login(client):
     assert "token" not in data
 
 def test_registration_and_patch(client):
+    import uuid
+    rand_user = f"analyst_{uuid.uuid4().hex[:6]}"
     # Register a new analyst node
     reg_payload = {
-        "username": "blue_analyst",
+        "username": rand_user,
         "password": "Duster@2004",
         "role": "analyst",
         "department": "Incident Response",
@@ -61,7 +63,7 @@ def test_registration_and_patch(client):
     assert res.status_code == 200
     assert data["success"] is True
     assert "token" in data
-    assert data["user"]["username"] == "blue_analyst"
+    assert data["user"]["username"] == rand_user
 
     # Try duplicate registration
     res_dup = client.post("/api/register", json=reg_payload)
@@ -76,9 +78,10 @@ def test_registration_and_patch(client):
     headers = {
         "Authorization": f"Bearer {token}"
     }
-    res_patch = client.patch("/api/admin/users/blue_analyst", json=patch_payload, headers=headers)
+    res_patch = client.patch(f"/api/admin/users/{rand_user}", json=patch_payload, headers=headers)
     patch_data = res_patch.get_json()
     assert res_patch.status_code == 200
     assert patch_data["success"] is True
     assert patch_data["user"]["department"] == "Threat Intelligence"
     assert patch_data["user"]["team"] == "CTI Team"
+
