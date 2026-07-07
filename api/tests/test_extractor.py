@@ -225,3 +225,43 @@ def test_extract_iocs_evidence_relations(client, auth_headers):
     assert rel is not None
     assert "Duplicate file hash" in rel[0]
     assert rel[1] == 100
+
+def test_get_case_graph(client, auth_headers):
+    """
+    Integration test validating the GET /api/cases/<case_id>/graph endpoint.
+    """
+    # 1. Create a test case
+    res_case = client.post("/api/cases", json={"title": "Graph Retrieval Case"}, headers=auth_headers)
+    case_id = res_case.get_json()["case"]["id"]
+
+    # 2. Extract some indicators to populate nodes
+    client.post(f"/api/cases/{case_id}/extract-iocs", json={
+        "text": "Threat originating from IP 198.51.100.15 contacting threat-server.lan"
+    }, headers=auth_headers)
+
+    # 3. Call GET /api/cases/<case_id>/graph
+    res_graph = client.get(f"/api/cases/{case_id}/graph", headers=auth_headers)
+    data = res_graph.get_json()
+
+    assert res_graph.status_code == 200
+    assert data["success"] is True
+    assert "nodes" in data
+    assert "edges" in data
+
+    # Verify nodes structure
+    nodes = data["nodes"]
+    edges = data["edges"]
+    groups = [n["group"] for n in nodes]
+    labels = [n["label"] for n in nodes]
+
+    assert "case" in groups
+    assert "ip" in groups
+    assert "hostname" in groups
+    assert "198.51.100.15" in labels
+    assert "threat-server.lan" in labels
+
+    # Verify edges exist
+    assert len(edges) >= 2
+    relations = [e["relation"] for e in edges]
+    assert "detects_indicator" in relations
+

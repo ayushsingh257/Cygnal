@@ -472,5 +472,129 @@ def extract_case_iocs(case_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@cases_bp.route("/cases/<case_id>/graph", methods=["GET"])
+def get_case_graph(case_id):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Verify case exists
+        cursor.execute("SELECT id, case_number, title FROM cases WHERE id = ?;", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            conn.close()
+            return jsonify({"success": False, "error": "Case not found."}), 404
+            
+        case_uuid, case_num, case_title = case_row
+        
+        # Initialize nodes and edges
+        nodes = []
+        edges = []
+        seen_nodes = set()
+        
+        def add_node(node_id, label, group, val=10, extra=None):
+            if node_id not in seen_nodes:
+                seen_nodes.add(node_id)
+                n = {
+                    "id": node_id,
+                    "label": label,
+                    "group": group,
+                    "val": val
+                }
+                if extra:
+                    n.update(extra)
+                nodes.append(n)
+                
+        def add_edge(source, target, relation, weight=50):
+            edges.append({
+                "source": source,
+                "target": target,
+                "relation": relation,
+                "weight": weight
+            })
+            
+        # Add root Case node
+        add_node(case_uuid, case_num, "case", val=20, extra={"title": case_title})
+        
+        # Retrieve Indicators
+        cursor.execute("SELECT id, indicator_value, indicator_type, confidence_score, severity FROM case_indicators WHERE case_id = ?;", (case_id,))
+        indicators = cursor.fetchall()
+        for ind_id, ind_val, ind_type, confidence, severity in indicators:
+            add_node(ind_id, ind_val, ind_type, val=12, extra={
+                "confidence": confidence,
+                "severity": severity,
+                "type": ind_type
+            })
+            add_edge(case_uuid, ind_id, "detects_indicator", weight=60)
+            
+            # Cross-reference threat intel
+            cursor.execute("SELECT id, source, tags FROM threat_intel WHERE indicator = ?;", (ind_val,))
+            ti_match = cursor.fetchone()
+            if ti_match:
+                ti_id, ti_source, ti_tags = ti_match
+                ti_node_id = f"intel_{ti_id}"
+                add_node(ti_node_id, f"Intel: {ti_source}", "threat_intel", val=10, extra={"tags": ti_tags})
+                add_edge(ind_id, ti_node_id, "matched_threat_feed", weight=40)
+                
+        # Retrieve Evidence
+        cursor.execute("SELECT id, filename, file_hash, file_type FROM evidence WHERE case_id = ?;", (case_id,))
+        evidence_list = cursor.fetchall()
+        for ev_id, filename, file_hash, file_type in evidence_list:
+            add_node(ev_id, filename, "evidence", val=15, extra={
+                "hash": file_hash,
+                "file_type": file_type
+            })
+            add_edge(case_uuid, ev_id, "contains_evidence", weight=80)
+            
+            # Retrieve evidence relationships
+            cursor.execute("""
+                SELECT id, source_evidence_id, target_evidence_id, correlation_reason, weight 
+                FROM evidence_relations 
+                WHERE source_evidence_id = ? OR target_evidence_id = ?;
+            """, (ev_id, ev_id))
+            relations = cursor.fetchall()
+            for r_id, src_ev, tgt_ev, reason, weight in relations:
+                # Resolve external evidence details if the match is in another case
+                other_ev = tgt_ev if src_ev == ev_id else src_ev
+                cursor.execute("SELECT id, filename, file_hash, case_id FROM evidence WHERE id = ?;", (other_ev,))
+                other_row = cursor.fetchone()
+                if other_row:
+                    o_id, o_name, o_hash, o_case = other_row
+                    # Add target evidence node (even if from another case)
+                    add_node(o_id, o_name, "evidence", val=15, extra={
+                        "hash": o_hash,
+                        "cross_case": True
+                    })
+                    add_edge(ev_id, o_id, reason, weight=weight)
+                    
+                    # Link to the other case if it exists and is different
+                    if o_case and o_case != case_id:
+                        cursor.execute("SELECT case_number FROM cases WHERE id = ?;", (o_case,))
+                        o_case_row = cursor.fetchone()
+                        if o_case_row:
+                            add_node(o_case, o_case_row[0], "case", val=20, extra={"cross_case": True})
+                            add_edge(o_case, o_id, "contains_evidence", weight=80)
+                            
+        conn.close()
+        
+        # Support pagination / limit
+        limit = request.args.get("limit", default=100, type=int)
+        if len(nodes) > limit:
+            # Keep case, evidence and top confidence indicators
+            nodes = nodes[:limit]
+            # Filter edges to only keep those referencing existing nodes
+            active_node_ids = {n["id"] for n in nodes}
+            edges = [e for e in edges if e["source"] in active_node_ids and e["target"] in active_node_ids]
+            
+        return jsonify({
+            "success": True,
+            "nodes": nodes,
+            "edges": edges
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 
 
