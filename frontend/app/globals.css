@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-deep: #030712;
+    --bg-panel: rgba(11, 15, 25, 0.65);
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-purple: #8b5cf6;
+    --text-primary: #f1f5f9;
+    --text-muted: #94a3b8;
+  }
+
+  body {
+    background-color: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Glassmorphism custom cards layout styles */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card {
+  background: rgba(17, 24, 39, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.05);
+}
+
+/* Premium Inputs fields */
+.cyber-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  background-color: rgba(6, 8, 20, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.cyber-input:focus {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Buttons controllers */
+.btn-cyber-primary {
+  padding: 0.85rem 1.5rem;
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-cyber-primary:hover {
+  background-color: #2563eb;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+}
+
+.btn-cyber-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-cyber {
+  padding: 0.6rem 1.2rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cyber:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Scrollbars configurations */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
