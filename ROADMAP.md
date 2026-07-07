@@ -24,7 +24,7 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  ⬜  Era 5: Analytics, A4 Reports & AI RAG Investigation Chat  │
+│  ✅  Era 5: Analytics, A4 Reports & AI RAG Investigation Chat  │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -83,15 +83,18 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
 
 ---
 
-### ⬜ Era 5: Analytics, A4 Reports & AI RAG Investigation Chat
-**Status:** Planned  
+### ✅ Era 5: Analytics, A4 Reports & AI RAG Investigation Chat
+**Status:** Complete — 2026-07-07  
 **Objectives:** Role-tailored analytics dashboards, A4-formatted investigation PDF reports, and SQLite-backed RAG AI chat copilot for natural language investigation queries.  
-**Planned Features:**
-- Chart.js/Recharts telemetry visualizations per user role
-- A4 print template with Cygnal letterhead, evidence table, timeline
-- RAG AI chat with investigation context injection
-- AI-generated case summaries and IOC recommendations
-- Multi-agent AI for parallel investigation workflows
+**Deliverables:**
+- SVG telemetry visualizations (bar, area, trend charts) per user role — `app/analytics/page.tsx`
+- A4 forensic report compiler with letterhead, evidence table, share tokens — `app/reports/page.tsx` + public `share/[token]`
+- SQLite RAG AI chat with live database context injection — `app/chat/page.tsx` + `api/routes/v2/ai.py`
+- AI case summaries and IOC correlation recommendations via RAG engine
+- Multi-agent AI parallel pipeline orchestrator — `app/agents/page.tsx` + `POST /api/ai/agents`
+- Sparkles particle homepage validation banner, redesigned Login/Register pages
+- Admin cockpit, system audit ledger, profile page, settings page
+- Tests: `test_ai.py` + `test_reports.py` — 4 new tests, **36/36 total passing**
 
 ---
 
@@ -119,9 +122,9 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
 | Screenshot Capture Tool | Scanner | ✅ Complete |
 | Reverse Image Search | Scanner | ✅ Complete |
 | Threat Intelligence Lookup | Scanner | ✅ Complete |
-| Analytics Dashboards | Reporting | ⬜ Era 5 |
-| A4 PDF Report Generator | Reporting | ⬜ Era 5 |
-| RAG AI Investigation Chat | AI | ⬜ Era 5 |
-| AI Case Summaries | AI | ⬜ Era 5 |
-| AI IOC Correlation | AI | ⬜ Era 5 |
-| Multi-Agent AI Workflows | AI | ⬜ Era 5 |
+| Analytics Dashboards | Reporting | ✅ Complete |
+| A4 PDF Report Generator | Reporting | ✅ Complete |
+| RAG AI Investigation Chat | AI | ✅ Complete |
+| AI Case Summaries | AI | ✅ Complete |
+| AI IOC Correlation | AI | ✅ Complete (RAG-linked) |
+| Multi-Agent AI Workflows | AI | ✅ Complete |
