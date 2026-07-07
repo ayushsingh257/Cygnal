@@ -1,6 +1,8 @@
-# Cygnal Development Roadmap — Version 1.0
+# Implementation Phases & Gating Strategy
 
-Cygnal v1.0 is built incrementally in logical development eras. Each era represents a fully operational package that passes compiling and verification tests.
+Cygnal v1.0 is built incrementally in five development eras. Each era must be fully implemented, tested, and pushed before the next begins.
+
+## 📅 Era Coding Schedule
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -30,24 +32,18 @@ Cygnal v1.0 is built incrementally in logical development eras. Each era represe
 
 ---
 
-## 📅 Era Specifications
+## 🚦 Gate Quality Checks
 
-### Era 1: System Design Specifications (Current)
-*   **Objectives:** Establish the entire documentation suite mapping product features, security guidelines, UI/UX designs, database models, and API interfaces before any application code is compiled.
-*   **Deliverables:** `README.md`, `ROADMAP.md`, and complete `/docs` markdown assets.
-
-### Era 2: Identity Registry & Authentication
-*   **Objectives:** Configure SQLite database migration routines, JWT token management utilities, and root-level routes (`/login`, `/register`, `/forgot-password`, `/email-verification`, `/profile-setup`, `/welcome`).
-*   **Verification:** Compilation builds check, unit authentication validators, path redirects confirmation.
-
-### Era 3: Case Files Workspace & Timeline Ledger
-*   **Objectives:** Build the core cases database endpoints, evidence upload endpoints, SHA-256 hashing processes, chronological events timeline logging, and SVG interactive indicators graph.
-*   **Verification:** File uploads size checks, timeline integrity validation.
-
-### Era 4: Multi-Sensor Engine & Policies Override
-*   **Objectives:** Implement the 10 threat scanners, background task manager polling routing, and `@scanners_bp.before_request` middleware interceptor enforcing department/team permissions restrictions.
-*   **Verification:** Dynamic execution block mock checks, task progress updates triggers.
-
-### Era 5: Analytics Dashboards, Reports, & AI Chat
-*   **Objectives:** Implement tailored views based on user rank (Admin, Lead, Analyst), embed ChartJS visual telemetry, write A4 print layout templates with sharing links, and mount SQLite RAG AI conversation widgets.
-*   **Verification:** System builds, browser walkthrough checks, mock files printing templates.
+### Verification Steps
+For every development era, developers must run the following verification steps:
+1. **Frontend Compilation:** Verify that the frontend compiles cleanly:
+   ```bash
+   npm run build
+   ```
+2. **Backend Tests:** Run the Python test suite:
+   ```bash
+   pytest
+   ```
+3. **Run Dev Servers:** Confirm both servers launch and run correctly.
+4. **Browser Verification:** Manually test layout renders and workflow states.
+5. **VCS Commit & Push:** Commit modifications and push the completed era to the GitHub repository before starting the next era.
