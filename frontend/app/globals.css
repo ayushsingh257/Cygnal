@@ -7,37 +7,37 @@
 
 @layer base {
   :root {
-    /* Core backgrounds */
-    --bg-deep: #030712;
-    --bg-surface: #0b0f19;
-    --bg-panel: rgba(11, 15, 25, 0.70);
-    --bg-card: rgba(17, 24, 39, 0.50);
-    --bg-hover: rgba(255, 255, 255, 0.02);
+    /* Core backgrounds - Deep dark cold winter night */
+    --bg-deep: #091413;
+    --bg-surface: #0f2422;
+    --bg-panel: rgba(40, 90, 72, 0.25);
+    --bg-card: rgba(9, 20, 19, 0.70);
+    --bg-hover: rgba(64, 138, 113, 0.08);
 
-    /* Accent palette */
-    --accent-blue: #3b82f6;
-    --accent-blue-dim: rgba(59, 130, 246, 0.15);
-    --accent-cyan: #06b6d4;
-    --accent-indigo: #6366f1;
-    --accent-emerald: #10b981;
+    /* Accent palette - Dark teal, Deep green, Cold winter night */
+    --accent-blue: #408A71;
+    --accent-blue-dim: rgba(64, 138, 113, 0.15);
+    --accent-cyan: #B0E4CC;
+    --accent-indigo: #285A48;
+    --accent-emerald: #408A71;
     --accent-red: #ef4444;
     --accent-amber: #f59e0b;
 
     /* Borders */
-    --border-subtle: rgba(255, 255, 255, 0.05);
-    --border-blue: rgba(59, 130, 246, 0.20);
-    --border-focus: rgba(59, 130, 246, 0.45);
+    --border-subtle: rgba(176, 228, 204, 0.08);
+    --border-blue: rgba(64, 138, 113, 0.25);
+    --border-focus: rgba(176, 228, 204, 0.45);
 
     /* Typography */
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --text-dimmed: #475569;
+    --text-primary: #e6f3ed;
+    --text-secondary: #a3c2b4;
+    --text-muted: #6e8c80;
+    --text-dimmed: #455d53;
 
     /* Shadows */
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-    --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.08);
-    --shadow-glow-blue-strong: 0 0 30px rgba(59, 130, 246, 0.20);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-glow-blue: 0 0 20px rgba(64, 138, 113, 0.15);
+    --shadow-glow-blue-strong: 0 0 30px rgba(176, 228, 204, 0.25);
   }
 
   *, *::before, *::after {
@@ -62,8 +62,8 @@
 
   /* Selection */
   ::selection {
-    background-color: rgba(59, 130, 246, 0.25);
-    color: #bfdbfe;
+    background-color: rgba(64, 138, 113, 0.25);
+    color: #b0e4cc;
   }
 }
 
@@ -117,7 +117,7 @@
 
 .cyber-input:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.10);
+  box-shadow: 0 0 0 3px rgba(64, 138, 113, 0.10);
 }
 
 .cyber-input:disabled {
@@ -160,8 +160,8 @@ select.cyber-input {
 }
 
 .btn-cyber-primary:hover {
-  background-color: #2563eb;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.40);
+  background-color: var(--accent-indigo);
+  box-shadow: 0 0 20px rgba(64, 138, 113, 0.40);
   transform: translateY(-1px);
 }
 

@@ -15,6 +15,7 @@ from database import init_lookup_db
 # Import v2 blueprints
 from routes.v2.auth import auth_bp
 from routes.v2.cases import cases_bp
+from routes.v2.scanners import scanners_bp
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -35,10 +36,10 @@ app = Flask(__name__)
 # Enable CORS for all routes under /api/
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Register auth Blueprint
+# Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/api")
 app.register_blueprint(cases_bp, url_prefix="/api")
-
+app.register_blueprint(scanners_bp, url_prefix="/api")
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)
