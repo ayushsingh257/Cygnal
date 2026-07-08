@@ -4,6 +4,20 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v2.0.0-RC1] — 2026-07-08 — Enterprise-Grade Workspace Hardening v2.0
+
+### Added
+- **Unified Database Abstractor (`api/db_utils.py`)** — Dynamic connection factory routing database operations to PostgreSQL pools in production or falling back to SQLite locally. Transparent SQL dialect translation handles placeholders (`?` ➔ `%s`), datetime functions (`DATETIME('now')` ➔ `CURRENT_TIMESTAMP`), primary keys, and schema inspection (PRAGMA ➔ information_schema).
+- **Celery & Redis Task Dispatcher (`api/celery_app.py`, `api/task_utils.py`)** — Standardized background Celery tasks backed by Redis with transparent fallback routing to local in-memory Threads if queue brokers are not active.
+- **Time-Based One-Time Password MFA (`api/routes/v2/mfa.py`)** — Added setup, QR-code provisioning URL generation, and verification endpoints using `pyotp`.
+- **MFA Login Challenge (`api/routes/v2/auth.py`)** — Added check to block standard session token generation for MFA-enabled accounts, forcing redirect redirect challenges.
+- **MFA Setup Settings Panel (`frontend/app/settings/page.tsx`)** — Created an interactive configurations block displaying secret keys and code verification forms to enable MFA.
+- **MFA Login Challenge Form (`frontend/app/login/page.tsx`)** — Built a glassmorphic verification card requiring the 6-digit TOTP token to validate authentications.
+- **Docker Orchestration Configs (`api/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`)** — Engineered multi-stage Dockerfiles for optimized production images and composed db/redis/worker/api/frontend configurations.
+- **MFA Authentication Test Suite (`api/tests/test_auth.py`)** — Expanded test runner coverage checking MFA setup, TOTP code verify matching, and challenge login loops. All passing (79/79 passing).
+
+---
+
 ## [v1.5.0-RC1] — 2026-07-08 — Autonomous Investigation Workspace v1.5 Sprints
 
 ### Added

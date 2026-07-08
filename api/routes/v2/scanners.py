@@ -5,9 +5,10 @@ and case timeline integration.
 """
 
 from flask import Blueprint, request, jsonify
-import sqlite3, os, json, hashlib, socket, uuid, re, base64
+import os, json, hashlib, socket, uuid, re, base64
 from datetime import datetime
-from database import DB_PATH, check_tool_allowed, insert_lookup_log
+from db_utils import get_db_connection, DB_PATH
+from database import check_tool_allowed, insert_lookup_log
 from jwt_utils import decode_token
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor
@@ -58,7 +59,7 @@ def save_scan_to_timeline(case_id, scanner_name, summary, user, token_header):
     if not case_id:
         return
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id FROM cases WHERE id = ?;", (case_id,))
         if not cursor.fetchone():
@@ -1053,7 +1054,7 @@ def threat_intelligence():
     # Cross-reference scan result history in our own DB
     db_hits = []
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT t.description, t.timestamp, t.user, c.title, c.case_number

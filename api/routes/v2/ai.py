@@ -4,9 +4,9 @@ RAG database context correlation & Multi-Agent loop simulator.
 """
 
 from flask import Blueprint, request, jsonify
-import sqlite3, os, json, re, uuid
+import os, json, re, uuid
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 
 ai_bp = Blueprint("ai_bp", __name__)
@@ -32,7 +32,7 @@ def resolve_rag_context(prompt: str):
     - SHA-256 hashes
     - Scanner tools (whois, dns, metadata, headers, etc.)
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     context = {

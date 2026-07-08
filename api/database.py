@@ -1,10 +1,8 @@
 import os
-import sqlite3
 from datetime import datetime
 import uuid
 import json
-
-DB_PATH = os.path.join(os.path.dirname(__file__), "cygnal.db")
+from db_utils import get_db_connection, DB_PATH
 
 def init_lookup_db():
     """
@@ -12,7 +10,7 @@ def init_lookup_db():
     Ensures safe schema structure without wiping existing data.
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # 1. Lookups history table
@@ -189,6 +187,10 @@ def init_lookup_db():
             cursor.execute("ALTER TABLE users ADD COLUMN team TEXT;")
         if "created_at" not in user_cols:
             cursor.execute("ALTER TABLE users ADD COLUMN created_at TEXT;")
+        if "mfa_enabled" not in user_cols:
+            cursor.execute("ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 0;")
+        if "mfa_secret" not in user_cols:
+            cursor.execute("ALTER TABLE users ADD COLUMN mfa_secret TEXT;")
 
         cursor.execute("PRAGMA table_info(cases);")
         case_cols = [row[1] for row in cursor.fetchall()]
@@ -204,7 +206,7 @@ def init_lookup_db():
 
 def insert_lookup_log(user: str, ip: str, tool: str, input_data, result_data):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO lookups (id, timestamp, user, ip, tool, input, result)
@@ -229,7 +231,7 @@ def check_tool_allowed(user: str, tool_name: str) -> bool:
     Hierarchy: Admin allowed -> User override -> Team override -> Dept override -> Default allowed
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Admin is always allowed

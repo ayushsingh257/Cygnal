@@ -15,6 +15,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // MFA login states
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
 
   useEffect(() => {
     loadUserFromStorage();
@@ -37,6 +41,12 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
+        if (data.mfa_required) {
+          setMfaRequired(true);
+          setLoading(false);
+          toast.success("MFA authentication challenge required.");
+          return;
+        }
         login(data.token, data.user);
         toast.success("Credential validation complete!");
         
@@ -55,6 +65,43 @@ export default function LoginPage() {
       }
     } catch {
       toast.error("Server synchronization timed out.");
+      setLoading(false);
+    }
+  };
+
+  const handleMfaVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (totpCode.trim().length !== 6) {
+      toast.error("Please enter a 6-digit verification code.");
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/mfa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, code: totpCode })
+      });
+      const data = await res.json();
+      if (data.success) {
+        login(data.token, data.user);
+        toast.success("MFA validation complete!");
+        setTimeout(() => {
+          if (data.user.role === "admin") {
+            router.push("/dashboard");
+          } else if (!data.user.department || !data.user.team) {
+            router.push("/profile-setup");
+          } else {
+            router.push("/dashboard");
+          }
+        }, 600);
+      } else {
+        toast.error(data.error || "Invalid verification code.");
+        setLoading(false);
+      }
+    } catch {
+      toast.error("MFA server connection error.");
       setLoading(false);
     }
   };
@@ -84,73 +131,112 @@ export default function LoginPage() {
           
           <div className="text-center space-y-1.5">
             <h2 className="text-xl font-extrabold tracking-wide text-white uppercase font-mono">
-              Establish Link
+              {mfaRequired ? "MFA Challenge" : "Establish Link"}
             </h2>
             <p className="text-[9px] text-[#a3c2b4] uppercase tracking-widest font-mono opacity-80">
-              Validate credentials to access cockpit
+              {mfaRequired ? "Verify 6-digit TOTP token" : "Validate credentials to access cockpit"}
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5 text-left">
-              <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
-                Investigator Node ID
-              </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
-                <input
-                  type="text"
-                  required
-                  placeholder="Username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5 text-left">
-              <div className="flex justify-between items-center">
+          {!mfaRequired ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-1.5 text-left">
                 <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
-                  Credential Secret
+                  Investigator Node ID
                 </label>
-                <Link 
-                  href="/forgot-password" 
-                  className="text-[9px] font-mono text-[#B0E4CC] hover:underline uppercase tracking-wider transition-colors"
-                >
-                  Forgot?
-                </Link>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Key className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-11 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-[#408A71]/70 hover:text-[#B0E4CC] transition-colors"
+
+              <div className="space-y-1.5 text-left">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
+                    Credential Secret
+                  </label>
+                  <Link 
+                    href="/forgot-password" 
+                    className="text-[9px] font-mono text-[#B0E4CC] hover:underline uppercase tracking-wider transition-colors"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Key className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-11 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3.5 text-[#408A71]/70 hover:text-[#B0E4CC] transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#285A48] via-[#408A71] to-[#B0E4CC] hover:opacity-95 text-white py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(64,138,113,0.2)] transition-all disabled:opacity-50"
                 >
-                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  {loading ? "Authenticating..." : "Establish Connection Link"}
                 </button>
               </div>
-            </div>
+            </form>
+          ) : (
+            <form onSubmit={handleMfaVerify} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <label className="text-[10px] font-mono text-[#a3c2b4] uppercase tracking-wider block">
+                  6-Digit Authenticator Code
+                </label>
+                <div className="relative">
+                  <Shield className="absolute left-3.5 top-3.5 h-4 w-4 text-[#408A71]/70" />
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="123456"
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                    className="w-full bg-[#091413]/90 border border-[#408A71]/20 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-[#B0E4CC]/40 focus:border-transparent transition-all font-mono"
+                  />
+                </div>
+              </div>
 
-            <div className="pt-2">
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-[#285A48] via-[#408A71] to-[#B0E4CC] hover:opacity-95 text-white py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(64,138,113,0.2)] transition-all disabled:opacity-50"
-              >
-                {loading ? "Authenticating..." : "Establish Connection Link"}
-              </button>
-            </div>
-          </form>
+              <div className="pt-2 flex gap-2">
+                <button 
+                  type="submit" 
+                  disabled={loading || totpCode.length !== 6}
+                  className="flex-1 bg-gradient-to-r from-[#285A48] via-[#408A71] to-[#B0E4CC] hover:opacity-95 text-white py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(64,138,113,0.2)] transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {loading ? "Verifying..." : "Verify Code"}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setMfaRequired(false)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 py-3.5 px-4 rounded-xl text-xs font-bold tracking-widest uppercase transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="text-center pt-2">
             <span className="text-[10px] text-slate-400">

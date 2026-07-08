@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cygnal_db
+    environment:
+      POSTGRES_USER: cygnal_user
+      POSTGRES_PASSWORD: cygnal_password
+      POSTGRES_DB: cygnal_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cygnal_user -d cygnal_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: cygnal_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: cygnal_backend
+    environment:
+      - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
+      - REDIS_URL=redis://redis:6379/0
+      - USE_CELERY=true
+      - JWT_SECRET=ProductionSecretKeyForHardeningCygnal2026!
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_volume:/app/uploads
+
+  celery_worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: cygnal_celery_worker
+    command: celery -A celery_app.celery worker --loglevel=info --pool=threads
+    environment:
+      - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
+      - REDIS_URL=redis://redis:6379/0
+      - USE_CELERY=true
+      - JWT_SECRET=ProductionSecretKeyForHardeningCygnal2026!
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_volume:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cygnal_frontend
+    environment:
+      - BACKEND_URL=http://backend:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  uploads_volume:

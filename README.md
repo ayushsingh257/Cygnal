@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-lightblue?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-45%2F45%20Passing-brightgreen?style=flat-square)](#-testing)
+[![Tests](https://img.shields.io/badge/Tests-79%2F79%20Passing-brightgreen?style=flat-square)](#-testing)
 
 
 **Cygnal turns raw cyber evidence into complete investigations in minutes—not hours.** It unifies disparate OSINT threat lookup resources, forensics evidence vaulting, visual relationship graph charting, and AI timeline narration into a single workspace window.
@@ -189,18 +189,22 @@ Cygnal's RAG system runs queries against your local SQLite database without send
 cygnal/
 ├── api/                          # Flask Backend
 │   ├── backend.py                # App gateway & blueprint routes registry
-│   ├── database.py               # SQLite database schemas and migrations
+│   ├── database.py               # Database schemas and migration logic
+│   ├── db_utils.py               # Unified Database abstractor (SQLite & PostgreSQL)
+│   ├── task_utils.py             # Dynamic Task router (Celery or Threading)
+│   ├── celery_app.py             # Celery application configuration & tasks
 │   ├── auth_utils.py             # bcrypt hashing and seeding script
 │   ├── jwt_utils.py              # HS256 token creation and verification
 │   ├── routes/
-│   │   └── v2/                   # Blueprints (auth, cases, scanners, ai, reports)
-│   └── tests/                    # Backend pytest suite (36 tests)
+│   │   └── v2/                   # Blueprints (auth, cases, scanners, ai, reports, copilot, mfa)
+│   └── tests/                    # Backend pytest suite (79 tests)
 │
 ├── frontend/                     # Next.js Workspace
-│   ├── app/                      # Routes (cases, chat, scanners, analytics, etc.)
-│   ├── components/               # App layout shell and scanner blocks
+│   ├── app/                      # Routes (cases, chat, scanners, analytics, copilot, settings, login)
+│   ├── components/               # App layout shell and custom dashboard graphs
 │   └── store/                    # Zustand auth token persistence
 │
+├── docker-compose.yml            # Multi-service production compose orchestration
 ├── docs/                         # Specifications suite
 └── requirements.txt              # Python library dependencies
 ```
@@ -209,7 +213,16 @@ cygnal/
 
 ## ⚡ Quick Start
 
-### 1. Initialize Python Backend
+### Option A: Docker Compose (Production Setup)
+You can run the entire Cygnal platform including the PostgreSQL database, Redis broker, Celery worker, backend API, and Next.js frontend with a single command:
+```bash
+docker-compose up --build
+```
+Once initialized, access the Next.js cockpit at `http://localhost:3000`.
+
+### Option B: Local Development (Manual Setup)
+
+#### 1. Initialize Python Backend
 ```bash
 # Navigate to the workspace and create a virtual environment
 python -m venv venv
@@ -223,9 +236,9 @@ pip install -r requirements.txt
 # Start the gateway server (Port 5000)
 python api/backend.py
 ```
-*Note: The SQLite database file (`api/cygnal.db`) is generated on the first run, seeding a default admin user.*
+*Note: In local development mode without Docker/PostgreSQL, the system automatically falls back to an SQLite database file (`api/cygnal.db`) and local background threading.*
 
-### 2. Start Frontend Server
+#### 2. Start Frontend Server
 ```bash
 cd frontend
 

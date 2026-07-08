@@ -13,10 +13,9 @@ Responsibilities:
 """
 
 import re
-import sqlite3
 import json
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 
 # ─── Intent Classification ────────────────────────────────────────────────────
 
@@ -121,7 +120,7 @@ def extract_iocs_from_prompt(prompt: str) -> list:
 
 def fetch_case_context(case_id: str) -> dict:
     """Fetch all investigation context for a specific case."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     ctx = {"case": None, "timeline": [], "evidence": [], "indicators": [], "lookups": []}
 
@@ -162,7 +161,7 @@ def fetch_case_context(case_id: str) -> dict:
 
 def fetch_general_context(prompt: str) -> dict:
     """Fetch general context when no case_id is provided."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     ctx = {"cases": [], "lookups": []}
 

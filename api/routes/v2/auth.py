@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
-import sqlite3
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection
 from auth_utils import hash_password, check_password
 from jwt_utils import create_token, decode_token
 
@@ -26,7 +25,7 @@ def register():
         return jsonify({"success": False, "error": "Invalid proposed role."}), 400
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Check if username exists
@@ -73,7 +72,7 @@ def login():
         return jsonify({"success": False, "error": "Username and password required."}), 400
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT password_hash, role, department, team FROM users WHERE username = ?;", (username,))
         row = cursor.fetchone()
@@ -85,6 +84,22 @@ def login():
         pwd_hash, role, dept, team = row
         if not check_password(password, pwd_hash):
             return jsonify({"success": False, "error": "Investigator credentials not validated."}), 401
+
+        # Check MFA challenge requirement
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT mfa_enabled FROM users WHERE username = ?;", (username,))
+        mfa_row = cursor.fetchone()
+        conn.close()
+        mfa_enabled = mfa_row[0] if mfa_row else 0
+
+        if mfa_enabled:
+            return jsonify({
+                "success": True,
+                "mfa_required": True,
+                "username": username,
+                "message": "Multi-Factor Authentication challenge required."
+            })
 
         payload = {"username": username, "role": role}
         token = create_token(payload)
@@ -118,7 +133,7 @@ def patch_user(username):
     team = data.get("team")
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Build dynamic updates
