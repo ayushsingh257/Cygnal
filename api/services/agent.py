@@ -138,6 +138,13 @@ def run_autonomic_loop_worker(app, alert_id):
         # 2. Update Alert state to investigating (Running)
         conn = get_db_connection()
         cursor = conn.cursor()
+        cursor.execute("SELECT status FROM inbound_alerts WHERE id = ?;", (alert_id,))
+        cur_status_row = cursor.fetchone()
+        if cur_status_row and cur_status_row[0] == "failed":
+            conn.close()
+            logging.info(f"[AUTONOMIC AGENT] Alert {alert_id} was aborted before starting loop.")
+            return
+            
         cursor.execute("UPDATE inbound_alerts SET status = 'investigating' WHERE id = ?;", (alert_id,))
         conn.commit()
         conn.close()
