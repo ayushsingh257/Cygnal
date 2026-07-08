@@ -4,9 +4,15 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
-## [v1.5.0-RC1] — 2026-07-07 — Autonomous Investigation Workspace v1.5 Sprints
+## [v1.5.0-RC1] — 2026-07-08 — Autonomous Investigation Workspace v1.5 Sprints
 
 ### Added
+- **Sprint 3: AI Investigation Timeline**
+  - **Backend: `api/routes/v2/cases.py`** — Added `GET /api/cases/<case_id>/timeline` endpoint aggregating case details, evidence uploads, IOC extractions, threat intel tags, relations, Notes, and scan histories into 7 stages.
+  - **AI Engine: Heuristic Narration Service** — Automatically compiles natural language narative summaries for each stage using verified data context without external API dependencies.
+  - **Frontend: `app/cases/page.tsx`** — Interactive stages accordion timeline using Lucide icons, metadata badges, timestamps, expand/collapse toggles, and AI Narrator summary panels.
+  - **Tests: `api/tests/test_extractor.py`** — Added `test_get_case_timeline_stages` integration test.
+
 - **Sprint 2: Interactive SVG Knowledge Graph**
   - **Backend: `api/routes/v2/cases.py`** — Added `GET /api/cases/<case_id>/graph` endpoint returning case, evidence, indicators, and cross-case evidence correlations.
   - **Frontend: `app/cases/page.tsx`** — Fully implemented high-performance SVG link graph using a custom client-side Force-Directed Layout, search filters, zoom/pan controls, neighbor highlighting, and live HUD overlays.

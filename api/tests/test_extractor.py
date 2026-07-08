@@ -265,3 +265,41 @@ def test_get_case_graph(client, auth_headers):
     relations = [e["relation"] for e in edges]
     assert "detects_indicator" in relations
 
+def test_get_case_timeline_stages(client, auth_headers):
+    """
+    Integration test validating the GET /api/cases/<case_id>/timeline endpoint.
+    """
+    # 1. Create a test case
+    res_case = client.post("/api/cases", json={"title": "Timeline Stages Case"}, headers=auth_headers)
+    case_id = res_case.get_json()["case"]["id"]
+
+    # 2. Extract some indicators
+    client.post(f"/api/cases/{case_id}/extract-iocs", json={
+        "text": "Threat originating from IP 198.51.100.15"
+    }, headers=auth_headers)
+
+    # 3. Call GET /api/cases/<case_id>/timeline
+    res_timeline = client.get(f"/api/cases/{case_id}/timeline", headers=auth_headers)
+    data = res_timeline.get_json()
+
+    assert res_timeline.status_code == 200
+    assert data["success"] is True
+    assert "stages" in data
+
+    stages = data["stages"]
+    assert len(stages) == 7
+
+    # Verify stage names
+    stage_names = [s["name"] for s in stages]
+    assert "Initial Detection" in stage_names
+    assert "IOC Extraction" in stage_names
+    assert "Threat Intelligence Enrichment" in stage_names
+
+    # Check Initial Detection events
+    init_stage = next(s for s in stages if s["name"] == "Initial Detection")
+    assert len(init_stage["events"]) >= 1
+    assert "Timeline Stages Case" in init_stage["events"][0]["description"]
+    assert "initialized" in init_stage["summary"]
+
+
+
