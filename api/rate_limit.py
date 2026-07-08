@@ -5,7 +5,7 @@ Tracks failed login/registration attempts per IP address.
 
 import time
 from functools import wraps
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from collections import defaultdict
 
 # Track attempts: {key: [(timestamp, attempt_count)]}
@@ -62,6 +62,10 @@ def rate_limit_auth(f):
     """Decorator to apply rate limiting to auth endpoints."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Bypass rate limiting in testing mode to prevent lockouts during test execution
+        if current_app and current_app.config.get("TESTING"):
+            return f(*args, **kwargs)
+            
         client_key = f"{get_client_ip()}:{request.path}"
         
         # Check if rate limited

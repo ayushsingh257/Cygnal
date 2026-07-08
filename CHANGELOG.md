@@ -4,6 +4,17 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v2.5.1-Security] — 2026-07-08 — Security Hardening Review & Remediation
+
+### Added
+- **Authentication Checks on Protected Routes** — Enforced token validation checks on all protected case, copilot, investigation, and scanner endpoints. Any unauthenticated requests now return `401 Unauthorized`.
+- **API Request Rate Limiting (`api/rate_limit.py`)** — Implemented an in-memory rate limiter protecting public authentication `/login` and `/register` endpoints against brute-force guessing and dictionary attacks. Standardized bypass checks for the pytest automation harness.
+- **Secure HTTP Headers Middleware (`api/backend.py`)** — Added a global `@app.after_request` handler enforcing standard security headers: `CSP`, `HSTS` (max-age 1 year), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy: strict-origin-when-cross-origin`.
+- **Fail-Fast Configuration Verification (`api/jwt_utils.py` & `api/auth_utils.py`)** — Prevented application startup if the critical `JWT_SECRET` environment variable is not defined, protecting token signatures. Shifted admin account credentials configuration out of source files to secure environment variables (`CYGNAL_ADMIN_USERNAME` and `CYGNAL_ADMIN_PASSWORD`).
+- **Production CORS Integration** — Configured dynamic CORS origin verification from the environment variables `CORS_ORIGINS` to prevent wildcard origin exposures in production.
+
+---
+
 ## [v2.5.0-RC1] — 2026-07-08 — Collaborative Security Cockpit v2.5
 
 ### Added

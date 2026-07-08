@@ -36,18 +36,18 @@ def client():
 @pytest.fixture
 def auth_headers(client):
     """Register and log in to get a valid token."""
-    client.post("/api/auth/register", json={
+    client.post("/api/register", json={
         "username": "copilot_tester",
         "password": "CopilotPass@99",
         "role": "analyst",
         "department": "SOC",
         "team": "Blue"
     })
-    resp = client.post("/api/auth/login", json={
+    resp = client.post("/api/login", json={
         "username": "copilot_tester",
         "password": "CopilotPass@99"
     })
-    data = resp.get_json()
+    data = resp.get_json() or {}
     token = data.get("token", "")
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
@@ -254,9 +254,11 @@ def test_copilot_message_missing_prompt(client, auth_headers):
 
 def test_copilot_message_no_auth(client):
     resp = client.post("/api/copilot/message", json={"prompt": "Check IP 1.2.3.4"})
-    # Should succeed (auth is optional for copilot — user is recorded as 'unknown')
+    # Should fail with 401 Unauthorized under the strict security model
+    assert resp.status_code == 401
     data = resp.get_json()
-    assert data["success"] is True
+    assert data["success"] is False
+    assert "Authentication signature required" in data["error"]
 
 
 # ─── API: /api/copilot/approve ────────────────────────────────────────────────
