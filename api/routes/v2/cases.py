@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from werkzeug.utils import secure_filename
 import os
 import hashlib
 import uuid
@@ -275,7 +276,10 @@ def upload_evidence(case_id):
 
         # Save file to uploads folder
         file_id = str(uuid.uuid4())
-        safe_filename = f"{file_id}_{file.filename}"
+        base_name = secure_filename(file.filename)
+        if not base_name:
+            base_name = "evidence.dat"
+        safe_filename = f"{file_id}_{base_name}"
         file_dest = os.path.join(UPLOAD_FOLDER, safe_filename)
         
         file.seek(0)
@@ -287,7 +291,7 @@ def upload_evidence(case_id):
         cursor.execute("""
             INSERT INTO evidence (id, case_id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        """, (file_id, case_id, file.filename, file_size, sha256_hash, file_type, user, now_str))
+        """, (file_id, case_id, base_name, file_size, sha256_hash, file_type, user, now_str))
 
         # Log timeline event
         timeline_id = str(uuid.uuid4())

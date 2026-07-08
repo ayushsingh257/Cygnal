@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # Determine debug mode from environment
     debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     
-    logging.info(f"Starting Cygnal v2.5 Flask Backend with WebSockets on port 5000... (debug={debug_mode})")
+    logging.info(f"Starting Cygnal v3.5 Flask Backend with WebSockets on port 5000... (debug={debug_mode})")
     
     # Security: Never use debug=True in production
     socketio.run(app, debug=debug_mode, host="0.0.0.0", port=5000)

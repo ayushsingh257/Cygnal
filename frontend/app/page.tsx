@@ -99,7 +99,7 @@ export default function MarketingLandingPage() {
       {/* HERO SECTION */}
       <Hero
         trustBadge={{
-          text: "Version 2.5 Collaborative Cockpit Active",
+          text: "Version 3.5 Connected Integrations & Agentic Loops Active",
           icons: ["✨"]
         }}
         headline={{

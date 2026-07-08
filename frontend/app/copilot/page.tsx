@@ -142,7 +142,13 @@ function renderMarkdown(text: string): React.ReactNode {
 }
 
 function inlineMarkdown(text: string): string {
-  return text
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+  return escaped
     .replace(/`([^`]+)`/g, '<code class="bg-[#0f2422] border border-[#408A71]/20 text-[#B0E4CC] text-[10px] px-1.5 py-0.5 rounded font-mono">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em class="text-slate-400 italic">$1</em>');
