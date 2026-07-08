@@ -41,7 +41,8 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🔵 Cygnal v1.5: Autonomous Investigation Workspace
+### 🟢 Cygnal v1.5: Autonomous Investigation Workspace [Sprints 1-3 Complete]
+
 *   **Purpose:** Make investigations automatic by extracting and enriching indicators of compromise (IOCs) without manual user intervention.
 *   **Business Value:** Minimizes Mean Time to Investigate (MTTI) by automatically correlating evidence and scanning targets upon ingestion.
 *   **Technical Goals:** Implement regular-expression based entity parsers, compile relationship graph APIs, and build narrative timeline builders.
