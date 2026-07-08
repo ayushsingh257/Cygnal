@@ -18,8 +18,11 @@ def client():
         yield c
 
 
+from jwt_utils import create_token
+
 def auth_headers():
-    return {"Content-Type": "application/json", "Authorization": "Bearer testtoken123"}
+    token = create_token({"username": "scanner_tester", "role": "analyst"})
+    return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
 
 # ─── Scanner Directory ────────────────────────────────────────────────────────
