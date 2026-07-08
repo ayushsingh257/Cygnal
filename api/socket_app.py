@@ -1,8 +1,10 @@
+import os
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import logging
 
-# Initialize socketio instance
-socketio = SocketIO(cors_allowed_origins="*")
+# Initialize socketio instance with configurable CORS origins
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+socketio = SocketIO(cors_allowed_origins=cors_origins)
 
 @socketio.on('connect')
 def handle_connect():

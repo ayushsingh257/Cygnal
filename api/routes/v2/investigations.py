@@ -28,6 +28,9 @@ def now_iso():
 @investigations_bp.route("/investigations/start", methods=["POST"])
 def start_investigation():
     user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.replace("Bearer ", "").strip() if auth_header else ""
     
@@ -113,6 +116,10 @@ def start_investigation():
 
 @investigations_bp.route("/investigations/<job_id>", methods=["GET"])
 def get_job_status(job_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -146,6 +153,10 @@ def get_job_status(job_id):
 
 @investigations_bp.route("/investigations/<job_id>/results", methods=["GET"])
 def get_job_results(job_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT case_id, target, scanner_statuses FROM investigation_jobs WHERE id = ?;", (job_id,))

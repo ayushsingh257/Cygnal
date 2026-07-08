@@ -1121,6 +1121,10 @@ def threat_intelligence():
 
 @scanners_bp.route("/scanners", methods=["GET"])
 def get_scanner_directory():
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     scanners = [
         {"slug": "whois", "name": "WHOIS Lookup", "description": "Domain/IP ownership, registrar, creation dates, nameservers", "input": "text", "category": "Reconnaissance"},
         {"slug": "headers", "name": "HTTP Header Scanner", "description": "Security headers audit, CSP/HSTS analysis, info disclosure", "input": "text", "category": "Web Security"},
