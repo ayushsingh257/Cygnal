@@ -41,21 +41,21 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🟢 Cygnal v1.5: Autonomous Investigation Workspace [Sprints 1-4A Complete]
+### 🟢 Cygnal v1.5: Autonomous Investigation Workspace [Sprints 1-4B Complete]
 
-*   **Purpose:** Make investigations automatic by extracting and enriching indicators of compromise (IOCs) without manual user intervention.
-*   **Business Value:** Minimizes Mean Time to Investigate (MTTI) by automatically correlating evidence and scanning targets upon ingestion.
-*   **Technical Goals:** Implement regular-expression based entity parsers, compile relationship graph APIs, build narrative timeline builders, and construct parallel execution orchestrators.
-*   **Architecture Changes:** Addition of regex services modules, inline SVG node layout engines, and thread-pooled orchestrator execution managers.
+*   **Purpose:** Make investigations automatic by extracting and enriching indicators of compromise (IOCs) without manual user intervention, and providing AI-powered investigation guidance through a natural-language Copilot interface.
+*   **Business Value:** Minimizes Mean Time to Investigate (MTTI) by automatically correlating evidence, orchestrating parallel scans, and providing structured investigation guidance that replaces manual tool-switching.
+*   **Technical Goals:** Implement regex-based entity parsers, relationship graph APIs, narrative timeline builders, parallel execution orchestrators, and an intelligent AI Copilot with intent classification and structured response generation.
+*   **Architecture Changes:** Addition of regex services, SVG node layout engines, thread-pooled orchestrator, and AI Copilot intent + RAG engine (`api/services/copilot.py`).
 *   **Database Changes:** Addition of `case_indicators`, `evidence_relations`, and `investigation_jobs` tables.
-*   **Backend Work:** Creation of `POST /api/cases/<id>/extract-iocs`, `GET /api/cases/<id>/graph`, and `/api/investigations/*` endpoints.
-*   **Frontend Work:** Deployment of custom node-link SVG graph layouts, vertical timeline stages, and live job progress dashboards.
-*   **AI Improvements:** Automatically parse indicators and orchestrate multi-tool dispatches concurrently.
-*   **Testing Requirements:** Tests verifying regex extractor accuracy, graph relation nodes assembly, and parallel job states.
-*   **Success Criteria:** Auto-extraction recall rate above 90%; job tracking progress is updated in real-time.
+*   **Backend Work:** `POST /api/cases/<id>/extract-iocs`, `GET /api/cases/<id>/graph`, `/api/investigations/*`, `POST /api/copilot/message`, `POST /api/copilot/approve`, `GET /api/copilot/summary/<case_id>`.
+*   **Frontend Work:** SVG graph layouts, vertical timeline stages, live job progress dashboards, and the AI Copilot split-panel investigation workspace (`/copilot`).
+*   **AI Improvements:** Intent classification engine, IOC extraction from free text, structured investigation report generation, confidence scoring, and human-in-the-loop approval gate before orchestration.
+*   **Testing Requirements:** Tests verifying IOC extractor accuracy, graph relation assembly, parallel job states, intent classification, plan building, and API endpoint correctness.
+*   **Success Criteria:** ✅ 78/78 backend tests passing. Auto-extraction >90% recall. Live job progress updated in real-time. All structured responses include 5+ investigation sections.
 *   **Dependencies:** exifread, dnspython.
-*   **Expected Users:** Incident response teams and security operations leads.
-*   **Workspace Alignment:** Automates context gathering, dispatches parallel scans, and dynamically updates knowledge graphs.
+*   **Expected Users:** SOC analysts, DFIR investigators, Threat Hunters, and Incident Responders.
+*   **Workspace Alignment:** Automates context gathering, dispatches parallel scans, dynamically updates knowledge graphs, and provides AI-guided investigation planning that keeps the investigator in control.
 
 
 ---

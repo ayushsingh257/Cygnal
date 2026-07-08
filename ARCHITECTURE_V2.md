@@ -54,13 +54,14 @@ This document defines the technical architecture for the evolved Cygnal platform
 ## 🧩 2. Evolved System Modules
 
 ### 1. AI Investigation Copilot
-*   **Purpose:** Orchestrates the query flow across evidence, scans, and timelines to answer natural language analyst prompts.
+*   **Purpose:** Serve as the investigator's primary AI assistant by understanding natural language requests, retrieving contextual investigation data through the RAG engine, extracting indicators from user prompts, proposing investigation plans, requesting analyst approval, and coordinating the Investigation Orchestrator.
 *   **Responsibility:** Receives queries, converts them into search/SQL commands, pulls context from matched cases, processes reasoning, and returns structured markdown summaries with recommended actions.
 *   **Inputs:** `prompt` (string), `case_id` (string, optional), `user_context` (JWT claims).
 *   **Outputs:** Markdown-formatted analytical response, list of matched database reference links.
 *   **API Endpoints:**
-    *   `POST /api/ai/chat` (Session-bound contextual chat)
-    *   `POST /api/ai/suggest` (Generates next-step containment queries)
+    *   `POST /api/copilot/message` (Session-bound contextual chat)
+    *   `POST /api/copilot/approve` (Generates next-step action plan)
+    The Copilot intentionally reuses the existing RAG engine and Investigation Orchestrator rather than duplicating scanner execution logic.
 *   **Database Interactions:** Reads `cases`, `timeline`, `evidence`, `lookups`, `threat_intel` tables.
 *   **Relationships:** Integrates directly with the Knowledge Graph and Timeline Builder to update visual components in the user interface.
 
