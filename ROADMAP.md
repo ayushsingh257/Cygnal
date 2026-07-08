@@ -78,16 +78,16 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🟠 Cygnal v2.5: Collaborative Security Cockpit
+### 🟢 Cygnal v2.5: Collaborative Security Cockpit [Complete]
 *   **Purpose:** Enable multiple security analysts to investigate incident cases together in real-time.
 *   **Business Value:** Eliminates duplicate work, improves information sharing during high-stress alerts, and speeds up analyst shift handoffs.
 *   **Technical Goals:** Integrate WebSocket server connections, implement case locking, and establish comment registries.
-*   **Architecture Changes:** Add a WebSocket routing layer (e.g., Flask-SocketIO or FastAPI WebSockets) to broadcast case changes.
-*   **Database Changes:** Add `case_locks` and `case_comments` tables.
-*   **Backend Work:** Broadcast case status, timeline logs, and analyst assignments in real-time to active WebSocket clients.
-*   **Frontend Work:** Implement live collaborative indicators, pop-up change toast notifications, case editing locks, and chat threads.
-*   **AI Improvements:** AI monitors active comment threads to inject summary tips: *"Another analyst recently completed a metadata extraction on similar hashes; click here to link findings."*
-*   **Testing Requirements:** Mock WebSocket connection testing to verify message broadcasts.
+*   **Architecture Changes:** Add a WebSocket routing layer (Flask-SocketIO) to broadcast case changes, comments, and lease lock states.
+*   **Database Changes:** Add `case_locks` and `comments` tables.
+*   **Backend Work:** Broadcast case status, lock lease updates, and new analyst comments in real-time to active WebSocket clients.
+*   **Frontend Work:** Implement live collaborative indicators, case lease lock panels, and live chat threads.
+*   **AI Improvements:** AI monitors active comment threads to inject summary tips.
+*   **Testing Requirements:** Integration tests verifying concurrent lock acquisition, lease releases, and comments posting (passing).
 *   **Success Criteria:** Case changes sync to concurrent browser windows in under 200 milliseconds.
 *   **Expected Users:** Multi-analyst SOC teams and shift leads.
 *   **Workspace Alignment:** Transforms Cygnal from an isolated console into a team cockpit.
