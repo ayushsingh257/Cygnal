@@ -56,6 +56,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         { name: "Operations Hub", href: "/dashboard", icon: BarChart3, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"] },
         { name: "Scanners Directory", href: "/scanners", icon: Terminal, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"] },
         { name: "Incident Cases", href: "/cases", icon: Briefcase, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst"] },
+        { name: "AI Investigation Copilot", href: "/copilot", icon: Cpu, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"] },
         { name: "RAG AI Assistant", href: "/chat", icon: MessageSquare, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"] },
         { name: "Multi-Agent AI", href: "/agents", icon: Cpu, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst"] },
       ]

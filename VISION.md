@@ -6,8 +6,11 @@
 **Cygnal turns raw cyber evidence into complete investigations in minutes—not hours.**
 
 ### Vision
-To become the world's premier AI-powered **Investigation Workspace** for security operations centers (SOC), digital forensics and incident response (DFIR) teams, threat hunters, and security researchers. Cygnal sits above security telemetry tools, acting as a single, unified cognitive layer that integrates OSINT discovery, forensics evidence custody, visual correlation, and AI-driven analysis into a seamless investigation workflow.
+To become the world's premier AI-powered **Investigation Workspace** for Security Operations Centers (SOC), Digital Forensics and Incident Response (DFIR) teams, threat hunters, and security researchers.
 
+Cygnal sits above security telemetry platforms, acting as a unified cognitive investigation layer that automatically transforms raw cyber evidence into explainable investigations through autonomous orchestration, visual evidence correlation, AI-assisted reasoning, and investigator-guided decision making.
+
+Rather than functioning as a collection of independent cybersecurity tools, Cygnal operates as a complete investigation workspace where evidence collection, enrichment, analysis, correlation, reporting, and AI assistance occur inside a single workflow.
 ---
 
 ## 🚫 2. Product Guardrails: What Cygnal Is and Is Not
@@ -19,7 +22,7 @@ To maintain focus and avoid bloat, Cygnal has strict functional boundaries. Ever
 | **An Investigation Workspace** that unifies evidence, context, and intelligence analysis. | **A SIEM Replacement.** We do not ingest or parse gigabytes of raw system logs in real-time. |
 | **A Forensics Custody Vault** that secures evidence integrity via SHA-256 signatures. | **An EDR / Active Response Agent.** We do not deploy endpoint agents to block processes or isolate hosts. |
 | **An OSINT & Telemetry Aggregator** executing targeted on-demand queries. | **A Vulnerability / Network Scanner.** We do not run automated vulnerability assessments or continuous port sweeps. |
-| **An AI Investigation Copilot** providing contextual analysis and correlation. | **A Generic Chatbot.** We do not host generic conversational LLM models unrelated to case data. |
+| **An AI Investigation Workspace** autonomous orchestration, contextual analysis, visual correlation, and investigator-guided AI assistance. | **A Generic Chatbot.** We do not host generic conversational LLM models unrelated to case data. |
 | **A Timeline & Report Compiler** that automates documentation for human review. | **A Generic Ticketing System.** We do not track IT helpdesk requests or non-security issues. |
 
 ### The Core Question
@@ -77,6 +80,7 @@ Cygnal is built specifically for security professionals who perform deep analyti
 *   **Investigator-in-the-Loop:** AI does not make execution decisions. AI analyzes, correlates, and suggests. Humans review, approve, and contain.
 *   **Deterministic RAG Context:** No hallucinated facts. The AI must strictly base its summaries on verified database rows, logs, and evidence hashes.
 *   **Explainable Reasoning:** The AI must outline *how* it arrived at its correlation (e.g., matching a domain because it appeared in lookups for a specific case).
+* **Human Approval for Autonomous Actions:** The AI may recommend and prepare investigations automatically, but execution of investigation plans must remain subject to explicit analyst approval unless organizational policies allow otherwise.
 
 ---
 
@@ -88,6 +92,7 @@ To verify if Cygnal is achieving its mission, the platform tracks:
 *   **Mean Time to Investigate (MTTI):** The duration from case creation to report compilation. Target: `< 15 minutes`.
 *   **Tool-Switching Count:** The number of separate platform boundaries an investigator crosses during triage. Target: `1` (Cygnal only).
 *   **Evidence Signature Integrity Rate:** Zero occurrences of untracked or modified evidence hash records in closed cases.
+* **Autonomous Investigation Adoption:** Percentage of investigations initiated through the AI Copilot and Investigation Orchestrator instead of manual scanner execution.
 
 ---
 

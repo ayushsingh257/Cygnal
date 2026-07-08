@@ -7,6 +7,15 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 ## [v1.5.0-RC1] — 2026-07-08 — Autonomous Investigation Workspace v1.5 Sprints
 
 ### Added
+- **Sprint 4B: AI Investigation Copilot**
+  - **Backend: `api/services/copilot.py`** — Built the full Copilot intelligence engine: 5-intent classifier (`INVESTIGATE_TARGET`, `EXPLAIN_CASE`, `SUMMARIZE_FINDINGS`, `RECOMMEND_NEXT_STEPS`, `ANSWER_QUESTION`), IOC extractor from free text (IPv4, IPv6, URL, domain, email, SHA-256/MD5/SHA-1, CVE), investigation plan builder with per-IOC scanner recommendations, confidence scoring engine, and 5 structured markdown response formatters (each including Executive Summary, IOCs, Reasoning, Confidence, Recommended Actions).
+  - **Backend: `api/routes/v2/copilot.py`** — Added `POST /api/copilot/message` (intent + RAG + structured response), `POST /api/copilot/approve` (human-in-the-loop approval gate that invokes the Sprint 4A Orchestrator service functions directly), and `GET /api/copilot/summary/<case_id>` (post-investigation auto-summary).
+  - **Backend: `api/backend.py`** — Registered `copilot_bp` blueprint routing under `/api` prefix.
+  - **Frontend: `frontend/app/copilot/page.tsx`** — Built the AI Investigation Copilot workspace: split-panel layout with chat thread (left) and live status/workflow panel (right). Features IOC chip display, structured markdown renderer, inline Investigation Plan approval card, live JobProgressHUD with animated progress bar, post-completion auto-summary trigger, and 6 quick-action suggestion chips.
+  - **Frontend: `frontend/components/DashboardShell.tsx`** — Added "AI Investigation Copilot" navigation entry pointing to `/copilot`.
+  - **Tests: `api/tests/test_copilot.py`** — Created 33-test suite covering intent classification (7), IOC extraction (7), plan building (5), pipeline processing (4), structured format enforcement (1), and API endpoint validation (9). All 33 passing.
+  - **Total test coverage: 78/78 passing** after Sprint 4B.
+
 - **Sprint 4A: Autonomous Investigation Orchestrator**
   - **Backend: `api/services/orchestrator.py`** — Built the orchestrator service logic: input target format auto-classifier, parallel scanner planner, thread pooled background execution workers, and automatic timeline/graph callbacks.
   - **Backend: `api/routes/v2/investigations.py`** — Added `POST /api/investigations/start`, `GET /api/investigations/<job_id>`, and `GET /api/investigations/<job_id>/results` endpoints.

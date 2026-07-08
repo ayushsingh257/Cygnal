@@ -19,6 +19,7 @@ from routes.v2.scanners import scanners_bp
 from routes.v2.ai import ai_bp
 from routes.v2.reports import reports_bp
 from routes.v2.investigations import investigations_bp
+from routes.v2.copilot import copilot_bp
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -46,6 +47,7 @@ app.register_blueprint(scanners_bp, url_prefix="/api")
 app.register_blueprint(ai_bp, url_prefix="/api")
 app.register_blueprint(reports_bp, url_prefix="/api")
 app.register_blueprint(investigations_bp, url_prefix="/api")
+app.register_blueprint(copilot_bp, url_prefix="/api")
 
 
 # ========== GLOBAL ERROR HANDLERS ==========
