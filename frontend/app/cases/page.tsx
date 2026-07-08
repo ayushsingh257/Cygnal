@@ -98,6 +98,12 @@ export default function CasesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
 
+  // Sprint 3 Timeline states
+  const [timelineStages, setTimelineStages] = useState<any[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [expandedStages, setExpandedStages] = useState<string[]>(["Initial Detection"]);
+
+
 
   useEffect(() => {
     if (!token) return;
@@ -108,14 +114,17 @@ export default function CasesPage() {
     if (selectedCaseId) {
       fetchCaseDetails(selectedCaseId);
       fetchGraphData(selectedCaseId);
+      fetchTimelineStages(selectedCaseId);
     } else {
       setCaseDetails(null);
       setTimeline([]);
       setEvidence([]);
       setGraphNodes([]);
       setGraphEdges([]);
+      setTimelineStages([]);
     }
   }, [selectedCaseId]);
+
 
 
   const fetchCases = async () => {
@@ -178,6 +187,24 @@ export default function CasesPage() {
       setGraphLoading(false);
     }
   };
+
+  const fetchTimelineStages = async (id: string) => {
+    setTimelineLoading(true);
+    try {
+      const res = await fetch(`/api/cases/${id}/timeline`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTimelineStages(data.stages || []);
+      }
+    } catch {
+      console.error("Failed to load timeline stages.");
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
 
 
   const handleCreateCase = async (e: React.FormEvent) => {
@@ -476,6 +503,28 @@ export default function CasesPage() {
     return filteredNodeIds.has(edge.source) && filteredNodeIds.has(edge.target);
   });
 
+  const getEventIcon = (type: string) => {
+    switch (type) {
+      case "case_created": return <Plus size={11} className="text-emerald-400" />;
+      case "evidence_uploaded": return <UploadCloud size={11} className="text-blue-400" />;
+      case "ioc_extracted": return <Layers size={11} className="text-purple-400" />;
+      case "threat_intel_match": return <ShieldAlert size={11} className="text-red-400" />;
+      case "evidence_relation": return <Network size={11} className="text-indigo-400" />;
+      case "analyst_note": return <User size={11} className="text-amber-400" />;
+      case "scanner_execution": return <Activity size={11} className="text-cyan-400" />;
+      default: return <Clock size={11} className="text-slate-400" />;
+    }
+  };
+
+  const toggleStageExpanded = (stageName: string) => {
+    if (expandedStages.includes(stageName)) {
+      setExpandedStages(expandedStages.filter((x) => x !== stageName));
+    } else {
+      setExpandedStages([...expandedStages, stageName]);
+    }
+  };
+
+
 
   return (
     <DashboardShell>
@@ -634,7 +683,7 @@ export default function CasesPage() {
 
                 {/* TAB CONTENT: Timeline */}
                 {activeTab === "timeline" && (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {/* Add Timeline note input */}
                     <form onSubmit={handlePostComment} className="flex gap-3">
                       <input
@@ -642,7 +691,7 @@ export default function CasesPage() {
                         placeholder="Log new analyst note to case timeline..."
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        className="cyber-input py-2 text-xs"
+                        className="cyber-input py-2 text-xs bg-black/40"
                       />
                       <button 
                         type="submit"
@@ -652,27 +701,117 @@ export default function CasesPage() {
                       </button>
                     </form>
 
-                    {/* Timeline List */}
-                    <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
-                      {timeline.length === 0 ? (
-                        <p className="text-[11px] font-mono text-slate-550 text-center py-8">No events registered.</p>
+                    {/* Timeline Stages List */}
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                      {timelineLoading ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-550 animate-pulse">
+                          <Activity className="w-5 h-5 animate-spin text-blue-450 mr-2" />
+                          <span className="text-[10px] font-mono uppercase tracking-wider">Parsing chronological ledger events...</span>
+                        </div>
+                      ) : timelineStages.length === 0 ? (
+                        <p className="text-[11px] font-mono text-slate-550 text-center py-8">No timeline stages compiled.</p>
                       ) : (
-                        timeline.map((evt) => (
-                          <div key={evt.id} className="flex gap-3 items-start border-l border-white/5 pl-3.5 relative ml-2 text-left">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 absolute -left-1 top-1.5" />
-                            <div className="space-y-0.5 leading-normal">
-                              <p className="text-xs text-slate-200">{evt.description}</p>
-                              <div className="flex gap-2 text-[9px] font-mono text-slate-500 uppercase">
-                                <span>{new Date(evt.timestamp).toLocaleString()}</span>
-                                <span>• by {evt.user}</span>
-                              </div>
+                        timelineStages.map((stage) => {
+                          const isExpanded = expandedStages.includes(stage.name);
+                          return (
+                            <div key={stage.name} className="border border-white/5 rounded-xl bg-black/10 overflow-hidden transition-all duration-300">
+                              {/* Stage Header */}
+                              <button
+                                type="button"
+                                onClick={() => toggleStageExpanded(stage.name)}
+                                className="w-full flex items-center justify-between p-3.5 hover:bg-white/[0.02] text-left transition select-none"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-900 border border-white/10 text-[10px] font-mono font-bold text-slate-400">
+                                    {stage.events.length}
+                                  </div>
+                                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                                    {stage.name}
+                                  </h4>
+                                </div>
+                                <span className="text-slate-500 font-mono text-[10px] hover:text-white transition">
+                                  {isExpanded ? "Collapse ▲" : "Expand ▼"}
+                                </span>
+                              </button>
+
+                              {/* Stage Content */}
+                              {isExpanded && (
+                                <div className="p-4 border-t border-white/5 space-y-4 bg-black/15">
+                                  {/* AI Summary Card */}
+                                  <div className="glass-card rounded-lg p-3 bg-blue-955/20 border border-blue-900/30 text-left relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 px-2 py-0.5 bg-blue-900/40 border-l border-b border-blue-800/40 text-[7.5px] font-bold text-blue-450 uppercase tracking-widest font-mono select-none">
+                                      AI Narrator
+                                    </div>
+                                    <p className="text-[11px] leading-relaxed text-slate-300 font-mono">
+                                      {stage.summary}
+                                    </p>
+                                  </div>
+
+                                  {/* Events list */}
+                                  {stage.events.length === 0 ? (
+                                    <p className="text-[10px] font-mono text-slate-600 text-center py-2">
+                                      No events registered for this stage.
+                                    </p>
+                                  ) : (
+                                    <div className="space-y-3 pl-2">
+                                      {stage.events.map((evt: any) => (
+                                        <div key={evt.id} className="flex gap-3 items-start border-l border-white/10 pl-4 relative ml-1.5 text-left">
+                                          <span className="w-5 h-5 rounded-full bg-slate-950 border border-white/10 flex items-center justify-center absolute -left-2.5 top-0.5 shadow-sm">
+                                            {getEventIcon(evt.type)}
+                                          </span>
+                                          <div className="space-y-1.5 leading-normal w-full">
+                                            <p className="text-xs text-slate-200">{evt.description}</p>
+                                            
+                                            {/* Metadata badging */}
+                                            {evt.metadata && (
+                                              <div className="flex flex-wrap gap-1.5 items-center">
+                                                {evt.metadata.filename && (
+                                                  <span className="px-1.5 py-0.5 bg-blue-955/20 text-blue-400 border border-blue-900/20 rounded text-[8.5px] font-mono">
+                                                    File: {evt.metadata.filename}
+                                                  </span>
+                                                )}
+                                                {evt.metadata.hash && (
+                                                  <span className="px-1.5 py-0.5 bg-indigo-950/20 text-indigo-400 border border-indigo-900/20 rounded text-[8.5px] font-mono tracking-wider font-semibold select-all" title={evt.metadata.hash}>
+                                                    SHA-256: {evt.metadata.hash.slice(0, 16)}...
+                                                  </span>
+                                                )}
+                                                {evt.metadata.type && (
+                                                  <span className="px-1.5 py-0.5 bg-purple-950/20 text-purple-400 border border-purple-900/20 rounded text-[8.5px] font-mono uppercase font-bold">
+                                                    Type: {evt.metadata.type}
+                                                  </span>
+                                                )}
+                                                {evt.metadata.confidence !== undefined && (
+                                                  <span className="px-1.5 py-0.5 bg-cyan-950/20 text-cyan-400 border border-cyan-900/20 rounded text-[8.5px] font-mono">
+                                                    Confidence: {evt.metadata.confidence}%
+                                                  </span>
+                                                )}
+                                                {evt.metadata.tags && (
+                                                  <span className="px-1.5 py-0.5 bg-red-950/20 text-red-400 border border-red-900/20 rounded text-[8.5px] font-mono font-bold animate-pulse">
+                                                    FEED TAGS: {evt.metadata.tags}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            )}
+
+                                            <div className="flex gap-2 text-[9px] font-mono text-slate-500 uppercase">
+                                              <span>{new Date(evt.timestamp).toLocaleString()}</span>
+                                              <span>• by {evt.user}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
                   </div>
                 )}
+
 
                 {/* TAB CONTENT: Evidence Vault */}
                 {activeTab === "evidence" && (

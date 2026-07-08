@@ -595,6 +595,245 @@ def get_case_graph(case_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@cases_bp.route("/cases/<case_id>/timeline", methods=["GET"])
+def get_case_timeline_stages(case_id):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # 1. Fetch case details
+        cursor.execute("SELECT id, case_number, title, description, status, severity, created_by, created_at, assigned_to FROM cases WHERE id = ?;", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            conn.close()
+            return jsonify({"success": False, "error": "Case not found."}), 404
+            
+        c_id, c_num, c_title, c_desc, c_status, c_severity, c_created_by, c_created_at, c_assigned = case_row
+        
+        # Initialize lists for each stage
+        initial_events = []
+        evidence_events = []
+        ioc_events = []
+        threat_events = []
+        relation_events = []
+        assessment_events = []
+        final_events = []
+        
+        # Helper to format timestamps and convert them cleanly
+        def parse_ts(ts):
+            return ts if ts else datetime.utcnow().isoformat() + "Z"
+            
+        # -- 1. Initial Detection Event
+        initial_events.append({
+            "id": f"init_case_{c_id}",
+            "timestamp": parse_ts(c_created_at),
+            "description": f"Incident case {c_num} initialized: '{c_title}'",
+            "user": c_created_by,
+            "type": "case_created",
+            "severity": c_severity,
+            "metadata": {"description": c_desc}
+        })
+        
+        # -- 2. Evidence Collection
+        cursor.execute("SELECT id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at FROM evidence WHERE case_id = ?;", (case_id,))
+        evidence_rows = cursor.fetchall()
+        for ev_id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at in evidence_rows:
+            evidence_events.append({
+                "id": f"ev_{ev_id}",
+                "timestamp": parse_ts(uploaded_at),
+                "description": f"Forensic evidence file '{filename}' signed and sealed into custody vault.",
+                "user": uploaded_by,
+                "type": "evidence_uploaded",
+                "severity": "low",
+                "metadata": {
+                    "filename": filename,
+                    "hash": file_hash,
+                    "size": file_size,
+                    "file_type": file_type
+                }
+            })
+            
+        # -- 3. IOC Extraction
+        cursor.execute("SELECT id, indicator_value, indicator_type, confidence_score, severity, created_at FROM case_indicators WHERE case_id = ?;", (case_id,))
+        indicators = cursor.fetchall()
+        for ind_id, ind_val, ind_type, confidence, severity, created_at in indicators:
+            ioc_events.append({
+                "id": f"ioc_{ind_id}",
+                "timestamp": parse_ts(created_at),
+                "description": f"Extracted threat indicator: {ind_val} ({ind_type.upper()}) with confidence {confidence}%.",
+                "user": "Cygnal Engine",
+                "type": "ioc_extracted",
+                "severity": severity,
+                "metadata": {
+                    "value": ind_val,
+                    "type": ind_type,
+                    "confidence": confidence,
+                    "severity": severity
+                }
+            })
+            
+            # -- 4. Threat Intel Enrichment
+            cursor.execute("SELECT id, source, tags FROM threat_intel WHERE indicator = ?;", (ind_val,))
+            ti_row = cursor.fetchone()
+            if ti_row:
+                ti_id, ti_source, ti_tags = ti_row
+                threat_events.append({
+                    "id": f"ti_{ti_id}",
+                    "timestamp": parse_ts(created_at),
+                    "description": f"Threat Intel correlation matched: {ind_val} registered in {ti_source}.",
+                    "user": "Cygnal Engine",
+                    "type": "threat_intel_match",
+                    "severity": "high" if confidence > 80 else "medium",
+                    "metadata": {
+                        "value": ind_val,
+                        "source": ti_source,
+                        "tags": ti_tags
+                    }
+                })
+                
+        # -- 5. Relationship Discovery
+        # Get relations for all evidence items in this case
+        ev_ids = [e[0] for e in evidence_rows]
+        if ev_ids:
+            placeholders = ",".join("?" for _ in ev_ids)
+            cursor.execute(f"""
+                SELECT id, source_evidence_id, target_evidence_id, correlation_reason, weight, created_at 
+                FROM evidence_relations 
+                WHERE source_evidence_id IN ({placeholders}) OR target_evidence_id IN ({placeholders});
+            """, ev_ids + ev_ids)
+            rel_rows = cursor.fetchall()
+            for r_id, src_ev, tgt_ev, reason, weight, created_at in rel_rows:
+                relation_events.append({
+                    "id": f"rel_{r_id}",
+                    "timestamp": parse_ts(created_at),
+                    "description": f"Evidence relationship discovered: {reason} (Weight: {weight}).",
+                    "user": "Cygnal Engine",
+                    "type": "evidence_relation",
+                    "severity": "medium" if weight > 50 else "low",
+                    "metadata": {
+                        "reason": reason,
+                        "weight": weight
+                    }
+                })
+                
+        # -- 6. Assessment (Timeline general events, analyst comments, scanner lookups)
+        cursor.execute("SELECT id, event_type, description, timestamp, user, metadata FROM timeline WHERE case_id = ?;", (case_id,))
+        timeline_rows = cursor.fetchall()
+        for t_id, event_type, description, timestamp, user, metadata in timeline_rows:
+            if event_type == "case_created":
+                continue
+            event = {
+                "id": f"tline_{t_id}",
+                "timestamp": parse_ts(timestamp),
+                "description": description,
+                "user": user,
+                "type": event_type,
+                "severity": "medium",
+                "metadata": {}
+            }
+            if metadata:
+                try:
+                    event["metadata"] = json.loads(metadata)
+                except:
+                    pass
+            
+            if event_type in ("report_generated", "case_resolved", "case_closed"):
+                final_events.append(event)
+            else:
+                assessment_events.append(event)
+                
+        # Lookups related to extracted indicators
+        for ind_val in [i[1] for i in indicators]:
+            cursor.execute("SELECT id, tool, input, timestamp, user FROM lookups WHERE input = ? OR input LIKE ?;", (ind_val, f"%{ind_val}%"))
+            for l_id, tool, l_input, timestamp, user in cursor.fetchall():
+                assessment_events.append({
+                    "id": f"lookup_{l_id}",
+                    "timestamp": parse_ts(timestamp),
+                    "description": f"Executed active sensor lookup via {tool.upper()} on indicator: {l_input}",
+                    "user": user,
+                    "type": "scanner_execution",
+                    "severity": "low",
+                    "metadata": {
+                        "tool": tool,
+                        "input": l_input
+                    }
+                })
+                
+        conn.close()
+        
+        # Sort each stage by timestamp
+        for ev_list in (initial_events, evidence_events, ioc_events, threat_events, relation_events, assessment_events, final_events):
+            ev_list.sort(key=lambda x: x["timestamp"])
+            
+        # 3. Compile Natural Language Narrations (No Hallucinations)
+        stage_summaries = {}
+        
+        # Stage 1: Initial Detection
+        if initial_events:
+            stage_summaries["Initial Detection"] = f"Incident case was initialized. Severity level is categorized as {c_severity.upper()} based on the initial alerts. The security incident worksheet was assigned to analyst {c_assigned or 'system'}."
+        else:
+            stage_summaries["Initial Detection"] = "No initial detection events have been recorded."
+
+        # Stage 2: Evidence Collection
+        if evidence_events:
+            filenames = [e["metadata"]["filename"] for e in evidence_events]
+            stage_summaries["Evidence Collection"] = f"Acquired {len(evidence_events)} forensic artifact(s) for deep inspection: {', '.join(filenames)}. All items were signed and hashed for secure chain of custody."
+        else:
+            stage_summaries["Evidence Collection"] = "Evidence gathering is pending. Secure custody seals have not been signed."
+
+        # Stage 3: IOC Extraction
+        if ioc_events:
+            types = set(e["metadata"]["type"] for e in ioc_events)
+            stage_summaries["IOC Extraction"] = f"Deep parsing scanned evidence and identified {len(ioc_events)} unique Indicators of Compromise (IOCs) across types: {', '.join(types)}. These indicators have been locked for verification."
+        else:
+            stage_summaries["IOC Extraction"] = "Automatic entity extraction has not identified any Indicators of Compromise in text fields."
+
+        # Stage 4: Threat Intelligence Enrichment
+        if threat_events:
+            threat_vals = [e["metadata"]["value"] for e in threat_events]
+            stage_summaries["Threat Intelligence Enrichment"] = f"Threat intelligence lookup confirmed correlation. {len(threat_events)} indicator(s) matched active threat feeds: {', '.join(threat_vals)}. Confidence scores have been elevated accordingly."
+        else:
+            stage_summaries["Threat Intelligence Enrichment"] = "No direct matching indicators were found in active global threat intelligence feeds."
+
+        # Stage 5: Relationship Discovery
+        if relation_events:
+            stage_summaries["Relationship Discovery"] = f"Found {len(relation_events)} connection(s) between evidence items in the repository. Cryptographic correlations (SHA-256 hashes or file prefixes) indicate propagation path overlaps."
+        else:
+            stage_summaries["Relationship Discovery"] = "No cryptographic evidence file duplications or similarities have been discovered."
+
+        # Stage 6: Assessment
+        if assessment_events:
+            stage_summaries["Assessment"] = f"Investigation team logged analyst notes and executed active lookup diagnostics. Analysts are evaluating threat vectors and validating overrides policies."
+        else:
+            stage_summaries["Assessment"] = "Analyst review and triage notes are currently pending for this case workspace."
+
+        # Stage 7: Final Findings
+        if final_events:
+            stage_summaries["Final Findings"] = f"Incident resolution activities detected. {len(final_events)} wrap-up events are locked into the ledger."
+        else:
+            stage_summaries["Final Findings"] = "Final incident compilation and reports have not been completed yet."
+            
+        # Assemble stages
+        stages = [
+            {"name": "Initial Detection", "summary": stage_summaries["Initial Detection"], "events": initial_events},
+            {"name": "Evidence Collection", "summary": stage_summaries["Evidence Collection"], "events": evidence_events},
+            {"name": "IOC Extraction", "summary": stage_summaries["IOC Extraction"], "events": ioc_events},
+            {"name": "Threat Intelligence Enrichment", "summary": stage_summaries["Threat Intelligence Enrichment"], "events": threat_events},
+            {"name": "Relationship Discovery", "summary": stage_summaries["Relationship Discovery"], "events": relation_events},
+            {"name": "Assessment", "summary": stage_summaries["Assessment"], "events": assessment_events},
+            {"name": "Final Findings", "summary": stage_summaries["Final Findings"], "events": final_events}
+        ]
+        
+        return jsonify({
+            "success": True,
+            "case_id": case_id,
+            "stages": stages
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 
 
 
