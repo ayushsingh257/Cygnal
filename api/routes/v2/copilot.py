@@ -69,15 +69,14 @@ def copilot_approve():
     Calls the existing Investigation Orchestrator service functions directly.
     Returns: { job_id, case_id, message }
     """
-    import sqlite3
     import uuid
     import json
-    from threading import Thread
+    from task_utils import dispatch_investigation
     from services.orchestrator import (
         detect_input_type, build_execution_plan,
-        run_investigation_worker, auto_create_case
+        auto_create_case
     )
-    from database import DB_PATH
+    from db_utils import get_db_connection, DB_PATH
 
     user = get_current_user()
     token = get_token()
@@ -108,7 +107,7 @@ def copilot_approve():
     scanners = build_execution_plan(input_type, target)
     job_id = str(uuid.uuid4())
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -127,13 +126,9 @@ def copilot_approve():
         return jsonify({"success": False, "error": f"Failed to initialize job: {str(e)}"}), 500
     conn.close()
 
-    # Spin up background thread worker (same pattern as investigations route)
+    # Dispatch task dynamically
     app_obj = current_app._get_current_object()
-    t = Thread(
-        target=run_investigation_worker,
-        args=(app_obj, job_id, case_id, target, input_type, token, user, None, None)
-    )
-    t.start()
+    dispatch_investigation(app_obj, job_id, case_id, target, input_type, token, user, None, None)
 
     return jsonify({
         "success": True,

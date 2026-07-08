@@ -1,10 +1,9 @@
 from flask import Blueprint, request, jsonify
-import sqlite3
 import os
 import hashlib
 import uuid
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 from services.extractor import extract_entities_from_text
 
@@ -24,7 +23,7 @@ def get_current_user():
 
 def generate_case_number():
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM cases;")
         count = cursor.fetchone()[0]
@@ -39,7 +38,7 @@ def generate_case_number():
 @cases_bp.route("/cases", methods=["GET"])
 def get_cases():
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, case_number, title, description, status, severity, created_by, created_at, updated_at, assigned_to, department
@@ -89,7 +88,7 @@ def create_case():
     now_str = datetime.utcnow().isoformat() + "Z"
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -122,7 +121,7 @@ def create_case():
 @cases_bp.route("/cases/<case_id>", methods=["GET"])
 def get_case_details(case_id):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Get Case Profile
@@ -212,7 +211,7 @@ def add_timeline_event(case_id):
     now_str = datetime.utcnow().isoformat() + "Z"
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Verify case exists
@@ -245,7 +244,7 @@ def upload_evidence(case_id):
         return jsonify({"success": False, "error": "Empty filename."}), 400
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Verify case exists
@@ -317,7 +316,7 @@ def json_dumps(data):
 def extract_case_iocs(case_id):
     user = get_current_user()
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Verify case exists
@@ -475,7 +474,7 @@ def extract_case_iocs(case_id):
 @cases_bp.route("/cases/<case_id>/graph", methods=["GET"])
 def get_case_graph(case_id):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Verify case exists
@@ -598,7 +597,7 @@ def get_case_graph(case_id):
 @cases_bp.route("/cases/<case_id>/timeline", methods=["GET"])
 def get_case_timeline_stages(case_id):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # 1. Fetch case details

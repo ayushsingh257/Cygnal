@@ -4,9 +4,9 @@ Saves, compiles, and shares digital forensics reports.
 """
 
 from flask import Blueprint, request, jsonify
-import sqlite3, uuid
+import uuid
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 
 reports_bp = Blueprint("reports_bp", __name__)
@@ -31,7 +31,7 @@ def list_reports():
         return jsonify({"success": False, "error": "Authentication signature required."}), 401
         
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT r.id, r.title, r.description, r.created_by, r.created_at, r.case_id, r.share_token, c.case_number
@@ -70,7 +70,7 @@ def create_report():
     share_token = str(uuid.uuid4())
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO reports (id, title, description, created_by, created_at, content, case_id, share_token)
@@ -106,7 +106,7 @@ def get_report(id):
         return jsonify({"success": False, "error": "Authentication signature required."}), 401
         
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT r.id, r.title, r.description, r.created_by, r.created_at, r.content, r.case_id, r.share_token, c.case_number, c.title
@@ -133,7 +133,7 @@ def get_report(id):
 def get_shared_report(token):
     """Bypasses investigator auth check to enable public preview links of sealed evidence reports."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT r.id, r.title, r.description, r.created_by, r.created_at, r.content, r.case_id, r.share_token, c.case_number, c.title, c.severity

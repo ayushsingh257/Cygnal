@@ -16,5 +16,8 @@ pyjwt
 python-nmap         # ✅ For Nmap support
 exifread
 dnspython
-
+psycopg2-binary
+celery
+redis
+pyotp
 

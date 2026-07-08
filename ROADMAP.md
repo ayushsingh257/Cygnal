@@ -60,21 +60,21 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🟡 Cygnal v2.0: Enterprise-Grade Workspace Hardening
+### 🟢 Cygnal v2.0: Enterprise-Grade Workspace Hardening [Complete]
 *   **Purpose:** Harden the platform for deployment inside enterprise security zones and data centers.
-*   **Business Value:** Meets compliance requirements for concurrent multi-user load, data replication, and single sign-on (SSO) credentials.
-*   **Technical Goals:** Replace SQLite with PostgreSQL, install distributed Celery background worker tasks, and set up Docker configs.
-*   **Architecture Changes:** Decouple database writes using a PostgreSQL backend; configure Celery workers with a Redis broker.
-*   **Database Changes:** Enforce transaction-safe locking mechanisms and index target audit logs.
-*   **Backend Work:** Migrate raw SQL queries to an ORM model (SQLAlchemy/Prisma); configure Celery tasks for all 10 scanners.
-*   **Frontend Work:** Update Next.js loading screens with custom skeleton states and support multi-factor auth (MFA) entry forms.
-*   **AI Improvements:** AI RAG uses PostgreSQL full-text search indexes to fetch and correlate matching cases across thousands of records.
-*   **Testing Requirements:** Integration tests verifying Celery task progress tracking and database locking during multi-user writes.
-*   **Deployment Requirements:** Multi-container Docker Compose configuration (`postgres`, `redis`, `celery-worker`, `backend`, `frontend`).
-*   **Success Criteria:** Zero database lockups under concurrent write loads; task queuing latency under 1 second.
-*   **Dependencies:** docker, redis, celery, psycopg2.
+*   **Business Value:** Meets compliance requirements for concurrent multi-user load, data replication, and single sign-on (SSO/MFA) credentials.
+*   **Technical Goals:** Replace SQLite with PostgreSQL for production, install distributed Celery background worker tasks, add TOTP Multi-Factor Authentication (MFA), and configure dynamic task routing.
+*   **Architecture Changes:** Decouple database writes using a PostgreSQL backend via unified `db_utils.py`; configure Celery workers with a Redis broker and fallback threading adapter.
+*   **Database Changes:** Implement dynamic SQLite-PostgreSQL compatibility layer, and add TOTP MFA credential store columns.
+*   **Backend Work:** Migrate raw database connections to dynamic pool; deploy setup/verify endpoints and login MFA checks.
+*   **Frontend Work:** Create MFA setup panel on Settings screen and MFA verify card on Login page.
+*   **AI Improvements:** AI RAG dynamically queries PostgreSQL/SQLite databases via connection pooling context.
+*   **Testing Requirements:** Integration tests verifying dynamic query formatting, custom DialectCursor checks, and MFA challenge loops (79/79 passing).
+*   **Deployment Requirements:** Multi-container Docker Compose configuration (`db`, `redis`, `celery_worker`, `backend`, `frontend`).
+*   **Success Criteria:** Complete container builds and seamless SQLite to PostgreSQL toggling.
+*   **Dependencies:** docker, redis, celery, psycopg2, pyotp.
 *   **Expected Users:** Corporate security operations, compliance officers, and IT administrators.
-*   **Workspace Alignment:** Provides the scalability and access controls required for real-world production environments.
+*   **Workspace Alignment:** Provides the scalability, reliability, and security credentials required for production environments.
 
 ---
 

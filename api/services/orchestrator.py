@@ -1,11 +1,10 @@
 import re
 import socket
-import sqlite3
 import uuid
 import json
 import io
 from datetime import datetime
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 
 IP_PATTERN = r'\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
 EMAIL_PATTERN = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'
@@ -56,7 +55,7 @@ def build_execution_plan(input_type: str, target: str) -> list:
     return []
 
 def update_job_status(job_id, status=None, progress=None, current_scanner=None, completed_scanner=None, result_payload=None):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT status, progress, current_scanner, completed_scanners, scanner_statuses FROM investigation_jobs WHERE id = ?;", (job_id,))
@@ -99,7 +98,7 @@ def update_job_status(job_id, status=None, progress=None, current_scanner=None, 
 
 def log_timeline(case_id, event_type, description, user):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         tid = str(uuid.uuid4())
         cursor.execute("""
@@ -122,7 +121,7 @@ def log_timeline(case_id, event_type, description, user):
 
 def auto_create_case(target, input_type, user):
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         case_id = str(uuid.uuid4())
         
@@ -225,7 +224,7 @@ def run_investigation_worker(app, job_id, case_id, target, input_type, auth_toke
                     res = client.post(f"/api/cases/{case_id}/extract-iocs", json={"text": target}, headers={"Authorization": f"Bearer {auth_token}"})
                     data = res.get_json()
                     
-                conn = sqlite3.connect(DB_PATH)
+                conn = get_db_connection()
                 cursor = conn.cursor()
                 cursor.execute("SELECT indicator_value, indicator_type FROM case_indicators WHERE case_id = ?;", (case_id,))
                 iocs = cursor.fetchall()

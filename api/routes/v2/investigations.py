@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
-import sqlite3
 import uuid
 from datetime import datetime
 import json
-from database import DB_PATH
+from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 from services.orchestrator import (
     detect_input_type,
@@ -11,7 +10,7 @@ from services.orchestrator import (
     run_investigation_worker,
     auto_create_case
 )
-from threading import Thread
+from task_utils import dispatch_investigation
 
 investigations_bp = Blueprint("investigations_bp", __name__)
 
@@ -77,7 +76,7 @@ def start_investigation():
     scanners = build_execution_plan(input_type, target)
     job_id = str(uuid.uuid4())
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -99,10 +98,9 @@ def start_investigation():
         return jsonify({"success": False, "error": f"Failed to initialize job: {str(e)}"}), 500
     conn.close()
     
-    # 5. Spin up background thread worker
+    # 5. Dispatch task dynamically
     app = current_app._get_current_object()
-    t = Thread(target=run_investigation_worker, args=(app, job_id, case_id, target, input_type, token, user, file_bytes, filename))
-    t.start()
+    dispatch_investigation(app, job_id, case_id, target, input_type, token, user, file_bytes, filename)
     
     return jsonify({
         "success": True,
@@ -115,7 +113,7 @@ def start_investigation():
 
 @investigations_bp.route("/investigations/<job_id>", methods=["GET"])
 def get_job_status(job_id):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
         SELECT id, case_id, target, input_type, status, progress, current_scanner, total_scanners, completed_scanners, scanner_statuses, created_at, updated_at, user 
@@ -148,7 +146,7 @@ def get_job_status(job_id):
 
 @investigations_bp.route("/investigations/<job_id>/results", methods=["GET"])
 def get_job_results(job_id):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT case_id, target, scanner_statuses FROM investigation_jobs WHERE id = ?;", (job_id,))
     row = cursor.fetchone()
