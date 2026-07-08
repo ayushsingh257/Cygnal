@@ -12,6 +12,8 @@ from logging.handlers import RotatingFileHandler
 
 from auth_utils import init_db
 from database import init_lookup_db
+from socket_app import socketio
+
 # Import v2 blueprints
 from routes.v2.auth import auth_bp
 from routes.v2.cases import cases_bp
@@ -40,6 +42,7 @@ logging.basicConfig(
 app = Flask(__name__)
 # Enable CORS for all routes under /api/
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+socketio.init_app(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/api")
@@ -66,5 +69,5 @@ def handle_404_error(e):
 if __name__ == "__main__":
     init_lookup_db()   # Ensure database schema is initialized and migrated
     init_db()          # Ensure default admin accounts are seeded
-    logging.info("Starting Cygnal v1.0 Flask Backend on port 5000...")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    logging.info("Starting Cygnal v2.5 Flask Backend with WebSockets on port 5000...")
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

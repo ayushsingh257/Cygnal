@@ -20,4 +20,6 @@ psycopg2-binary
 celery
 redis
 pyotp
+flask-socketio
+gevent-websocket
 

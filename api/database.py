@@ -177,6 +177,30 @@ def init_lookup_db():
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_investigation_jobs_case ON investigation_jobs(case_id);")
 
+        # 12. Case Locks table (v2.5)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS case_locks (
+                case_id TEXT PRIMARY KEY,
+                locked_by TEXT NOT NULL,
+                locked_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE
+            );
+        """)
+
+        # 13. Case Comments table (v2.5)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS comments (
+                id TEXT PRIMARY KEY,
+                case_id TEXT NOT NULL,
+                username TEXT NOT NULL,
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_comments_case ON comments(case_id);")
+
         # SAFE MIGRATION ROUTINE checks
 
         cursor.execute("PRAGMA table_info(users);")

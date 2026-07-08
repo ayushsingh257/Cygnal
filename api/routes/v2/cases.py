@@ -2,10 +2,11 @@ from flask import Blueprint, request, jsonify
 import os
 import hashlib
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 from services.extractor import extract_entities_from_text
+from socket_app import socketio
 
 cases_bp = Blueprint("cases_bp", __name__)
 
@@ -831,6 +832,217 @@ def get_case_timeline_stages(case_id):
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/lock", methods=["GET", "POST"])
+def acquire_case_lock(case_id):
+    username = get_current_user()
+    if username == "unknown":
+        return jsonify({"success": False, "error": "Authentication required."}), 401
+    
+    now_dt = datetime.now()
+    
+    if request.method == "GET":
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT locked_by, expires_at FROM case_locks WHERE case_id = ?;", (case_id,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                locked_by, expires_at_str = row[0], row[1]
+                try:
+                    expires_at_dt = datetime.fromisoformat(expires_at_str.replace("Z", ""))
+                except Exception:
+                    expires_at_dt = datetime.min
+                if expires_at_dt > now_dt:
+                    return jsonify({
+                        "success": True,
+                        "locked": True,
+                        "locked_by": locked_by,
+                        "expires_at": expires_at_str
+                    })
+            return jsonify({"success": True, "locked": False})
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
+    now_str = now_dt.isoformat() + "Z"
+    expires_dt = now_dt + timedelta(seconds=30)
+    expires_str = expires_dt.isoformat() + "Z"
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if lock exists and is valid
+        cursor.execute("SELECT locked_by, expires_at FROM case_locks WHERE case_id = ?;", (case_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            locked_by, expires_at_str = row[0], row[1]
+            try:
+                # Parse expiration time
+                expires_at_dt = datetime.fromisoformat(expires_at_str.replace("Z", ""))
+            except Exception:
+                expires_at_dt = datetime.min
+            
+            # If lock is still valid and owned by someone else
+            if expires_at_dt > now_dt and locked_by != username:
+                conn.close()
+                return jsonify({
+                    "success": False,
+                    "error": "Case is locked by another investigator.",
+                    "locked_by": locked_by,
+                    "expires_at": expires_at_str
+                }), 409
+            
+            # If expired or owned by the same user, update it
+            cursor.execute(
+                "UPDATE case_locks SET locked_by = ?, locked_at = ?, expires_at = ? WHERE case_id = ?;",
+                (username, now_str, expires_str, case_id)
+            )
+        else:
+            # Create a new lock
+            cursor.execute(
+                "INSERT INTO case_locks (case_id, locked_by, locked_at, expires_at) VALUES (?, ?, ?, ?);",
+                (case_id, username, now_str, expires_str)
+            )
+            
+        conn.commit()
+        conn.close()
+        
+        # Broadcast lock state via Socket.IO
+        socketio.emit("case_locked", {
+            "case_id": case_id,
+            "locked_by": username,
+            "expires_at": expires_str
+        }, to=case_id)
+        
+        return jsonify({
+            "success": True,
+            "locked_by": username,
+            "expires_at": expires_str
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/unlock", methods=["POST"])
+def release_case_lock(case_id):
+    username = get_current_user()
+    if username == "unknown":
+        return jsonify({"success": False, "error": "Authentication required."}), 401
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT locked_by FROM case_locks WHERE case_id = ?;", (case_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            locked_by = row[0]
+            if locked_by != username:
+                conn.close()
+                return jsonify({
+                    "success": False,
+                    "error": "You do not hold the lock for this case."
+                }), 403
+            
+            cursor.execute("DELETE FROM case_locks WHERE case_id = ?;", (case_id,))
+            conn.commit()
+            
+        conn.close()
+        
+        # Broadcast unlock state via Socket.IO
+        socketio.emit("case_unlocked", {
+            "case_id": case_id,
+            "unlocked_by": username
+        }, to=case_id)
+        
+        return jsonify({"success": True})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/comments", methods=["GET"])
+def get_case_comments(case_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, case_id, username, content, created_at
+            FROM comments
+            WHERE case_id = ?
+            ORDER BY created_at ASC;
+        """, (case_id,))
+        rows = cursor.fetchall()
+        conn.close()
+        
+        comments = []
+        for r in rows:
+            comments.append({
+                "id": r[0],
+                "case_id": r[1],
+                "username": r[2],
+                "content": r[3],
+                "created_at": r[4]
+            })
+            
+        return jsonify({
+            "success": True,
+            "comments": comments
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/comments", methods=["POST"])
+def post_case_comment(case_id):
+    username = get_current_user()
+    if username == "unknown":
+        return jsonify({"success": False, "error": "Authentication required."}), 401
+        
+    data = request.json or {}
+    content = data.get("content", "").strip()
+    if not content:
+        return jsonify({"success": False, "error": "Comment content cannot be empty."}), 400
+        
+    comment_id = str(uuid.uuid4())
+    now_str = datetime.utcnow().isoformat() + "Z"
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO comments (id, case_id, username, content, created_at)
+            VALUES (?, ?, ?, ?, ?);
+        """, (comment_id, case_id, username, content, now_str))
+        conn.commit()
+        conn.close()
+        
+        comment = {
+            "id": comment_id,
+            "case_id": case_id,
+            "username": username,
+            "content": content,
+            "created_at": now_str
+        }
+        
+        # Broadcast new comment via Socket.IO
+        socketio.emit("new_comment", {
+            "case_id": case_id,
+            "comment": comment
+        }, to=case_id)
+        
+        return jsonify({
+            "success": True,
+            "comment": comment
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 
 
