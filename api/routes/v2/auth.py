@@ -3,10 +3,12 @@ from datetime import datetime
 from db_utils import get_db_connection
 from auth_utils import hash_password, check_password
 from jwt_utils import create_token, decode_token
+from rate_limit import rate_limit_auth
 
 auth_bp = Blueprint("auth_bp", __name__)
 
 @auth_bp.route("/register", methods=["POST"])
+@rate_limit_auth
 def register():
     data = request.get_json()
     if not data:
@@ -60,6 +62,7 @@ def register():
         return jsonify({"success": False, "error": f"Registration failed: {str(e)}"}), 500
 
 @auth_bp.route("/login", methods=["POST"])
+@rate_limit_auth
 def login():
     data = request.get_json()
     if not data:

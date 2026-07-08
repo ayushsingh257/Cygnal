@@ -38,6 +38,9 @@ def copilot_message():
                requires_approval, proposed_action }
     """
     user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     data = request.get_json(silent=True) or {}
     prompt = data.get("prompt", "").strip()
     case_id = data.get("case_id", None)
@@ -69,6 +72,10 @@ def copilot_approve():
     Calls the existing Investigation Orchestrator service functions directly.
     Returns: { job_id, case_id, message }
     """
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     import uuid
     import json
     from task_utils import dispatch_investigation
@@ -149,6 +156,10 @@ def copilot_summary(case_id):
     Post-investigation structured summary for a specific case.
     Called automatically after an orchestrated job completes.
     """
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     from services.copilot import fetch_case_context, calculate_confidence, format_summary_response
 
     context = fetch_case_context(case_id)

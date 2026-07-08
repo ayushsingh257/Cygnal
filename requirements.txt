@@ -13,7 +13,7 @@ werkzeug
 bcrypt
 boto3
 pyjwt
-python-nmap         # ✅ For Nmap support
+python-nmap
 exifread
 dnspython
 psycopg2-binary
@@ -22,4 +22,4 @@ redis
 pyotp
 flask-socketio
 gevent-websocket
-
+flask-limiter
