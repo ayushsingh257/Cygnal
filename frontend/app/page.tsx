@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, ArrowRight, Activity, Terminal, Lock, CheckCircle, Database, AlertCircle, Compass, Globe, Mail, FileText, Eye, Binary, Camera, Cpu, BarChart2, HardDrive, Layers, RefreshCw } from "lucide-react";
+import { Shield, ArrowRight, Activity, Terminal, Lock, CheckCircle, Database, AlertCircle, Compass, Globe, Mail, FileText, Eye, Binary, Camera, Cpu, BarChart2, HardDrive, Layers, RefreshCw, Key } from "lucide-react";
 import Hero from "@/components/ui/animated-shader-hero";
 import ParticleLoader from "@/components/ui/particle-loader";
 import { Sparkles } from "@/components/ui/sparkles";
@@ -99,7 +99,7 @@ export default function MarketingLandingPage() {
       {/* HERO SECTION */}
       <Hero
         trustBadge={{
-          text: "Version 1.0 Cockpit Active",
+          text: "Version 2.5 Collaborative Cockpit Active",
           icons: ["✨"]
         }}
         headline={{
@@ -298,10 +298,14 @@ export default function MarketingLandingPage() {
             { icon: Eye, title: "Reverse Image Search", desc: "Triage camera device details, visual signatures, and embedded coordinates." },
             { icon: Binary, title: "Malware Scanning", desc: "Submit payload hashes to VirusTotal sandboxes and get threat metrics reports." },
             { icon: Camera, title: "Screenshot Capture", desc: "Generate headless browser snapshots to archive suspicious landing targets." },
-            { icon: Cpu, title: "AI Investigation Assistant", desc: "Interrogate case logs using natural language backed by SQLite RAG queries." },
+            { icon: Cpu, title: "AI Investigation Assistant", desc: "Interrogate case logs using natural language backed by SQLite & PostgreSQL RAG queries." },
             { icon: BarChart2, title: "Automated Reporting", desc: "Compile timeline indicators and evidence tables into presentation-ready reports." },
             { icon: HardDrive, title: "Evidence Chain of Custody", desc: "Seal uploaded binaries and document attachments with cryptographic SHA-256 stamps." },
-            { icon: Activity, title: "Timeline Reconstruction", desc: "Correlate actions, sensor alerts, and case updates on a time-sorted ledger." }
+            { icon: Activity, title: "Timeline Reconstruction", desc: "Correlate actions, sensor alerts, and case updates on a time-sorted ledger." },
+            { icon: Shield, title: "Real-Time Collaboration", desc: "Collaborate with other security analysts in live case chat rooms using Socket.IO." },
+            { icon: Lock, title: "Case Lease Locking", desc: "Exclusive edit lease locking prevents write race-conditions between investigators." },
+            { icon: RefreshCw, title: "Celery & Redis Worker", desc: "Distributed, background scan orchestrations mapped to high-throughput queues." },
+            { icon: Key, title: "TOTP MFA Security", desc: "Secure node login processes with secondary time-based one-time password challenges." }
           ].map((item, idx) => (
             <div key={idx} className="glass-card rounded-xl p-5 bg-[#0f2422]/15 text-left border border-white/5 space-y-3">
               <div className="h-9 w-9 bg-[#408A71]/10 border border-[#408A71]/20 rounded-lg flex items-center justify-center text-[#B0E4CC]">

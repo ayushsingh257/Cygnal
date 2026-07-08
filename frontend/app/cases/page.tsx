@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardShell from "@/components/DashboardShell";
+import { io } from "socket.io-client";
 import { useAuthStore } from "@/store/useAuthStore";
 import { 
   Briefcase, 
@@ -78,7 +79,16 @@ export default function CasesPage() {
 
   const [commentText, setCommentText] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"timeline" | "evidence" | "graph">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "evidence" | "graph" | "comments">("timeline");
+
+  // Collaborative Real-Time states (v2.5)
+  const [comments, setComments] = useState<any[]>([]);
+  const [collabMessageText, setCollabMessageText] = useState("");
+  const [lockedBy, setLockedBy] = useState<string | null>(null);
+  const [lockExpiresAt, setLockExpiresAt] = useState<string | null>(null);
+  const [myLockActive, setMyLockActive] = useState(false);
+  const [isCaseLocked, setIsCaseLocked] = useState(false);
+  const socketRef = useRef<any>(null);
 
   // Filter states
   const [filterSeverity, setFilterSeverity] = useState("all");
@@ -135,6 +145,214 @@ export default function CasesPage() {
       setTimelineStages([]);
     }
   }, [selectedCaseId]);
+
+  // WebSockets Real-Time connection & Case Room subscription (v2.5)
+  useEffect(() => {
+    if (!selectedCaseId || !token) {
+      setComments([]);
+      setLockedBy(null);
+      setIsCaseLocked(false);
+      setMyLockActive(false);
+      return;
+    }
+
+    // Resolve URL for dev vs prod context
+    let connectionUrl = "";
+    if (typeof window !== "undefined") {
+      const port = window.location.port;
+      if (port === "3000" || port === "3001") {
+        connectionUrl = "http://localhost:5000";
+      } else {
+        connectionUrl = window.location.origin;
+      }
+    }
+
+    const socket = io(connectionUrl, {
+      transports: ["websocket", "polling"]
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("WebSocket linked to backend channel.");
+      socket.emit("join_case", { case_id: selectedCaseId });
+    });
+
+    socket.on("new_comment", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setComments((prev) => {
+          if (prev.some((c) => c.id === data.comment.id)) return prev;
+          return [...prev, data.comment];
+        });
+      }
+    });
+
+    socket.on("case_locked", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setLockedBy(data.locked_by);
+        setLockExpiresAt(data.expires_at);
+        if (data.locked_by !== user?.username) {
+          setIsCaseLocked(true);
+          setMyLockActive(false);
+        } else {
+          setIsCaseLocked(false);
+          setMyLockActive(true);
+        }
+      }
+    });
+
+    socket.on("case_unlocked", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setLockedBy(null);
+        setLockExpiresAt(null);
+        setIsCaseLocked(false);
+        setMyLockActive(false);
+      }
+    });
+
+    // Fetch initial comments & lock state
+    fetchComments(selectedCaseId);
+    fetchLockStatus(selectedCaseId);
+
+    return () => {
+      socket.emit("leave_case", { case_id: selectedCaseId });
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [selectedCaseId, token, user?.username]);
+
+  // Lock auto-renewal hook
+  useEffect(() => {
+    if (!myLockActive || !selectedCaseId) return;
+
+    const renewInterval = setInterval(() => {
+      autoRenewLock();
+    }, 15000);
+
+    return () => clearInterval(renewInterval);
+  }, [myLockActive, selectedCaseId]);
+
+  const autoRenewLock = async () => {
+    if (!selectedCaseId) return;
+    try {
+      await fetch(`/api/cases/${selectedCaseId}/lock`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (e) {
+      console.error("Lock auto-renewal failed.", e);
+    }
+  };
+
+  const fetchComments = async (caseId: string) => {
+    try {
+      const res = await fetch(`/api/cases/${caseId}/comments`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComments(data.comments || []);
+      }
+    } catch {
+      console.error("Failed to load comments.");
+    }
+  };
+
+  const fetchLockStatus = async (caseId: string) => {
+    try {
+      const res = await fetch(`/api/cases/${caseId}/lock`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.locked) {
+        setLockedBy(data.locked_by);
+        setLockExpiresAt(data.expires_at);
+        if (data.locked_by !== user?.username) {
+          setIsCaseLocked(true);
+          setMyLockActive(false);
+        } else {
+          setIsCaseLocked(false);
+          setMyLockActive(true);
+        }
+      } else {
+        setLockedBy(null);
+        setLockExpiresAt(null);
+        setIsCaseLocked(false);
+        setMyLockActive(false);
+      }
+    } catch {
+      console.error("Failed to load lock status.");
+    }
+  };
+
+  const handleAcquireLock = async () => {
+    if (!selectedCaseId) return;
+    try {
+      const res = await fetch(`/api/cases/${selectedCaseId}/lock`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLockedBy(data.locked_by);
+        setLockExpiresAt(data.expires_at);
+        setMyLockActive(true);
+        setIsCaseLocked(false);
+        toast.success("Case lock acquired. Edit mode activated.");
+      } else {
+        setLockedBy(data.locked_by);
+        setIsCaseLocked(true);
+        setMyLockActive(false);
+        toast.error(data.error || "Failed to acquire lock.");
+      }
+    } catch {
+      toast.error("Error communicating with locking engine.");
+    }
+  };
+
+  const handleReleaseLock = async () => {
+    if (!selectedCaseId) return;
+    try {
+      const res = await fetch(`/api/cases/${selectedCaseId}/unlock`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLockedBy(null);
+        setMyLockActive(false);
+        setIsCaseLocked(false);
+        toast.success("Case lock released.");
+      } else {
+        toast.error(data.error || "Failed to release lock.");
+      }
+    } catch {
+      toast.error("Error communicating with locking engine.");
+    }
+  };
+
+  const handlePostCollabComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!collabMessageText.trim() || !selectedCaseId) return;
+
+    try {
+      const res = await fetch(`/api/cases/${selectedCaseId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: collabMessageText })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCollabMessageText("");
+      } else {
+        toast.error(data.error || "Failed to post comment.");
+      }
+    } catch {
+      toast.error("Post comment connection timeout.");
+    }
+  };
 
   // Job status polling hook
   useEffect(() => {
@@ -798,9 +1016,78 @@ export default function CasesPage() {
 
                 </div>
 
+                {/* Case Locking HUD Banner (v2.5) */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all text-xs font-mono select-none bg-[#091413]/40 border-[#408A71]/15 gap-2 text-left">
+                  <div className="flex items-center gap-2.5">
+                    {isCaseLocked ? (
+                      <>
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <div>
+                          <span className="text-red-400 font-bold uppercase tracking-wider block">
+                            ⚠️ Case Locked by {lockedBy}
+                          </span>
+                          <span className="text-[9px] text-slate-500 block">
+                            Read-only worksheet view active.
+                          </span>
+                        </div>
+                      </>
+                    ) : myLockActive ? (
+                      <>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <div>
+                          <span className="text-emerald-400 font-bold uppercase tracking-wider block">
+                            🔒 Case Locked by You
+                          </span>
+                          <span className="text-[9px] text-slate-500 block">
+                            Lease auto-renewing. Full editing permissions active.
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="w-2 h-2 rounded-full bg-slate-500" />
+                        <div>
+                          <span className="text-slate-400 font-bold uppercase tracking-wider block">
+                            🔓 Case Unlocked
+                          </span>
+                          <span className="text-[9px] text-slate-500 block">
+                            Anyone can view/edit. Claim lock to restrict write access.
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    {isCaseLocked ? (
+                      <button
+                        disabled
+                        className="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-slate-600 rounded text-[9.5px] font-bold uppercase cursor-not-allowed"
+                      >
+                        Lock Engaged
+                      </button>
+                    ) : myLockActive ? (
+                      <button
+                        type="button"
+                        onClick={handleReleaseLock}
+                        className="px-2.5 py-1.5 bg-red-950/20 border border-red-800/40 hover:border-red-650 hover:bg-red-950/40 text-red-400 rounded text-[9.5px] font-bold uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Release Lock
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleAcquireLock}
+                        className="px-2.5 py-1.5 bg-[#285A48]/20 border border-[#408A71]/35 hover:border-[#408A71] text-[#B0E4CC] rounded text-[9.5px] font-bold uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Acquire Lock
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 {/* Navigation Tabs */}
                 <div className="flex border-b border-white/5 select-none">
-                  {(["timeline", "evidence", "graph"] as const).map((tab) => (
+                  {(["timeline", "evidence", "graph", "comments"] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -813,6 +1100,7 @@ export default function CasesPage() {
                       {tab === "timeline" && "Chronological Timeline"}
                       {tab === "evidence" && "Evidence Vault"}
                       {tab === "graph" && "IOC Link Graph"}
+                      {tab === "comments" && "Collaborative Chat"}
                     </button>
                   ))}
                 </div>
@@ -1321,6 +1609,67 @@ export default function CasesPage() {
                   </div>
                 )}
 
+                {/* TAB CONTENT: Collaborative Chat (v2.5) */}
+                {activeTab === "comments" && (
+                  <div className="space-y-4">
+                    
+                    {/* Live comments thread list */}
+                    <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1 text-left flex flex-col gap-2">
+                      {comments.length === 0 ? (
+                        <div className="text-center py-12 text-slate-550 text-xs font-mono">
+                          No collaboration comments posted. Start the conversation!
+                        </div>
+                      ) : (
+                        comments.map((c) => {
+                          const isMe = c.username === user?.username;
+                          return (
+                            <div 
+                              key={c.id} 
+                              className={`flex flex-col max-w-[85%] rounded-2xl p-3.5 relative overflow-hidden transition-all border ${
+                                isMe 
+                                  ? "ml-auto bg-[#0f2422]/30 border-[#408A71]/25 text-right" 
+                                  : "mr-auto bg-slate-900/60 border-white/5 text-left"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-1 justify-between">
+                                <span className={`text-[9.5px] font-mono font-bold uppercase ${isMe ? "text-[#B0E4CC]" : "text-blue-400"}`}>
+                                  {c.username}
+                                </span>
+                                <span className="text-[8.5px] font-mono text-slate-500">
+                                  {new Date(c.created_at).toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-200 leading-relaxed break-words font-mono">
+                                {c.content}
+                              </p>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Chat Input form */}
+                    <form onSubmit={handlePostCollabComment} className="flex gap-3 pt-2">
+                      <input
+                        type="text"
+                        placeholder={isCaseLocked && !myLockActive ? "Case is locked by another investigator..." : "Type collaboration note to other investigators..."}
+                        disabled={isCaseLocked && !myLockActive}
+                        value={collabMessageText}
+                        onChange={(e) => setCollabMessageText(e.target.value)}
+                        className="cyber-input py-3 text-xs bg-black/40 disabled:opacity-40"
+                      />
+                      <button 
+                        type="submit"
+                        disabled={isCaseLocked && !myLockActive}
+                        className="btn-cyber-primary py-3 px-6 flex items-center justify-center disabled:opacity-40"
+                      >
+                        <Send size={14} className="mr-1.5" />
+                        <span>Send</span>
+                      </button>
+                    </form>
+
+                  </div>
+                )}
 
               </div>
             )}

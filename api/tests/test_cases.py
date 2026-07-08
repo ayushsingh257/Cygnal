@@ -109,3 +109,60 @@ def test_upload_evidence_hash(client, auth_headers):
     assert upload_data["evidence"]["filename"] == "suspect_report.txt"
     assert upload_data["evidence"]["file_hash"] == expected_sha256
     assert upload_data["evidence"]["file_size"] == len(mock_file_content)
+
+
+def test_case_locking_and_comments_flow(client, auth_headers):
+    # 1. Create a Case
+    res_case = client.post("/api/cases", json={"title": "Collaboration Test Case"}, headers=auth_headers)
+    case_id = res_case.get_json()["case"]["id"]
+
+    # 2. Get comments (should be empty initially)
+    res_get_comments = client.get(f"/api/cases/{case_id}/comments", headers=auth_headers)
+    assert res_get_comments.status_code == 200
+    assert len(res_get_comments.get_json()["comments"]) == 0
+
+    # 3. Post a comment
+    res_post_comment = client.post(
+        f"/api/cases/{case_id}/comments",
+        json={"content": "Suspicious activity detected on target domain."},
+        headers=auth_headers
+    )
+    assert res_post_comment.status_code == 200
+    comment_data = res_post_comment.get_json()
+    assert comment_data["success"] is True
+    assert comment_data["comment"]["content"] == "Suspicious activity detected on target domain."
+    assert comment_data["comment"]["username"] == "test_analyst"
+
+    # 4. Get comments again (should have 1 comment)
+    res_get_comments = client.get(f"/api/cases/{case_id}/comments", headers=auth_headers)
+    assert len(res_get_comments.get_json()["comments"]) == 1
+    assert res_get_comments.get_json()["comments"][0]["content"] == "Suspicious activity detected on target domain."
+
+    # 5. Acquire lock on case
+    res_lock = client.post(f"/api/cases/{case_id}/lock", headers=auth_headers)
+    assert res_lock.status_code == 200
+    assert res_lock.get_json()["success"] is True
+    assert res_lock.get_json()["locked_by"] == "test_analyst"
+
+    # 6. Try to acquire lock as another user (should fail with 409 conflict)
+    # Generate second analyst token
+    from jwt_utils import create_token
+    token_user2 = create_token({"username": "second_analyst", "role": "analyst"})
+    headers_user2 = {"Authorization": f"Bearer {token_user2}"}
+
+    res_lock_fail = client.post(f"/api/cases/{case_id}/lock", headers=headers_user2)
+    assert res_lock_fail.status_code == 409
+    assert res_lock_fail.get_json()["success"] is False
+    assert res_lock_fail.get_json()["locked_by"] == "test_analyst"
+
+    # 7. First user releases lock
+    res_unlock = client.post(f"/api/cases/{case_id}/unlock", headers=auth_headers)
+    assert res_unlock.status_code == 200
+    assert res_unlock.get_json()["success"] is True
+
+    # 8. Second user can now lock the case
+    res_lock_success2 = client.post(f"/api/cases/{case_id}/lock", headers=headers_user2)
+    assert res_lock_success2.status_code == 200
+    assert res_lock_success2.get_json()["success"] is True
+    assert res_lock_success2.get_json()["locked_by"] == "second_analyst"
+
