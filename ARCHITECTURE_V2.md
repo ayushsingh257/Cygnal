@@ -111,15 +111,16 @@ This document defines the technical architecture for the evolved Cygnal platform
     *   `GET /api/cases/<case_id>/timeline/chronology`
 *   **Database Interactions:** Queries `timeline` and `lookups` tables.
 
-### 7. Task Orchestrator (Investigation Orchestrator)
-*   **Purpose:** Coordinates the execution of background scanners without blocking the frontend UI.
-*   **Responsibility:** Manages scanner jobs, coordinates worker schedules, pushes progress messages, and saves finished payloads to the database.
-*   **Inputs:** `case_id` (string), list of target IOCs.
-*   **Outputs:** Celery task ID, state tracking parameters.
+### 7. Autonomous Task Orchestrator (Investigation Orchestrator)
+*   **Purpose:** Automatically classify input targets, build multi-tool scan plans, and coordinate parallel scanner execution loops.
+*   **Responsibility:** Classifies input formats (IP, domain, URL, hash, email, file, text), builds dependency lists, triggers parallel test-client routing calls on background worker threads, updates real-time progress state, and updates the case timeline/graph.
+*   **Inputs:** Target value string, input format (optional), Case ID (optional).
+*   **Outputs:** Job status ID, dynamic target format, execution progress percentage, completed scans checklist.
 *   **API Endpoints:**
-    *   `POST /api/orchestrator/run` (Triggers parallel scanner schedules)
-    *   `GET /api/orchestrator/tasks/<task_id>` (Polls task status)
-*   **Database Interactions:** Inserts task state logs into a `job_logs` table.
+    *   `POST /api/investigations/start` (Starts background scan pipeline)
+    *   `GET /api/investigations/<job_id>` (Retrieves telemetry progress status)
+    *   `GET /api/investigations/<job_id>/results` (Compiles lookups output payload)
+*   **Database Interactions:** Reads/writes `investigation_jobs`, inserts `timeline` events, creates `cases` dynamically.
 
 ### 8. Plugin SDK & Marketplace
 *   **Purpose:** Enables third-party developers to expand scanners and integrations without editing core code.
@@ -153,16 +154,23 @@ CREATE TABLE evidence_relations (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Background Job Tracking Table
-CREATE TABLE job_logs (
+-- Background Job Tracking Table (Orchestrator)
+CREATE TABLE investigation_jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    task_id VARCHAR(255) UNIQUE NOT NULL,
-    case_id UUID REFERENCES cases(id) ON DELETE SET NULL,
-    scanner_name VARCHAR(100) NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'RUNNING', 'SUCCESS', 'FAILED')),
-    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP WITH TIME ZONE
+    case_id UUID REFERENCES cases(id) ON DELETE CASCADE,
+    target TEXT NOT NULL,
+    input_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('queued', 'running', 'completed', 'failed', 'cancelled')),
+    progress INTEGER DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+    current_scanner VARCHAR(100) DEFAULT 'None',
+    total_scanners INTEGER DEFAULT 0,
+    completed_scanners TEXT DEFAULT '[]',
+    scanner_statuses TEXT DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    user VARCHAR(100) NOT NULL
 );
+
 ```
 
 ---

@@ -41,21 +41,22 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🟢 Cygnal v1.5: Autonomous Investigation Workspace [Sprints 1-3 Complete]
+### 🟢 Cygnal v1.5: Autonomous Investigation Workspace [Sprints 1-4A Complete]
 
 *   **Purpose:** Make investigations automatic by extracting and enriching indicators of compromise (IOCs) without manual user intervention.
 *   **Business Value:** Minimizes Mean Time to Investigate (MTTI) by automatically correlating evidence and scanning targets upon ingestion.
-*   **Technical Goals:** Implement regular-expression based entity parsers, compile relationship graph APIs, and build narrative timeline builders.
-*   **Architecture Changes:** Addition of regex services modules and inline SVG node layout engines.
-*   **Database Changes:** Addition of `case_indicators` and `evidence_relations` tables.
-*   **Backend Work:** Creation of `POST /api/cases/<id>/extract-iocs` and `GET /api/cases/<id>/graph` endpoints.
-*   **Frontend Work:** Deployment of custom node-link SVG graph layouts and vertical timeline tracks showing enriched scanner logs.
-*   **AI Improvements:** Automatically parse indicators and prompt: *"I found 3 IPs and 1 hash. Scan all?"* to orchestrate scans.
-*   **Testing Requirements:** Tests verifying regex extractor accuracy and graph relation nodes assembly.
-*   **Success Criteria:** Auto-extraction recall rate above 90%; graph visualizer renders nodes in under 2 seconds.
+*   **Technical Goals:** Implement regular-expression based entity parsers, compile relationship graph APIs, build narrative timeline builders, and construct parallel execution orchestrators.
+*   **Architecture Changes:** Addition of regex services modules, inline SVG node layout engines, and thread-pooled orchestrator execution managers.
+*   **Database Changes:** Addition of `case_indicators`, `evidence_relations`, and `investigation_jobs` tables.
+*   **Backend Work:** Creation of `POST /api/cases/<id>/extract-iocs`, `GET /api/cases/<id>/graph`, and `/api/investigations/*` endpoints.
+*   **Frontend Work:** Deployment of custom node-link SVG graph layouts, vertical timeline stages, and live job progress dashboards.
+*   **AI Improvements:** Automatically parse indicators and orchestrate multi-tool dispatches concurrently.
+*   **Testing Requirements:** Tests verifying regex extractor accuracy, graph relation nodes assembly, and parallel job states.
+*   **Success Criteria:** Auto-extraction recall rate above 90%; job tracking progress is updated in real-time.
 *   **Dependencies:** exifread, dnspython.
 *   **Expected Users:** Incident response teams and security operations leads.
-*   **Workspace Alignment:** Automates context gathering and replaces static checklists with interactive visual graphs.
+*   **Workspace Alignment:** Automates context gathering, dispatches parallel scans, and dynamically updates knowledge graphs.
+
 
 ---
 

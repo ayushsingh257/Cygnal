@@ -158,9 +158,29 @@ def init_lookup_db():
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_relations_source ON evidence_relations(source_evidence_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_relations_target ON evidence_relations(target_evidence_id);")
 
+        # 11. Autonomous Investigation Jobs table (Sprint 4A)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS investigation_jobs (
+                id TEXT PRIMARY KEY,
+                case_id TEXT,
+                target TEXT NOT NULL,
+                input_type TEXT NOT NULL,
+                status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'completed', 'failed', 'cancelled')),
+                progress INTEGER DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+                current_scanner TEXT DEFAULT 'None',
+                total_scanners INTEGER DEFAULT 0,
+                completed_scanners TEXT DEFAULT '[]',
+                scanner_statuses TEXT DEFAULT '{}',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                user TEXT NOT NULL,
+                FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_investigation_jobs_case ON investigation_jobs(case_id);")
 
-        
         # SAFE MIGRATION ROUTINE checks
+
         cursor.execute("PRAGMA table_info(users);")
         user_cols = [row[1] for row in cursor.fetchall()]
         if "department" not in user_cols:

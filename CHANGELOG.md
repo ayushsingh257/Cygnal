@@ -7,7 +7,16 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 ## [v1.5.0-RC1] — 2026-07-08 — Autonomous Investigation Workspace v1.5 Sprints
 
 ### Added
+- **Sprint 4A: Autonomous Investigation Orchestrator**
+  - **Backend: `api/services/orchestrator.py`** — Built the orchestrator service logic: input target format auto-classifier, parallel scanner planner, thread pooled background execution workers, and automatic timeline/graph callbacks.
+  - **Backend: `api/routes/v2/investigations.py`** — Added `POST /api/investigations/start`, `GET /api/investigations/<job_id>`, and `GET /api/investigations/<job_id>/results` endpoints.
+  - **Backend: `api/database.py`** — Updated database initialization schemas to create `investigation_jobs` tracking table.
+  - **Backend: `api/backend.py`** — Registered `investigations_bp` blueprint routing under `/api` prefix.
+  - **Frontend: `app/cases/page.tsx`** — Integrated the live Progress Dashboard HUD panel showing elapsed timer, active pipeline step, progress bars, scanners checklist, and auto-updating Knowledge Graph/Timeline.
+  - **Tests: `api/tests/test_orchestrator.py`** — Created integration test suite verifying classification, execution plans, and polling endpoints (45/45 passing).
+
 - **Sprint 3: AI Investigation Timeline**
+
   - **Backend: `api/routes/v2/cases.py`** — Added `GET /api/cases/<case_id>/timeline` endpoint aggregating case details, evidence uploads, IOC extractions, threat intel tags, relations, Notes, and scan histories into 7 stages.
   - **AI Engine: Heuristic Narration Service** — Automatically compiles natural language narative summaries for each stage using verified data context without external API dependencies.
   - **Frontend: `app/cases/page.tsx`** — Interactive stages accordion timeline using Lucide icons, metadata badges, timestamps, expand/collapse toggles, and AI Narrator summary panels.
