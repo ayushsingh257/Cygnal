@@ -97,9 +97,10 @@ Cygnal evolves in clean version milestones, balancing new cognitive capabilities
 
 ```
   Cygnal v1.0 (Current) ────► Cygnal v1.5 (Autonomous) ────► Cygnal v2.0 (Enterprise)
-   • Unified Console           • AI Copilot & Auto-IOC        • PostgreSQL & Celery/Redis
-   • 10 Scanners               • Knowledge Graph              • SSO / MFA
-   • SQLite RAG Chat           • AI Timeline & Relations      • Docker & Kubernetes
+   • Unified Console           • Auto-IOC & Orchestrator      • PostgreSQL & Celery/Redis
+   • 10 Scanners               • Knowledge Graph & Timeline   • SSO / MFA
+   • SQLite RAG Chat           • AI Copilot Workspace         • Docker & Kubernetes
+
    
                                          │
                                          ▼
@@ -109,7 +110,8 @@ Cygnal evolves in clean version milestones, balancing new cognitive capabilities
 ```
 
 *   **v1.0 (Finished):** Local execution console, SQLite schema, 10 scanners, timeline ledger, custom SVG charts.
-*   **v1.5 (Immediate Focus):** AI Copilot, automatic IOC extraction & correlation, visual knowledge graph, AI timelines.
+*   **v1.5 (Immediate Focus):** Autonomous Investigation Workspace (Auto-IOC Extraction, Investigation Orchestrator, Visual Knowledge Graph, AI Timeline Stages, and AI Copilot).
+
 *   **v2.0 (Enterprise Hardening):** Production migration to PostgreSQL, Celery/Redis background task queues, multi-factor auth (MFA), and system Docker orchestration.
 *   **v2.5 (Collaborative):** Real-time multi-analyst workspaces, comment threads, case locking.
 *   **v3.0 (Integrated):** SIEM/EDR connector webhooks for Splunk, Microsoft Sentinel, and Elastic.

@@ -38,9 +38,10 @@ Cygnal does not collect or archive raw logs like a SIEM, nor does it block endpo
 [2] Auto-Extract IOCs (Automatic Regex & Entity Parsing)
        │
        ▼
-[3] Orchestrate enrichments (Parallel background sweeps)
+[3] Investigation Orchestrator (Parallel dispatches and progress bar tracking)
        │
        ▼
+
 [4] Map evidence relationships (Knowledge Graph compilation)
        │
        ▼
@@ -52,7 +53,8 @@ Cygnal does not collect or archive raw logs like a SIEM, nor does it block endpo
 
 1.  **Alert Ingest:** An analyst uploads an incident file (`.eml`, `.txt`) or an alert comes via SIEM webhook.
 2.  **Auto-Extract IOCs:** Cygnal automatically extracts IPs, domains, hashes, and files, prompting the user: *"I identified 3 indicators and 1 attachment. Investigate all?"*
-3.  **Orchestrated Scans:** Upon approval, Cygnal dispatches parallel background checks (WHOIS, DNS, IP reputation, malware hash enrichment) in a single workflow.
+3.  **Orchestrated Scans:** The Investigation Orchestrator dispatches parallel background checks (WHOIS, DNS, IP reputation, metadata, malware, headers, screenshots) concurrently, tracking execution states inside a real-time progress dashboard.
+
 4.  **Visualize Context:** The Knowledge Graph visualizes relations between indicators, prior lookups history, and similar cases automatically.
 5.  **Narrate Chronology:** The AI Timeline Builder drafts a natural language timeline of the security event.
 6.  **Verify & Close:** The analyst reviews, downloads the sealed A4 forensic report, and marks the case resolved.

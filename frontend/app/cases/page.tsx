@@ -103,6 +103,17 @@ export default function CasesPage() {
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [expandedStages, setExpandedStages] = useState<string[]>(["Initial Detection"]);
 
+  // Sprint 4A Orchestrator states
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [activeJob, setActiveJob] = useState<any | null>(null);
+  const [jobElapsed, setJobElapsed] = useState(0);
+  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
+  const [orchestratorTarget, setOrchestratorTarget] = useState("");
+  const [orchestratorType, setOrchestratorType] = useState("");
+  const [orchestratorFile, setOrchestratorFile] = useState<File | null>(null);
+  const [orchestratorLaunching, setOrchestratorLaunching] = useState(false);
+
+
 
 
   useEffect(() => {
@@ -125,9 +136,124 @@ export default function CasesPage() {
     }
   }, [selectedCaseId]);
 
+  // Job status polling hook
+  useEffect(() => {
+    if (!activeJobId) return;
 
+    let pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/investigations/${activeJobId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.job) {
+          setActiveJob(data.job);
+          
+          if (data.job.case_id) {
+            fetchTimelineStages(data.job.case_id);
+          }
+
+          if (data.job.status === "completed" || data.job.status === "failed" || data.job.status === "cancelled") {
+            clearInterval(pollInterval);
+            setActiveJobId(null);
+            
+            if (data.job.case_id) {
+              fetchCaseDetails(data.job.case_id);
+              fetchGraphData(data.job.case_id);
+              fetchTimelineStages(data.job.case_id);
+              fetchCases();
+            }
+          }
+        }
+      } catch {
+        console.error("Job polling failed.");
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [activeJobId, token]);
+
+  // Elapsed timer hook
+  useEffect(() => {
+    if (!activeJobId) {
+      setJobElapsed(0);
+      return;
+    }
+    let timer = setInterval(() => {
+      setJobElapsed((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [activeJobId]);
+
+  const handleLaunchOrchestrator = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orchestratorTarget.trim() && !orchestratorFile) {
+      toast.error("Please provide a target string or upload a file.");
+      return;
+    }
+    setOrchestratorLaunching(true);
+    try {
+      let res;
+      if (orchestratorFile) {
+        const formData = new FormData();
+        formData.append("file", orchestratorFile);
+        if (orchestratorTarget.trim()) formData.append("target", orchestratorTarget);
+        if (orchestratorType) formData.append("input_type", orchestratorType);
+        if (selectedCaseId) formData.append("case_id", selectedCaseId);
+        
+        res = await fetch("/api/investigations/start", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+      } else {
+        const payload: any = { target: orchestratorTarget };
+        if (orchestratorType) payload.input_type = orchestratorType;
+        if (selectedCaseId) payload.case_id = selectedCaseId;
+        
+        res = await fetch("/api/investigations/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+      
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Autonomous investigation job started.");
+        setActiveJobId(data.job_id);
+        setActiveJob({
+          target: data.target,
+          input_type: data.input_type,
+          status: "queued",
+          progress: 0,
+          current_scanner: "Initializing",
+          completed_scanners: [],
+          scanner_statuses: {}
+        });
+        setIsTriggerModalOpen(false);
+        setOrchestratorTarget("");
+        setOrchestratorFile(null);
+        setOrchestratorType("");
+        
+        if (data.case_id && data.case_id !== selectedCaseId) {
+          setSelectedCaseId(data.case_id);
+        }
+      } else {
+        toast.error(data.error || "Failed to start investigation.");
+      }
+    } catch {
+      toast.error("Network error launching orchestrator.");
+    } finally {
+      setOrchestratorLaunching(false);
+    }
+  };
 
   const fetchCases = async () => {
+
     setLoading(true);
     try {
       const res = await fetch("/api/cases", {
@@ -656,10 +782,20 @@ export default function CasesPage() {
                     <h3 className="text-sm font-bold text-white uppercase tracking-wide mt-1">{caseDetails.title}</h3>
                   </div>
 
-                  <div className="text-[10px] font-mono text-slate-500 text-left sm:text-right space-y-1">
-                    <div>ASSIGNED: <span className="text-slate-350">{caseDetails.assigned_to || "UNASSIGNED"}</span></div>
-                    <div>DEPARTMENT: <span className="text-slate-350">{caseDetails.department.toUpperCase()}</span></div>
+                  <div className="flex flex-row items-center gap-3">
+                    <button
+                      onClick={() => setIsTriggerModalOpen(true)}
+                      className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg text-[10px] font-mono font-bold tracking-wide uppercase transition flex items-center gap-1.5 shadow-[0_0_8px_rgba(59,130,246,0.1)]"
+                    >
+                      <Activity size={12} className="animate-pulse text-blue-400" />
+                      Orchestrate Scan
+                    </button>
+                    <div className="text-[10px] font-mono text-slate-500 text-left sm:text-right space-y-1">
+                      <div>ASSIGNED: <span className="text-slate-350">{caseDetails.assigned_to || "UNASSIGNED"}</span></div>
+                      <div>DEPARTMENT: <span className="text-slate-350">{caseDetails.department.toUpperCase()}</span></div>
+                    </div>
                   </div>
+
                 </div>
 
                 {/* Navigation Tabs */}
@@ -681,7 +817,84 @@ export default function CasesPage() {
                   ))}
                 </div>
 
+                {/* Active Job Progress Dashboard */}
+                {activeJob && activeJob.case_id === caseDetails.id && (
+                  <div className="border border-blue-500/20 rounded-xl bg-blue-955/10 p-4 space-y-3.5 relative overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.03)] text-left">
+                    <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-blue-500 via-teal-400 to-blue-600 animate-pulse" />
+                    
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-0.5">
+                        <span className="text-[9px] font-bold font-mono tracking-widest text-blue-400 uppercase">
+                          🤖 Autonomous Investigation Pipeline
+                        </span>
+                        <h4 className="text-xs font-semibold text-slate-200">
+                          Target: <span className="font-mono text-white select-all">{activeJob.target}</span>
+                        </h4>
+                      </div>
+                      <div className="flex gap-2 items-center text-[9px] font-mono">
+                        <span className="text-slate-500">ELAPSED:</span>
+                        <span className="text-blue-450 font-bold">{jobElapsed}s</span>
+                        <span className={`px-2 py-0.5 rounded font-bold uppercase ${
+                          activeJob.status === "completed" ? "bg-emerald-950/20 text-emerald-450 border border-emerald-800/25" :
+                          activeJob.status === "failed" ? "bg-red-950/20 text-red-400 border border-red-800/25" :
+                          "bg-amber-955/20 text-amber-500 border border-amber-800/25 animate-pulse"
+                        }`}>
+                          {activeJob.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center text-[10px] font-mono">
+                        <span className="text-slate-400">
+                          Pipeline Step: <span className="text-white font-bold">{activeJob.current_scanner}</span>
+                        </span>
+                        <span className="text-blue-400 font-bold">{activeJob.progress}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-900/60 rounded-full overflow-hidden border border-white/5 relative">
+                        <div 
+                          className="h-full bg-gradient-to-r from-blue-500 to-teal-400 rounded-full transition-all duration-500 relative"
+                          style={{ width: `${activeJob.progress}%` }}
+                        >
+                          <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[size:1rem_1rem] animate-[progress-bar-stripes_1s_linear_infinite]" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Scanners checklist grid */}
+                    {activeJob.scanner_statuses && (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                        {Object.entries(activeJob.scanner_statuses).map(([name, status]) => (
+                          <div 
+                            key={name} 
+                            className={`flex items-center gap-2 px-2 py-1 rounded bg-slate-950 border text-[9px] font-mono font-semibold ${
+                              status === "completed" ? "border-emerald-500/25 text-emerald-400" :
+                              status === "failed" ? "border-red-500/25 text-red-400" :
+                              "border-slate-800 text-slate-500"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              status === "completed" ? "bg-emerald-500" :
+                              status === "failed" ? "bg-red-500" :
+                              "bg-slate-700"
+                            }`} />
+                            <span className="uppercase">{name}</span>
+                          </div>
+                        ))}
+                        {activeJob.status === "running" && activeJob.current_scanner !== "None" && (
+                          <div className="flex items-center gap-2 px-2 py-1 rounded bg-slate-950 border border-amber-500/25 text-amber-500 text-[9px] font-mono font-semibold animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+                            <span className="uppercase">{activeJob.current_scanner}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* TAB CONTENT: Timeline */}
+
                 {activeTab === "timeline" && (
                   <div className="space-y-5">
                     {/* Add Timeline note input */}
@@ -1201,6 +1414,94 @@ export default function CasesPage() {
         </div>
       )}
 
+      {/* TRIGGER ORCHESTRATOR MODAL */}
+      {isTriggerModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="glass-card rounded-2xl bg-[#080d16]/90 border border-blue-500/20 max-w-lg w-full p-6 space-y-5 text-left shadow-[0_0_50px_rgba(59,130,246,0.15)] relative">
+            <button 
+              onClick={() => setIsTriggerModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-white transition font-mono text-sm"
+            >
+              ✕
+            </button>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
+                🤖 Launch Autonomous Investigation
+              </h3>
+              <p className="text-[10px] text-slate-400">
+                Orchestrate multi-tool scans, extract threat indicators, and build relations automatically.
+              </p>
+            </div>
+
+            <form onSubmit={handleLaunchOrchestrator} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold font-mono tracking-widest text-slate-455 uppercase">
+                  Target String (IP, Domain, URL, Hash, or Free-Text)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 198.51.100.15 or invoice-download.eml"
+                  value={orchestratorTarget}
+                  onChange={(e) => setOrchestratorTarget(e.target.value)}
+                  className="cyber-input py-2 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold font-mono tracking-widest text-slate-455 uppercase">
+                    Input Classification (Optional)
+                  </label>
+                  <select
+                    value={orchestratorType}
+                    onChange={(e) => setOrchestratorType(e.target.value)}
+                    className="cyber-input py-2 text-xs bg-slate-950"
+                  >
+                    <option value="">Auto-Detect Format</option>
+                    <option value="ip">IP Address</option>
+                    <option value="domain">Domain Name</option>
+                    <option value="url">URL Address</option>
+                    <option value="hash">Hash value (SHA-256/MD5)</option>
+                    <option value="email">Email file (.eml)</option>
+                    <option value="file">Binary / Forensic File</option>
+                    <option value="text">Free-Text Description</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold font-mono tracking-widest text-slate-455 uppercase">
+                    File Payload (e.g. email, images)
+                  </label>
+                  <input
+                    type="file"
+                    onChange={(e) => setOrchestratorFile(e.target.files?.[0] || null)}
+                    className="cyber-input py-1 text-[10px]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsTriggerModalOpen(false)}
+                  className="px-4 py-2 border border-white/10 rounded-lg text-[10px] font-bold uppercase text-slate-450 hover:text-white transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={orchestratorLaunching}
+                  className="btn-cyber-primary py-2 px-5 text-[10px]"
+                >
+                  {orchestratorLaunching ? "Launching Engine..." : "Deploy Orchestrator"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </DashboardShell>
+
   );
 }

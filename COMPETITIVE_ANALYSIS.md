@@ -26,7 +26,8 @@ We compare platforms based on the user experience during investigation triage:
 
 ### 2. TheHive / Cortex (SOAR & Incident Case Management)
 *   **Their Workflow:** TheHive registers incident cases. When indicators are added, Cortex executes automated playbooks to enrich them. However, playbooks must be built manually, and the interface is heavy and designed around complex administrative routing rather than rapid analyst reading.
-*   **The Cygnal Advantage:** Cygnal provides an intuitive, high-speed, local-first user experience. Rather than building complex orchestration playbooks, the AI Copilot and dynamic Task Orchestrator handle sweeps out-of-the-box, providing a visual Knowledge Graph and automatic chronology summaries without configuration overhead.
+*   **The Cygnal Advantage:** Cygnal provides an intuitive, high-speed, local-first user experience. Rather than building complex orchestration playbooks, the AI Copilot and Autonomous Investigation Orchestrator handle target format classification and parallel sweeps out-of-the-box, providing a visual Knowledge Graph and automatic chronology summaries without configuration overhead.
+
 
 ### 3. OpenCTI / MISP (Threat Intelligence Platforms)
 *   **Their Workflow:** Investigators use OpenCTI to model complex threat actor networks and map relations between campaigns and malware families. While powerful for long-term intelligence modeling, it is not an investigation workspace for triage and forensics evidence custody.
