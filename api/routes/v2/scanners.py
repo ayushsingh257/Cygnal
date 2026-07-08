@@ -29,6 +29,8 @@ def require_tool_permission(tool_name):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             user = get_current_user()
+            if user == "unknown":
+                return jsonify({"success": False, "error": "Authentication signature required."}), 401
             if not check_tool_allowed(user, tool_name):
                 return jsonify({
                     "success": False, 
