@@ -4,6 +4,18 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v2.5.0-RC1] — 2026-07-08 — Collaborative Security Cockpit v2.5
+
+### Added
+- **Real-Time WebSocket Server (`api/socket_app.py`, `api/backend.py`)** — Configured a high-performance Flask-SocketIO broadcast server backing WebSocket channels. Enables analysts to subscribe to rooms matching specific cases.
+- **Case Comments API (`api/routes/v2/cases.py`)** — Added routes (`GET /api/cases/<id>/comments`, `POST /api/cases/<id>/comments`) to fetch and save collaborative comments, broadcasting new notes to Socket.IO channels.
+- **Case Edit Lease Locking (`api/routes/v2/cases.py`)** — Implemented temporary 30-second locks (`POST /api/cases/<id>/lock`, `POST /api/cases/<id>/unlock`, `GET /api/cases/<id>/lock`) allowing analysts to exclusively lock cases for editing. Broadcasts dynamic lock and unlock states.
+- **Interactive Collaborative HUD Panel (`frontend/app/cases/page.tsx`)** — Built a real-time header banner detailing case locking status (Locked, Unlocked, Locked by You).
+- **Live Comments Chat Pane (`frontend/app/cases/page.tsx`)** — Embedded an interactive chat feed in case workspace views receiving dynamic WebSockets comments broadcasts.
+- **Updated Landing Page (`frontend/app/page.tsx`)** — Expanded platform documentation cards highlighting version 2.5 real-time chat, case lease locking, multi-factor auth, dynamic task adapter pools, and container composition.
+
+---
+
 ## [v2.0.0-RC1] — 2026-07-08 — Enterprise-Grade Workspace Hardening v2.0
 
 ### Added
