@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-lightblue?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-80%2F80%20Passing-brightgreen?style=flat-square)](#-testing)
+[![Tests](https://img.shields.io/badge/Tests-88%2F88%20Passing-brightgreen?style=flat-square)](#-testing)
 
 
 **Cygnal turns raw cyber evidence into complete investigations in minutes—not hours.** It unifies disparate OSINT threat lookup resources, forensics evidence vaulting, visual relationship graph charting, and AI timeline narration into a single workspace window.
@@ -81,6 +81,11 @@ Cygnal unifies the entire investigation workflow into a single window:
 -   **SQLite RAG Engine:** Ask questions in natural language about cases, timeline events, and scanner logs.
 -   **Multi-Agent Pipeline:** Simulates parallel agent loops (OSINT, Malware, Custody, Compiler) to construct incident files.
 -   **Chronological Narrator:** Turns chaotic event logs into a readable threat story automatically.
+
+### 🔌 Pluggable SIEM & Autonomic Loops
+-   **SIEM Ingestion Gateway:** Webhooks receiver accepting Splunk, Microsoft Sentinel, and Generic JSON alerts.
+-   **Forensic Payload Integrity:** Computes SHA-256 signatures for raw incoming telemetry to ensure evidence custody.
+-   **Autonomic Agent Engine:** Auto-creates case folders, executes plan scans on extracted IOCs, streams WebSocket logs, and supports human "Take Over" interrupts.
 
 ### 🤖 Autonomous Investigation Orchestrator
 -   **Target Auto-Detection:** Dynamically parses formats (URLs, domains, IPs, files, email headers, hashes, free-text) to configure lookup dispatches.

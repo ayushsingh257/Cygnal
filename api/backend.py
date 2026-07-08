@@ -23,6 +23,7 @@ from routes.v2.reports import reports_bp
 from routes.v2.investigations import investigations_bp
 from routes.v2.copilot import copilot_bp
 from routes.v2.mfa import mfa_bp
+from routes.v2.webhooks import webhooks_bp
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -66,6 +67,7 @@ app.register_blueprint(reports_bp, url_prefix="/api")
 app.register_blueprint(investigations_bp, url_prefix="/api")
 app.register_blueprint(copilot_bp, url_prefix="/api")
 app.register_blueprint(mfa_bp, url_prefix="/api")
+app.register_blueprint(webhooks_bp, url_prefix="/api")
 
 
 # ========== GLOBAL ERROR HANDLERS ==========

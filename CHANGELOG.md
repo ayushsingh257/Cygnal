@@ -4,6 +4,21 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v3.0.0-RC1] — 2026-07-08 — Connected Integrations & Agentic Loops (v3.0 / v3.5)
+
+### Added
+- **Pluggable SIEM Ingestion Gateway (`api/routes/v2/webhooks.py`)** — Created `/api/webhooks/siem` endpoint authenticated via `X-Cygnal-Webhook-Key` header matching `CYGNAL_WEBHOOK_SECRET`. Performs forensic payload integrity checks by generating SHA-256 hashes (`payload_hash`) of raw payloads upon receipt.
+- **Pluggable SIEM Parser Registry (`api/services/parser_registry.py`)** — Designed a pluggable provider registry matching inbound alerts to standard schemas. Features concrete parsers for `SplunkParser` (expects fields in `result`), `SentinelParser` (expects fields in `properties`), and `GenericParser` fallback with auto-detection fingerprints.
+- **Modular IOC Extraction Pipeline (`api/services/extraction_pipeline.py`)** — Refactored threat extraction into a pipeline of specialized entity extractors: `IPv4Extractor` (filtering RFC1918), `IPv6Extractor`, `DomainExtractor`, `URLExtractor` (stripping trailing punctuation), `EmailExtractor`, `FileHashExtractor` (MD5/SHA1/SHA256), and `CVEExtractor`.
+- **Autonomic Agent Loop Engine (`api/services/agent.py`, `api/celery_app.py`)** — Engineered background loop processors (Celery and thread fallback) that auto-create cases, assign severity, extract threat indicators, schedule scanner dispatches, and log reasoning chains.
+- **Analyst Interruption "Take Over" Gate (`api/routes/v2/webhooks.py`)** — Added `/api/webhooks/alerts/<id>/take-over` to interrupt background execution, update status to failed (Needs Analyst), and transfer manual control to the analyst.
+- **Real-Time WebSocket Rooms (`api/socket_app.py`)** — Added client events `join_alert` and `leave_alert` allowing analysts to monitor real-time autonomic agent steps and threat indicators.
+- **Alert Triage Board (`frontend/app/alerts/page.tsx`)** — Built a triage dashboard featuring alert status badges (Queued, Running, Completed, Needs Analyst), raw payload inspector, dynamic IOC list, payload integrity validation status, and inline takeover controls.
+- **Dynamic Multi-Agent Console (`frontend/app/agents/page.tsx`)** — Refactored multi-agent interface to stream live webhook agent logs or fall back to simulated pipeline checks if accessed directly.
+- **Webhooks & Ingest Integration Tests (`api/tests/test_webhooks.py`)** — Created test suite covering SIEM parsing, pipeline extractions, API ingestion auth, paginated queries, and takeover aborts. All 88 tests passing.
+
+---
+
 ## [v2.5.1-Security] — 2026-07-08 — Security Hardening Review & Remediation
 
 ### Added

@@ -29,3 +29,19 @@ def handle_leave_case(data):
         leave_room(case_id)
         logging.info(f"Client left room: {case_id}")
         emit('room_left', {"success": True, "room": case_id})
+
+@socketio.on('join_alert')
+def handle_join_alert(data):
+    alert_id = data.get('alert_id')
+    if alert_id:
+        join_room(alert_id)
+        logging.info(f"Client joined alert room: {alert_id}")
+        emit('alert_room_joined', {"success": True, "room": alert_id})
+
+@socketio.on('leave_alert')
+def handle_leave_alert(data):
+    alert_id = data.get('alert_id')
+    if alert_id:
+        leave_room(alert_id)
+        logging.info(f"Client left alert room: {alert_id}")
+        emit('alert_room_left', {"success": True, "room": alert_id})

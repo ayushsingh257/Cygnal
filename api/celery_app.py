@@ -37,3 +37,13 @@ def run_investigation_task(job_id, case_id, target, input_type, token, user, fil
             app, job_id, case_id, target, input_type, token, user, file_bytes, filename
         )
     print(f"[CELERY] Completed background investigation task for job: {job_id}")
+
+@celery.task(name="cygnal.process_inbound_alert")
+def process_inbound_alert_task(alert_id):
+    from backend import app
+    from services.agent import run_autonomic_loop_worker
+    
+    print(f"[CELERY] Starting background autonomic alert process task for alert: {alert_id}")
+    with app.app_context():
+        run_autonomic_loop_worker(app, alert_id)
+    print(f"[CELERY] Completed background autonomic alert process task for alert: {alert_id}")

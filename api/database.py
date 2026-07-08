@@ -201,6 +201,43 @@ def init_lookup_db():
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_comments_case ON comments(case_id);")
 
+        # 14. Inbound SIEM Webhooks alerts (v3.0)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS inbound_alerts (
+                id TEXT PRIMARY KEY,
+                external_id TEXT,
+                title TEXT NOT NULL,
+                source TEXT NOT NULL,
+                severity TEXT NOT NULL,
+                description TEXT,
+                raw_payload TEXT NOT NULL,
+                payload_hash TEXT NOT NULL,
+                parsed_iocs TEXT NOT NULL,
+                status TEXT NOT NULL CHECK (status IN ('unhandled', 'investigating', 'completed', 'failed')),
+                case_id TEXT,
+                created_at TEXT NOT NULL,
+                processed_at TEXT,
+                FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE SET NULL
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_inbound_alerts_case ON inbound_alerts(case_id);")
+
+        # 15. Autonomic AI Agent logs and decisions (v3.0)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS agent_logs (
+                id TEXT PRIMARY KEY,
+                alert_id TEXT NOT NULL,
+                stage TEXT NOT NULL CHECK (stage IN ('ingestion', 'parsing', 'planning', 'execution', 'completion')),
+                level TEXT NOT NULL CHECK (level IN ('info', 'warning', 'error')),
+                message TEXT NOT NULL,
+                reasoning TEXT,
+                details TEXT,
+                timestamp TEXT NOT NULL,
+                FOREIGN KEY(alert_id) REFERENCES inbound_alerts(id) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_logs_alert ON agent_logs(alert_id);")
+
         # SAFE MIGRATION ROUTINE checks
 
         cursor.execute("PRAGMA table_info(users);")
