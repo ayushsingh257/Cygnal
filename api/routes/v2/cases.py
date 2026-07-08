@@ -38,6 +38,12 @@ def generate_case_number():
 
 @cases_bp.route("/cases", methods=["GET"])
 def get_cases():
+    # Security: Verify JWT token
+    auth_header = request.headers.get("Authorization", "").replace("Bearer ", "")
+    decoded = decode_token(auth_header)
+    if not decoded:
+        return jsonify({"success": False, "error": "Unauthorised session token."}), 401
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -121,6 +127,10 @@ def create_case():
 
 @cases_bp.route("/cases/<case_id>", methods=["GET"])
 def get_case_details(case_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -474,6 +484,10 @@ def extract_case_iocs(case_id):
 
 @cases_bp.route("/cases/<case_id>/graph", methods=["GET"])
 def get_case_graph(case_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -597,6 +611,10 @@ def get_case_graph(case_id):
 
 @cases_bp.route("/cases/<case_id>/timeline", methods=["GET"])
 def get_case_timeline_stages(case_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -968,6 +986,10 @@ def release_case_lock(case_id):
 
 @cases_bp.route("/cases/<case_id>/comments", methods=["GET"])
 def get_case_comments(case_id):
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()

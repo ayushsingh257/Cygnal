@@ -40,9 +40,22 @@ logging.basicConfig(
 
 # ========== FLASK SETUP ==========
 app = Flask(__name__)
-# Enable CORS for all routes under /api/
-CORS(app, resources={r"/api/*": {"origins": "*"}})
-socketio.init_app(app)
+
+# ========== SECURITY: HTTP HEADERS ==========
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss:;"
+    return response
+
+# Enable CORS for configured origins (not wildcard in production)
+CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")}})
+socketio.init_app(app, cors_allowed_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","))
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/api")
@@ -69,5 +82,11 @@ def handle_404_error(e):
 if __name__ == "__main__":
     init_lookup_db()   # Ensure database schema is initialized and migrated
     init_db()          # Ensure default admin accounts are seeded
-    logging.info("Starting Cygnal v2.5 Flask Backend with WebSockets on port 5000...")
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    
+    # Determine debug mode from environment
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    
+    logging.info(f"Starting Cygnal v2.5 Flask Backend with WebSockets on port 5000... (debug={debug_mode})")
+    
+    # Security: Never use debug=True in production
+    socketio.run(app, debug=debug_mode, host="0.0.0.0", port=5000)

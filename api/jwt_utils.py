@@ -6,7 +6,14 @@ from dotenv import load_dotenv
 # Load environmental configs
 load_dotenv()
 
-JWT_SECRET = os.getenv("JWT_SECRET", "default_cygnal_security_token_handshake_secret_key_2026")
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    raise RuntimeError(
+        "CRITICAL: JWT_SECRET environment variable is not set. "
+        "This is required for token signing and security. "
+        "Set JWT_SECRET in your .env file or environment before starting the application."
+    )
+
 JWT_EXPIRY = os.getenv("JWT_EXPIRY", "3d")
 
 def get_expiry_delta():

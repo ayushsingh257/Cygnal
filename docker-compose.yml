@@ -36,9 +36,9 @@ services:
     container_name: cygnal_backend
     environment:
       - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
-      - REDIS_URL=redis://redis:6379/0
-      - USE_CELERY=true
-      - JWT_SECRET=ProductionSecretKeyForHardeningCygnal2026!
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - USE_CELERY=${USE_CELERY:-true}
+      - JWT_SECRET=${JWT_SECRET:?error}
     ports:
       - "5000:5000"
     depends_on:
@@ -57,9 +57,9 @@ services:
     command: celery -A celery_app.celery worker --loglevel=info --pool=threads
     environment:
       - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
-      - REDIS_URL=redis://redis:6379/0
-      - USE_CELERY=true
-      - JWT_SECRET=ProductionSecretKeyForHardeningCygnal2026!
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - USE_CELERY=${USE_CELERY:-true}
+      - JWT_SECRET=${JWT_SECRET:?error}
     depends_on:
       db:
         condition: service_healthy
@@ -83,3 +83,4 @@ services:
 volumes:
   pgdata:
   uploads_volume:
+
