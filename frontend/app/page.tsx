@@ -15,6 +15,8 @@ import ParticleLoader from "@/components/ui/particle-loader";
 import { Sparkles } from "@/components/ui/sparkles";
 import { GooeyText } from "@/components/ui/gooey-text-morphing";
 import { FinancialScoreCards } from "@/components/ui/financial-score-cards";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
+import { Radar as RadarEffect, IconContainer } from "@/components/ui/radar-effect";
 
 export default function MarketingLandingPage() {
   const router = useRouter();
@@ -53,6 +55,64 @@ export default function MarketingLandingPage() {
 
   const handlePrimaryClick = () => router.push("/register");
   const handleSecondaryClick = () => router.push("/login");
+
+  const orbitalTimelineData = [
+    {
+      id: 1,
+      title: "OIDC Federation",
+      date: "Phase 1",
+      content: "Authenticate user sessions via Microsoft Entra ID OIDC or SAML 2.0. Group attributes map automatically to platform roles.",
+      category: "Identity",
+      icon: ShieldCheck,
+      relatedIds: [2],
+      status: "completed" as const,
+      energy: 90,
+    },
+    {
+      id: 2,
+      title: "IOC Extractor",
+      date: "Phase 2",
+      content: "Concurrent extraction of IP addresses, domain names, hashes, and emails using regular expressions on inbound raw events.",
+      category: "Extraction",
+      icon: Search,
+      relatedIds: [1, 3],
+      status: "completed" as const,
+      energy: 100,
+    },
+    {
+      id: 3,
+      title: "Parallel Enrichment",
+      date: "Phase 2",
+      content: "Aggregated threat scores from 8 parallel intelligence providers (AbuseIPDB, VT, Shodan) with weighted confidence.",
+      category: "Enrichment",
+      icon: Radar,
+      relatedIds: [2, 4],
+      status: "completed" as const,
+      energy: 95,
+    },
+    {
+      id: 4,
+      title: "Semantic memory",
+      date: "Phase 3",
+      content: "Pure-python 128-dimensional TF-IDF vector database matching current indicators against historical security logs.",
+      category: "RAG Search",
+      icon: Database,
+      relatedIds: [3, 5],
+      status: "completed" as const,
+      energy: 85,
+    },
+    {
+      id: 5,
+      title: "Multi-Agent HUD",
+      date: "Phase 3",
+      content: "Multi-agent planning layout showcasing autonomous agent status checking, DNS checks, compiler triages, and log exports.",
+      category: "Orchestration",
+      icon: Cpu,
+      relatedIds: [4],
+      status: "completed" as const,
+      energy: 90,
+    },
+  ];
 
   /* ─── data ─────────────────────────────────────────────────────────── */
 
@@ -303,35 +363,17 @@ export default function MarketingLandingPage() {
 
       {/* ─── SECTION 2: INVESTIGATION WORKFLOW ──────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
-        <div className="text-center space-y-2 mb-12">
+        <div className="text-center space-y-2 mb-8">
           <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
-            Platform Lifecycle
+            Interactive Node Map
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">The Investigation Lifecycle</h2>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">The Automated Investigation Loop</h2>
           <p className="text-xs text-slate-400 max-w-lg mx-auto">
-            From inbound alert ingestion to signed custody report compilation.
+            Click on nodes within the orbital tracker to view active stage metrics, connected pipelines, and execution data.
           </p>
         </div>
 
-        {/* Horizontal Timeline */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { step: "01", title: "Ingest Alert", desc: "Webhook parser ingests Splunk, Sentinel, or Generic JSON events, hashing raw payloads." },
-            { step: "02", title: "Extract IOCs", desc: "Modular regex pipeline parses IPs, domains, hashes, and emails in parallel." },
-            { step: "03", title: "Enrich Intelligence", desc: "Queries 8 threat intelligence networks concurrently, caching results." },
-            { step: "04", title: "Semantic RAG Search", desc: "Vector DB scans historical cases using term-frequency cosine similarity." },
-            { step: "05", title: "Deploy Orchestration", desc: "4 specialized agents (Recon, Malware, Identity, Compiler) triage findings." },
-            { step: "06", title: "Seal Evidence", desc: "Calculates forensic checksum hashes of uploaded files and updates the ledger." },
-            { step: "07", title: "Automated Report", desc: "Timeline logs and audit hashes compile into presentation-ready reports." },
-            { step: "08", title: "Resolution", desc: "Case lease locks release, incident status closes, and telemetry logs save." },
-          ].map((item, idx) => (
-            <div key={idx} className="relative glass-card p-5 bg-[#0f2422]/10 border border-[#408A71]/10 rounded-xl space-y-2.5 text-left group hover:border-[#408A71]/30 transition-all duration-300">
-              <div className="absolute top-4 right-4 text-xs font-bold font-mono text-[#408A71]/40 group-hover:text-[#408A71] transition-colors">{item.step}</div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono pt-2">{item.title}</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
+        <RadialOrbitalTimeline timelineData={orbitalTimelineData} />
       </section>
 
       {/* ─── SECTION 3: PLATFORM ARCHITECTURE ───────────────────────────── */}
@@ -471,27 +513,52 @@ export default function MarketingLandingPage() {
             </p>
           </div>
 
-          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#091413] text-left">
-            {/* Mock Copilot Chat interface */}
-            <div className="flex items-center justify-between pb-4 border-b border-[#408A71]/20 mb-4">
-              <div className="flex items-center gap-2 text-[9px] font-mono text-green-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                COPILOT PROTOCOL ACTIVE
-              </div>
-              <div className="text-[9px] font-mono text-slate-500">SESSION ID: E2E-PH3</div>
-            </div>
-            <div className="space-y-4 h-48 overflow-y-auto scrollbar-none font-mono text-[10px]">
-              <div>
-                <p className="text-slate-500">[17:03:10] Investigator:</p>
-                <p className="text-white">Query relevant history for case malicious command and control callbacks.</p>
-              </div>
-              <div className="p-3.5 rounded-xl border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
-                <p className="text-[#B0E4CC] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
-                <p className="text-slate-400">Memory Ref #case-1029: Suspicious DNS C2 Beaconing to C2 server domain.</p>
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-300 border border-green-500/20 rounded">
-                  <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                  Calculated Confidence: 92%
+          <div className="lg:col-span-7 grid md:grid-cols-12 gap-6 items-center">
+            {/* Terminal Panel */}
+            <div className="md:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#091413] text-left">
+              {/* Mock Copilot Chat interface */}
+              <div className="flex items-center justify-between pb-4 border-b border-[#408A71]/20 mb-4">
+                <div className="flex items-center gap-2 text-[9px] font-mono text-green-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  COPILOT PROTOCOL ACTIVE
                 </div>
+                <div className="text-[9px] font-mono text-slate-500">SESSION ID: E2E-PH3</div>
+              </div>
+              <div className="space-y-4 h-48 overflow-y-auto scrollbar-none font-mono text-[10px]">
+                <div>
+                  <p className="text-slate-500">[17:03:10] Investigator:</p>
+                  <p className="text-white">Query relevant history for case malicious command and control callbacks.</p>
+                </div>
+                <div className="p-3.5 rounded-xl border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
+                  <p className="text-[#B0E4CC] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
+                  <p className="text-slate-400">Memory Ref #case-1029: Suspicious DNS C2 Beaconing to C2 server domain.</p>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-300 border border-green-500/20 rounded">
+                    <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                    Calculated Confidence: 92%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Radar Panel */}
+            <div className="md:col-span-5 relative flex h-64 w-full flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border border-[#408A71]/10 bg-[#0f2422]/5">
+              {/* Floating indicators */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <RadarEffect className="scale-[0.8]" />
+              </div>
+              
+              {/* Floating sweep targets */}
+              <div className="absolute top-4 left-4">
+                <IconContainer text="VT Hash" delay={0.2} icon={<Search className="h-4 w-4 text-[#B0E4CC]" />} />
+              </div>
+              <div className="absolute top-4 right-4">
+                <IconContainer text="WHOIS DNS" delay={0.4} icon={<Globe className="h-4 w-4 text-[#B0E4CC]" />} />
+              </div>
+              <div className="absolute bottom-4 left-4">
+                <IconContainer text="OIDC User" delay={0.6} icon={<Fingerprint className="h-4 w-4 text-[#B0E4CC]" />} />
+              </div>
+              <div className="absolute bottom-4 right-4">
+                <IconContainer text="Case Memory" delay={0.8} icon={<Database className="h-4 w-4 text-[#B0E4CC]" />} />
               </div>
             </div>
           </div>
