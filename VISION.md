@@ -78,7 +78,7 @@ Cygnal is built specifically for security professionals who perform deep analyti
 
 ### AI Principles
 *   **Investigator-in-the-Loop:** AI does not make execution decisions. AI analyzes, correlates, and suggests. Humans review, approve, and contain.
-*   **Deterministic RAG Context:** No hallucinated facts. The AI must strictly base its summaries on verified database rows, logs, and evidence hashes.
+*   **Deterministic RAG Context:** No hallucinated facts. The AI must strictly base its summaries on verified database rows, logs, and evidence hashes. 
 *   **Explainable Reasoning:** The AI must outline *how* it arrived at its correlation (e.g., matching a domain because it appeared in lookups for a specific case).
 * **Human Approval for Autonomous Actions:** The AI may recommend and prepare investigations automatically, but execution of investigation plans must remain subject to explicit analyst approval unless organizational policies allow otherwise.
 
@@ -101,25 +101,22 @@ To verify if Cygnal is achieving its mission, the platform tracks:
 Cygnal evolves in clean version milestones, balancing new cognitive capabilities with enterprise production upgrades.
 
 ```
-  Cygnal v1.0 (Current) ────► Cygnal v1.5 (Autonomous) ────► Cygnal v2.0 (Enterprise)
-   • Unified Console           • Auto-IOC & Orchestrator      • PostgreSQL & Celery/Redis
-   • 10 Scanners               • Knowledge Graph & Timeline   • SSO / MFA
-   • SQLite RAG Chat           • AI Copilot Workspace         • Docker & Kubernetes
-
+  Cygnal v1.0 (Baseline) ──────► Cygnal v1.5 (Autonomous) ─────► Cygnal v2.0 (Enterprise)
+   • Unified console              • AI Copilot / Auto-IOC         • PostgreSQL & Celery/Redis
    
-                                         │
-                                         ▼
-  Cygnal v5.0 (Commercial) ◄──── Cygnal v4.0 (Plugin SDK) ◄─── Cygnal v3.0 / v3.5 (Connected)
-   • Multi-Tenant SaaS         • Extensible Scanners Manifest  • SIEM/EDR Inbound Webhooks
-   • Global Cloud Workspace    • Developer SDK API             • AI Agent Autonomy
+                                             │
+                                             ▼
+  Cygnal v5.0 (Commercial) ◄───── Cygnal v4.5 (Plugin SDK) ◄───── Cygnal v4.0 (Intelligence)
+   • Hosted SaaS Billing          • Plugin Marketplace            • OIDC / SAML / Entra ID
+                                                                  • Vector DB & SOAR Engine
 ```
 
 *   **v1.0 (Finished):** Local execution console, SQLite schema, 10 scanners, timeline ledger, custom SVG charts.
-*   **v1.5 (Immediate Focus):** Autonomous Investigation Workspace (Auto-IOC Extraction, Investigation Orchestrator, Visual Knowledge Graph, AI Timeline Stages, and AI Copilot).
-
-*   **v2.0 (Enterprise Hardening):** Production migration to PostgreSQL, Celery/Redis background task queues, multi-factor auth (MFA), and system Docker orchestration.
-*   **v2.5 (Collaborative):** Real-time multi-analyst workspaces, comment threads, case locking.
-*   **v3.0 (Integrated):** SIEM/EDR connector webhooks for Splunk, Microsoft Sentinel, and Elastic.
-*   **v3.5 (Intelligent):** Autonomous AI analyst routing, containment tips compiler, pre-run forensics packaging.
-*   **v4.0 (Plugin SDK):** Community plugin marketplace, manifest schemas for external scanners.
+*   **v1.5 (Finished):** Autonomous Investigation Workspace (Auto-IOC Extraction, Investigation Orchestrator, Visual Knowledge Graph, AI Timeline Stages, and AI Copilot).
+*   **v2.0 (Finished):** Production migration to PostgreSQL, Celery/Redis background task queues, multi-factor auth (MFA), and system Docker orchestration.
+*   **v2.5 (Finished):** Real-time multi-analyst workspaces, comment threads, case locking.
+*   **v3.0 (Finished):** SIEM/EDR connector webhooks for Splunk, Microsoft Sentinel, and Elastic.
+*   **v3.5 (Current):** Autonomous AI analyst routing, containment tips compiler, pre-run forensics packaging.
+*   **v4.0 (Enterprise Intelligence):** Entra ID/OIDC SSO, STIX/TAXII threat intel feeds, vector search & SOAR playbook orchestrator.
+*   **v4.5 (Plugin SDK):** Community plugin marketplace, manifest schemas for external scanners.
 *   **v5.0 (Commercial):** Hosted multi-tenant cloud SaaS, billing organizations, cloud HSM evidence integration.

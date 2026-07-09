@@ -14,9 +14,10 @@ This document maps the version-based product evolution of Cygnal, detailing how 
    
                                              │
                                              ▼
-  Cygnal v5.0 (Commercial) ◄───── Cygnal v4.0 (Plugin SDK) ◄───── Cygnal v3.0 / v3.5 (Connected)
-   • Hosted SaaS Billing          • Plugin Marketplace            • SIEM/EDR Inbound Webhooks
-   • Cloud HSM Signatures         • Scanners & Connectors SDK     • Autonomic AI Agent Loops
+  Cygnal v5.0 (Commercial) ◄───── Cygnal v4.5 (Plugin SDK) ◄───── Cygnal v4.0 (Intelligence)
+   • Hosted SaaS Billing          • Plugin Marketplace            • OIDC / SAML 2.0 / Entra ID
+   • Cloud HSM Signatures         • Scanners & Connectors SDK     • OSINT & Threat Intel Connectors
+                                                                  • Vector DB RAG & SOAR Engine
 ```
 
 ---
@@ -109,7 +110,21 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
-### 🟣 Cygnal v4.0: Extensible Plugin SDK
+### 🟣 Cygnal v4.0: Enterprise Intelligence & AI Operations Platform
+*   **Purpose:** Transform Cygnal into a genuine enterprise-grade SOC, DFIR, and AI Investigation platform.
+*   **Business Value:** Lowers MTTI for enterprise SOCs through automated correlation, compliant custody tracking, federated IAM, and multi-agent SOAR playbooks.
+*   **Technical Goals:** Implement SAML/Entra ID SSO, STIX/TAXII threat intel connectors, a vector-database backed RAG, horizontal socket synchronization via Redis Pub/Sub, and strict cryptographic chain-of-custody signatures.
+*   **Architecture Changes:** Shift permanently to a PostgreSQL-first multi-tenant design; integrate Redis Pub/Sub channels for WebSocket synchronization across load-balanced nodes; establish centralized logging with correlation IDs.
+*   **Database Changes:** Add `audit_logs` migration schema, vector search tables (`pgvector`), `organizations`/`tenants`, `playbooks`, and `evidence_chain_signatures` tables.
+*   **Backend Work:** OIDC/SAML authentication paths; integration connectors for VirusTotal, Shodan, AbuseIPDB, Censys, GreyNoise, AlienVault OTX, MISP, ThreatFox, URLHaus; a workflow engine for playbook executions.
+*   **Frontend Work:** SSO gateway login, interactive Playbook Builder (drag-and-drop workflow graphs), tenant administration panel, compliance reports download, and detailed worker queues monitoring dials.
+*   **AI Improvements:** Semantic case memory search; multi-agent coordination with automated plan validation; dynamic confidence scoring on threat indicators; automated investigation timeline narrative summaries.
+*   **Expected Users:** Security Operations Managers, Enterprise Compliance Officers, and Tier 3 DFIR Investigators.
+*   **Workspace Alignment:** Unifies threat intelligence feeds, federated identity, compliance logs, and autonomous agent loops into a single enterprise-ready pane.
+
+---
+
+### 🟣 Cygnal v4.5: Extensible Plugin SDK
 *   **Purpose:** Enable developers to write custom scanners, AI agents, and integrations.
 *   **Business Value:** Drives rapid feature growth and ecosystem support by letting the community maintain niche security connectors.
 *   **Technical Goals:** Define abstract base classes (`ScannerInterface`, `TIInterface`), design plugin manifest files, and build a local registry.
