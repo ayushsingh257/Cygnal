@@ -52,6 +52,7 @@ jobs:
       working-directory: api
       env:
         PYTHONPATH: ${{ github.workspace }}/api
+        JWT_SECRET: f4a0a4c0709b114d60c410b001a1c1d1e1f185220b0b1a0d81014e2030f0e0d0c0b0a0908070605040302010
       run: |
         pytest tests/ -v || { echo "=== CYGNAL BACKEND LOG ==="; [ -f cygnal_backend.log ] && cat cygnal_backend.log || echo "No log file found"; exit 1; }
 
