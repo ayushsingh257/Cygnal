@@ -90,6 +90,12 @@ export default function CasesPage() {
   const [isCaseLocked, setIsCaseLocked] = useState(false);
   const socketRef = useRef<any>(null);
 
+  // Phase 4 Collaboration states
+  const [activeUsers, setActiveUsers] = useState<any[]>([]);
+  const [typingUser, setTypingUser] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [roster, setRoster] = useState<any[]>([]);
+
   // Filter states
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -131,6 +137,23 @@ export default function CasesPage() {
     fetchCases();
   }, [token]);
 
+  // Load team roster
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/roster", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setRoster(data.users || []);
+        }
+      })
+      .catch(err => console.error("Error loading roster:", err));
+  }, [token]);
+
+  const typingTimeoutRef = useRef<any>(null);
+
   useEffect(() => {
     if (selectedCaseId) {
       fetchCaseDetails(selectedCaseId);
@@ -146,13 +169,15 @@ export default function CasesPage() {
     }
   }, [selectedCaseId]);
 
-  // WebSockets Real-Time connection & Case Room subscription (v2.5)
+  // WebSockets Real-Time connection & Case Room subscription (v2.5 & Phase 4)
   useEffect(() => {
     if (!selectedCaseId || !token) {
       setComments([]);
       setLockedBy(null);
       setIsCaseLocked(false);
       setMyLockActive(false);
+      setActiveUsers([]);
+      setTypingUser(null);
       return;
     }
 
@@ -174,7 +199,7 @@ export default function CasesPage() {
 
     socket.on("connect", () => {
       console.log("WebSocket linked to backend channel.");
-      socket.emit("join_case", { case_id: selectedCaseId });
+      socket.emit("join_case", { case_id: selectedCaseId, token });
     });
 
     socket.on("new_comment", (data: any) => {
@@ -206,6 +231,65 @@ export default function CasesPage() {
         setLockExpiresAt(null);
         setIsCaseLocked(false);
         setMyLockActive(false);
+      }
+    });
+
+    // Phase 4: Room User Presence Updates
+    socket.on("presence_update", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setActiveUsers(data.users || []);
+      }
+    });
+
+    // Phase 4: Typing Status Broadcasts
+    socket.on("typing_update", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        if (data.is_typing) {
+          setTypingUser(data.username);
+        } else {
+          setTypingUser(null);
+        }
+      }
+    });
+
+    // Phase 4: Case Information Synced (Metadata / Assignment)
+    socket.on("case_updated", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        fetchCaseDetails(selectedCaseId);
+        fetchCases();
+      }
+    });
+
+    // Phase 4: Evidence Workspace Auto-Sync
+    socket.on("new_evidence", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setEvidence((prev) => {
+          if (prev.some((ev) => ev.id === data.evidence.id)) return prev;
+          return [data.evidence, ...prev];
+        });
+        // Reload case details to update graph and narrator
+        fetchGraphData(selectedCaseId);
+        fetchTimelineStages(selectedCaseId);
+      }
+    });
+
+    // Phase 4: Extracted Indicators Auto-Sync
+    socket.on("indicators_updated", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        // Trigger graph and timeline reload since new indicators are linked
+        fetchGraphData(selectedCaseId);
+        fetchTimelineStages(selectedCaseId);
+      }
+    });
+
+    // Phase 4: Timeline Chronology Sync
+    socket.on("timeline_updated", (data: any) => {
+      if (data.case_id === selectedCaseId) {
+        setTimeline((prev) => {
+          if (prev.some((evt) => evt.id === data.event.id)) return prev;
+          return [data.event, ...prev];
+        });
+        fetchTimelineStages(selectedCaseId);
       }
     });
 
@@ -346,12 +430,41 @@ export default function CasesPage() {
       const data = await res.json();
       if (data.success) {
         setCollabMessageText("");
+        // Clear typing status
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        setIsTyping(false);
+        if (socketRef.current) {
+          socketRef.current.emit("typing_status", { case_id: selectedCaseId, token, is_typing: false });
+        }
       } else {
         toast.error(data.error || "Failed to post comment.");
       }
     } catch {
       toast.error("Post comment connection timeout.");
     }
+  };
+
+  const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setCollabMessageText(val);
+
+    if (!socketRef.current) return;
+
+    if (!isTyping) {
+      setIsTyping(true);
+      socketRef.current.emit("typing_status", { case_id: selectedCaseId, token, is_typing: true });
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      socketRef.current.emit("typing_status", { case_id: selectedCaseId, token, is_typing: false });
+    }, 2500);
   };
 
   // Job status polling hook
@@ -998,6 +1111,24 @@ export default function CasesPage() {
                       </span>
                     </div>
                     <h3 className="text-sm font-bold text-white uppercase tracking-wide mt-1">{caseDetails.title}</h3>
+                    
+                    {/* Workspace Presence HUD */}
+                    {activeUsers.length > 0 && (
+                      <div className="flex items-center gap-2 mt-2 select-none">
+                        <span className="text-[8px] font-mono text-slate-500 uppercase tracking-wider">Workspace:</span>
+                        <div className="flex -space-x-1 overflow-hidden">
+                          {activeUsers.map((u, i) => (
+                            <div
+                              key={i}
+                              className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-[8px] font-bold text-blue-400 font-mono shadow-md"
+                              title={`${u.username} (${u.role.replace("_", " ").toUpperCase()})`}
+                            >
+                              {u.username.slice(0, 2).toUpperCase()}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-row items-center gap-3">
@@ -1009,7 +1140,44 @@ export default function CasesPage() {
                       Orchestrate Scan
                     </button>
                     <div className="text-[10px] font-mono text-slate-500 text-left sm:text-right space-y-1">
-                      <div>ASSIGNED: <span className="text-slate-350">{caseDetails.assigned_to || "UNASSIGNED"}</span></div>
+                      <div className="flex items-center gap-1.5 justify-start sm:justify-end">
+                        <span>OWNER:</span>
+                        <select
+                          value={caseDetails.assigned_to || ""}
+                          disabled={isCaseLocked && !myLockActive}
+                          onChange={async (e) => {
+                            const newAssignee = e.target.value;
+                            if (!newAssignee) return;
+                            try {
+                              const res = await fetch(`/api/cases/${caseDetails.id}/assign`, {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ assigned_to: newAssignee })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                toast.success(`Case assigned to ${newAssignee}.`);
+                                setCaseDetails(prev => prev ? { ...prev, assigned_to: newAssignee } : null);
+                              } else {
+                                toast.error(data.error || "Failed to assign case.");
+                              }
+                            } catch {
+                              toast.error("Assignment connection failure.");
+                            }
+                          }}
+                          className="bg-[#0b0f19] border border-white/5 px-2 py-0.5 rounded text-[10px] text-slate-350 focus:outline-none focus:border-blue-500/30"
+                        >
+                          <option value="">UNASSIGNED</option>
+                          {roster.map((u) => (
+                            <option key={u.username} value={u.username}>
+                              {u.username.toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <div>DEPARTMENT: <span className="text-slate-350">{caseDetails.department.toUpperCase()}</span></div>
                     </div>
                   </div>
@@ -1648,6 +1816,13 @@ export default function CasesPage() {
                       )}
                     </div>
 
+                    {/* Typing Indicator */}
+                    {typingUser && (
+                      <div className="text-[10px] font-mono text-blue-400 italic text-left animate-pulse pl-1">
+                        🕵️ Investigator {typingUser} is typing...
+                      </div>
+                    )}
+
                     {/* Chat Input form */}
                     <form onSubmit={handlePostCollabComment} className="flex gap-3 pt-2">
                       <input
@@ -1655,7 +1830,7 @@ export default function CasesPage() {
                         placeholder={isCaseLocked && !myLockActive ? "Case is locked by another investigator..." : "Type collaboration note to other investigators..."}
                         disabled={isCaseLocked && !myLockActive}
                         value={collabMessageText}
-                        onChange={(e) => setCollabMessageText(e.target.value)}
+                        onChange={handleChatInputChange}
                         className="cyber-input py-3 text-xs bg-black/40 disabled:opacity-40"
                       />
                       <button 

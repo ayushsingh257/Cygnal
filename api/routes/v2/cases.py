@@ -258,6 +258,20 @@ def add_timeline_event(case_id):
         except Exception as vec_err:
             print("[Vector Index] Error indexing timeline event:", vec_err)
 
+        # Broadcast timeline update via Socket.IO
+        socketio.emit("timeline_updated", {
+            "case_id": case_id,
+            "event": {
+                "id": timeline_id,
+                "case_id": case_id,
+                "event_type": evt_type,
+                "description": desc,
+                "timestamp": now_str,
+                "user": user,
+                "metadata": meta
+            }
+        }, to=case_id)
+
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -334,15 +348,24 @@ def upload_evidence(case_id):
         except Exception as vec_err:
             print("[Vector Index] Error indexing evidence:", vec_err)
 
+        evidence_payload = {
+            "id": file_id,
+            "filename": file.filename,
+            "file_hash": sha256_hash,
+            "file_size": file_size,
+            "uploaded_at": now_str,
+            "uploaded_by": user
+        }
+        
+        # Broadcast new evidence via Socket.IO
+        socketio.emit("new_evidence", {
+            "case_id": case_id,
+            "evidence": evidence_payload
+        }, to=case_id)
+
         return jsonify({
             "success": True,
-            "evidence": {
-                "id": file_id,
-                "filename": file.filename,
-                "file_hash": sha256_hash,
-                "file_size": file_size,
-                "uploaded_at": now_str
-            }
+            "evidence": evidence_payload
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -500,6 +523,12 @@ def extract_case_iocs(case_id):
         conn.commit()
         conn.close()
         
+        # Broadcast indicators update via Socket.IO
+        socketio.emit("indicators_updated", {
+            "case_id": case_id,
+            "indicators": inserted
+        }, to=case_id)
+
         return jsonify({
             "success": True,
             "case_id": case_id,
@@ -1090,6 +1119,97 @@ def post_case_comment(case_id):
             "success": True,
             "comment": comment
         })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/assign", methods=["POST"])
+def assign_case(case_id):
+    username = get_current_user()
+    if username == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+        
+    data = request.json or {}
+    assignee = data.get("assigned_to", "").strip()
+    
+    if not assignee:
+        return jsonify({"success": False, "error": "Assignee username cannot be empty."}), 400
+        
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 1. Verify case exists
+        cursor.execute("SELECT case_number, title FROM cases WHERE id = ?;", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            conn.close()
+            return jsonify({"success": False, "error": "Case not found."}), 404
+        case_num, case_title = case_row
+        
+        # 2. Verify assignee user exists
+        cursor.execute("SELECT username FROM users WHERE username = ?;", (assignee,))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"success": False, "error": f"Assignee user '{assignee}' does not exist."}), 400
+            
+        # 3. Update case
+        cursor.execute("UPDATE cases SET assigned_to = ?, updated_at = ? WHERE id = ?;", 
+                       (assignee, datetime.utcnow().isoformat() + "Z", case_id))
+        
+        # 4. Log timeline event
+        timeline_id = str(uuid.uuid4())
+        now_str = datetime.utcnow().isoformat() + "Z"
+        desc = f"Case assigned to '{assignee}' by '{username}'."
+        cursor.execute("""
+            INSERT INTO timeline (id, case_id, event_type, description, timestamp, user, metadata)
+            VALUES (?, ?, 'case_assigned', ?, ?, ?, ?);
+        """, (timeline_id, case_id, desc, now_str, username, json_dumps({"assigned_to": assignee})))
+        
+        conn.commit()
+        conn.close()
+        
+        # Index timeline event
+        try:
+            from services.vector_service import index_text_entity
+            index_text_entity(timeline_id, "timeline_event", f"Timeline Event: case_assigned. Details: {desc}. Actor: {username}.")
+        except Exception as vec_err:
+            print("[Vector Index Error]", vec_err)
+            
+        # 5. Create persistent notification for assignee (skip notifying if self-assigned)
+        if assignee != username:
+            from services.collaboration_service import create_notification
+            create_notification(
+                username=assignee,
+                title="New Case Assignment",
+                content=f"You have been assigned case {case_num}: {case_title} by {username}.",
+                notification_type="assignment",
+                case_id=case_id
+            )
+            
+        # 6. Log audit log
+        try:
+            from routes.v2.admin import write_audit_log
+            write_audit_log(
+                action="case.assign",
+                actor=username,
+                target=case_id,
+                details={"assigned_to": assignee, "case_number": case_num}
+            )
+        except Exception as audit_err:
+            print("[Audit Log Error]", audit_err)
+            
+        # 7. Broadcast case update via Socket.IO
+        socketio.emit("case_updated", {
+            "case_id": case_id,
+            "assigned_to": assignee
+        }, to=case_id)
+        
+        return jsonify({
+            "success": True,
+            "assigned_to": assignee
+        })
+        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

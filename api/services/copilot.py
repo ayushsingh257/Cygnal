@@ -77,7 +77,10 @@ def fetch_case_context(case_id: str) -> dict:
     """Fetch all investigation context for a specific case with semantic memory."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    ctx = {"case": None, "timeline": [], "evidence": [], "indicators": [], "lookups": [], "memories": []}
+    ctx = {
+        "case": None, "timeline": [], "evidence": [], "indicators": [], 
+        "lookups": [], "memories": [], "comments": [], "active_users": []
+    }
 
     try:
         cursor.execute("SELECT id, case_number, title, description, status, severity, assigned_to, created_at FROM cases WHERE id = ?;", (case_id,))
@@ -107,6 +110,19 @@ def fetch_case_context(case_id: str) -> dict:
         """, (f"%{case_id}%",))
         for r in cursor.fetchall():
             ctx["lookups"].append({"tool": r[0], "input": r[1], "result": r[2][:400], "timestamp": r[3]})
+
+        # Fetch collaboration comments
+        cursor.execute("SELECT username, content, created_at FROM comments WHERE case_id = ? ORDER BY created_at ASC LIMIT 10;", (case_id,))
+        for r in cursor.fetchall():
+            ctx["comments"].append({"username": r[0], "content": r[1], "created_at": r[2]})
+
+        # Fetch active presence users
+        try:
+            from socket_app import active_case_users
+            if case_id in active_case_users:
+                ctx["active_users"] = list(active_case_users[case_id].values())
+        except Exception:
+            pass
 
     finally:
         conn.close()
@@ -447,6 +463,19 @@ def format_summary_response(context: dict, confidence: int) -> str:
     else:
         lines.append("- No evidence files uploaded to this case yet.")
     lines.append("")
+
+    # Investigator Collaboration Log & Presence
+    comments = context.get("comments", [])
+    if comments:
+        lines.append("### 💬 Investigator Collaboration Log")
+        for c in comments[:5]:
+            lines.append(f"- **{c['username']}**: \"{c['content']}\"")
+        lines.append("")
+
+    active_users = context.get("active_users", [])
+    if active_users:
+        users_str = ", ".join([f"{u['username']} ({u['role'].upper()})" for u in active_users])
+        lines.append(f"### 👥 Active Investigators in Workspace\n- Active users: {users_str}\n")
 
     # Semantic memories link
     memories = context.get("memories", [])

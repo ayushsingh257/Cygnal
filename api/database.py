@@ -368,6 +368,28 @@ def init_lookup_db():
             ON vector_records(entity_id, entity_type);
         """)
 
+        # ── Phase 4: Enterprise Collaboration Platform ─────────────────────────
+
+        # 24. Notifications Table (stores persistent user notifications)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                type TEXT NOT NULL CHECK (type IN ('assignment', 'comment', 'lock', 'system')),
+                is_read INTEGER DEFAULT 0,
+                case_id TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_notifications_username 
+            ON notifications(username);
+        """)
+
+
 
         # SAFE MIGRATION ROUTINE checks
 
