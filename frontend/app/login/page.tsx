@@ -198,6 +198,39 @@ export default function LoginPage() {
                   {loading ? "Authenticating..." : "Establish Connection Link"}
                 </button>
               </div>
+
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-[#408A71]/15"></div>
+                <span className="flex-shrink mx-4 text-[9px] font-mono text-slate-500 uppercase tracking-widest">or</span>
+                <div className="flex-grow border-t border-[#408A71]/15"></div>
+              </div>
+
+              <div>
+                <button 
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const redirectUri = `${window.location.origin}/sso-callback`;
+                      const res = await fetch(`/api/auth/sso/login/entra_id?redirect_uri=${encodeURIComponent(redirectUri)}`);
+                      const data = await res.json();
+                      if (data.success && data.url) {
+                        window.location.href = data.url;
+                      } else {
+                        toast.error(data.error || "SSO Login Link generation failed.");
+                        setLoading(false);
+                      }
+                    } catch {
+                      toast.error("Failed to contact SSO authentication provider.");
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
+                  className="w-full bg-transparent border border-[#408A71]/30 hover:bg-[#408A71]/10 text-[#B0E4CC] py-3 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all font-mono disabled:opacity-50 cursor-pointer"
+                >
+                  Sign in with Entra ID
+                </button>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleMfaVerify} className="space-y-4">
