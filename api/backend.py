@@ -25,6 +25,7 @@ from routes.v2.copilot import copilot_bp
 from routes.v2.mfa import mfa_bp
 from routes.v2.webhooks import webhooks_bp
 from routes.v2.admin import admin_bp  # B-03/B-07: Real audit log + health endpoints
+from routes.v2.threat_intel import threat_intel_bp  # Phase 2: Threat Intelligence
 
 
 # ========== LOGGING CONFIGURATION ==========
@@ -89,6 +90,7 @@ app.register_blueprint(copilot_bp, url_prefix="/api")
 app.register_blueprint(mfa_bp, url_prefix="/api")
 app.register_blueprint(webhooks_bp, url_prefix="/api")
 app.register_blueprint(admin_bp, url_prefix="/api")  # Admin + health + audit
+app.register_blueprint(threat_intel_bp, url_prefix="/api")  # Phase 2: Threat Intel
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)

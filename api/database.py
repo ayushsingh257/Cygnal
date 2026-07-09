@@ -293,6 +293,63 @@ def init_lookup_db():
             );
         """)
 
+        # ── Phase 2: Threat Intelligence ──────────────────────────────────────
+
+        # 20. TI Enrichment Cache (stores per-indicator enrichment results with TTL)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ti_enrichment_cache (
+                id TEXT PRIMARY KEY,
+                indicator TEXT NOT NULL,
+                indicator_type TEXT NOT NULL,
+                verdict TEXT NOT NULL,
+                confidence REAL DEFAULT 0.0,
+                tags TEXT,
+                provider_results TEXT,
+                case_id TEXT,
+                requested_by TEXT,
+                created_at TEXT NOT NULL
+            );
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_ti_cache_indicator
+            ON ti_enrichment_cache(indicator, indicator_type);
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_ti_cache_case
+            ON ti_enrichment_cache(case_id);
+        """)
+
+        # 21. TI IOC Feed (stores imported IOCs from STIX bundles / TAXII feeds)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ti_ioc_feed (
+                id TEXT PRIMARY KEY,
+                stix_id TEXT,
+                indicator TEXT NOT NULL,
+                indicator_type TEXT NOT NULL,
+                source TEXT,
+                verdict TEXT DEFAULT 'unknown',
+                confidence REAL DEFAULT 0.0,
+                tags TEXT,
+                first_seen TEXT,
+                last_seen TEXT,
+                created_at TEXT NOT NULL
+            );
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_ti_ioc_indicator
+            ON ti_ioc_feed(indicator, indicator_type);
+        """)
+
+        # 22. TI Connector Config (provider API keys managed through admin UI)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ti_connector_config (
+                provider TEXT PRIMARY KEY,
+                is_enabled INTEGER DEFAULT 1,
+                updated_by TEXT,
+                updated_at TEXT
+            );
+        """)
+
 
         # SAFE MIGRATION ROUTINE checks
 
