@@ -25,12 +25,13 @@ def now_iso():
 # ─── Heuristic RAG Resolver ──────────────────────────────────────────────────
 def resolve_rag_context(prompt: str):
     """
-    Search SQLite tables (cases, timeline, evidence, lookups) for matching terms:
+    Search SQLite/PG tables (cases, timeline, evidence, lookups) for matching terms:
     - Case IDs (e.g. CYG-2026-XXXX or UUIDs)
     - IP addresses (IPv4 format)
     - Domain names
     - SHA-256 hashes
     - Scanner tools (whois, dns, metadata, headers, etc.)
+    Enriched with Vector Database Semantic search memories.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -39,7 +40,8 @@ def resolve_rag_context(prompt: str):
         "cases": [],
         "timeline_events": [],
         "evidence_files": [],
-        "recent_lookups": []
+        "recent_lookups": [],
+        "memories": []
     }
     
     # 1. Parse Case Numbers (e.g., CYG-2026-0001)
@@ -96,18 +98,29 @@ def resolve_rag_context(prompt: str):
             })
 
     conn.close()
+
+    # 3. Add Semantic Vector Search Memories
+    from services.vector_service import semantic_search
+    try:
+        context["memories"] = semantic_search(prompt, limit=4)
+    except Exception as e:
+        print("[AI BP RAG] Semantic search failed:", e)
+
     return context
 
 def generate_ai_response(prompt: str, context: dict) -> str:
     """Generates a highly structured, analytical cyber analyst RAG response."""
     prompt_lower = prompt.lower()
-    
-    # Base analysis structure
     response = []
     
-    # 1. Header Analysis summary
-    response.append("### 🧠 CYGNAL COGNITIVE RAG ANALYSIS")
+    response.append("### 🧠 CYGNAL COGNITIVE RAG ANALYSIS (v4.0)")
     
+    # Semantic Memories section
+    if context.get("memories"):
+        response.append("\n**相关历史语义记忆 (Correlated Semantic Memories):**")
+        for m in context["memories"]:
+            response.append(f"- [Match similarity: {int(m['similarity'] * 100)}%] {m['text_content'][:150]}...")
+
     # Case summary section
     if context["cases"]:
         response.append("\n**关联案件情报 (Correlated Case Intelligence):**")
@@ -134,7 +147,6 @@ def generate_ai_response(prompt: str, context: dict) -> str:
         for l in context["recent_lookups"][:3]:
             response.append(f"- `[{l['timestamp']}]` Tool `{l['tool'].upper()}` queries: `{l['input']}`")
 
-    # Core AI Analysis & Actions recommendation
     response.append("\n**🛡️ 深度分析与安全应急响应建议 (Deep Correlation & Recommendations):**")
     
     if "case" in prompt_lower or "summary" in prompt_lower:
@@ -192,7 +204,6 @@ def ai_agents_pipeline():
     if not target and not case_id:
         return jsonify({"success": False, "error": "Target parameter or Case ID is required."}), 400
 
-    # Mock output log strings representing real-time multi-agent execution steps
     pipeline_steps = [
         {
             "agent": "Recon & OSINT Agent",
@@ -239,3 +250,37 @@ def ai_agents_pipeline():
         "steps": pipeline_steps,
         "completed_at": now_iso()
     })
+
+# ─── Phase 3: Semantic Memory Admin & Search Endpoints ─────────────────────────
+
+@ai_bp.route("/ai/semantic-search", methods=["GET"])
+def ai_semantic_search():
+    """Query semantic vector records database directly."""
+    query = request.args.get("query", "").strip()
+    entity_type = request.args.get("type", None)
+    limit = min(int(request.args.get("limit", 5)), 20)
+
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+
+    if not query:
+        return jsonify({"success": False, "error": "Query parameter is required"}), 400
+
+    from services.vector_service import semantic_search
+    results = semantic_search(query, limit=limit, entity_type=entity_type)
+    return jsonify({"success": True, "results": results, "count": len(results)})
+
+@ai_bp.route("/ai/memory/sync", methods=["POST"])
+def ai_memory_sync():
+    """Admin endpoint to force sync all cases/evidence/timeline to vector db."""
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+
+    from services.vector_service import full_database_reindex
+    try:
+        stats = full_database_reindex()
+        return jsonify({"success": True, "message": "Synchronized all operational memory entities to vector database", "stats": stats})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

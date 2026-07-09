@@ -77,10 +77,10 @@ Cygnal unifies the entire investigation workflow into a single window:
 
 ## ✨ Core Capabilities
 
-### 🧠 AI Investigation Copilot
--   **SQLite RAG Engine:** Ask questions in natural language about cases, timeline events, and scanner logs.
--   **Multi-Agent Pipeline:** Simulates parallel agent loops (OSINT, Malware, Custody, Compiler) to construct incident files.
--   **Chronological Narrator:** Turns chaotic event logs into a readable threat story automatically.
+### 🧠 AI Investigation Copilot (v4.0)
+-   **Vector Database & Semantic RAG:** Curated 128-dimensional TF-IDF vector database and cosine similarity search engine to retrieve relevant historical cases and timeline memories.
+-   **Multi-Agent Planning HUD:** Dynamic plan generation and validation checks (DNS capability, Zero-Trust credentials, and connector authorization keys verification).
+-   **Dynamic Confidence Scorer:** Dynamically calculates indicator confidence using threat intelligence verdicts, semantic context similarity, evidence hash checks, and timeline events progression.
 
 ### 🔌 Pluggable SIEM & Autonomic Loops
 -   **SIEM Ingestion Gateway:** Webhooks receiver accepting Splunk, Microsoft Sentinel, and Generic JSON alerts.

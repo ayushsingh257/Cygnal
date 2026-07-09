@@ -350,6 +350,24 @@ def init_lookup_db():
             );
         """)
 
+        # ── Phase 3: Enterprise AI Platform ───────────────────────────────────
+
+        # 23. Vector Records (stores text embeddings for semantic search memory)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS vector_records (
+                id TEXT PRIMARY KEY,
+                entity_id TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                text_content TEXT NOT NULL,
+                vector_data TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_vector_records_entity 
+            ON vector_records(entity_id, entity_type);
+        """)
+
 
         # SAFE MIGRATION ROUTINE checks
 

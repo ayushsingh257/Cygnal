@@ -3,6 +3,7 @@ import uuid
 import logging
 from datetime import datetime
 from db_utils import get_db_connection
+from services.vector_service import index_text_entity
 from jwt_utils import create_internal_service_token  # C-02: use scoped service token, not admin JWT
 from services.orchestrator import (
     build_execution_plan,
@@ -41,11 +42,12 @@ def auto_create_siem_case(title, description, severity, user):
         ))
         
         # Chronological Case Timeline event
+        timeline_id = str(uuid.uuid4())
         cursor.execute("""
             INSERT INTO timeline (id, case_id, event_type, description, timestamp, user, metadata)
             VALUES (?, ?, 'case_created', ?, ?, ?, ?);
         """, (
-            str(uuid.uuid4()),
+            timeline_id,
             case_id,
             f"Case {case_number} initialized autonomously by SIEM webhook ingestion loop.",
             datetime.utcnow().isoformat() + "Z",
@@ -53,6 +55,14 @@ def auto_create_siem_case(title, description, severity, user):
             json.dumps({"orchestrated": True})
         ))
         conn.commit()
+
+        # Update Vector DB
+        try:
+            index_text_entity(case_id, "case", f"Case {case_number}: [AUTO] {title}. Description: {description}")
+            index_text_entity(timeline_id, "timeline_event", f"Timeline Event: case_created. Details: Case {case_number} initialized autonomously by SIEM webhook ingestion loop. Auditor/User: {user}.")
+        except Exception as vec_err:
+            print("[Vector Index] Error indexing autonomic case:", vec_err)
+
         return case_id
     except Exception as e:
         logging.error(f"[AGENT CASE CREATION ERROR] {str(e)}")

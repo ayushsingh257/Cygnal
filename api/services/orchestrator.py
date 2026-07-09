@@ -5,6 +5,7 @@ import json
 import io
 from datetime import datetime
 from db_utils import get_db_connection, DB_PATH
+from services.vector_service import index_text_entity
 
 IP_PATTERN = r'\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
 EMAIL_PATTERN = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'
@@ -162,6 +163,14 @@ def auto_create_case(target, input_type, user):
         
         conn.commit()
         conn.close()
+
+        # Update Vector DB
+        try:
+            index_text_entity(case_id, "case", f"Case {case_number}: {title}. Description: {desc}")
+            index_text_entity(tid, "timeline_event", f"Timeline Event: case_created. Details: Incident case {case_number} initialized dynamically by orchestrator. Auditor/User: {user}.")
+        except Exception as vec_err:
+            print("[Vector Index] Error indexing auto-created case:", vec_err)
+
         return case_id
     except Exception as e:
         print("[ORCHESTRATOR CASE CREATE ERROR]", str(e))

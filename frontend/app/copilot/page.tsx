@@ -38,7 +38,7 @@ interface ScannerStep {
 interface ProposedAction {
   type: string;
   iocs: IOC[];
-  plan: { scanners: ScannerStep[]; total_scanners: number; estimated_seconds: number };
+  plan: { scanners: ScannerStep[]; total_scanners: number; estimated_seconds: number; agents_plan?: any[] };
   case_id: string | null;
 }
 
@@ -197,7 +197,7 @@ function InvestigationPlanCard({
           </div>
           <div>
             <p className="text-[10px] font-semibold text-amber-300 font-mono uppercase tracking-wider">
-              Investigation Proposed
+              Investigation Proposed (v4.0)
             </p>
             <p className="text-[9px] text-slate-500">
               {action.plan.total_scanners} scan(s) · ~{action.plan.estimated_seconds}s
@@ -211,7 +211,7 @@ function InvestigationPlanCard({
       </div>
 
       {/* Scanners list */}
-      <div className="space-y-1 max-h-28 overflow-y-auto scrollbar-thin">
+      <div className="space-y-1 max-h-24 overflow-y-auto scrollbar-thin">
         {action.plan.scanners.slice(0, 8).map((s, idx) => (
           <div key={idx} className="flex items-center gap-2 text-[10px]">
             <ChevronRight className="w-3 h-3 text-[#408A71] shrink-0" />
@@ -225,6 +225,41 @@ function InvestigationPlanCard({
         )}
       </div>
 
+      {/* Agent Orchestration HUD */}
+      {action.plan.agents_plan && (
+        <div className="space-y-2 mt-3 pt-3 border-t border-[#408A71]/20">
+          <p className="text-[9px] font-bold text-[#B0E4CC] font-mono uppercase tracking-wider">
+            🤖 Agent Orchestration Registry (Phase 3)
+          </p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {action.plan.agents_plan.map((agent: any, idx: number) => (
+              <div key={idx} className="bg-[#091413]/60 border border-[#408A71]/15 rounded-lg p-2 text-left space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold text-white font-mono">{agent.agent}</span>
+                  <span className="text-[7px] text-[#408A71] uppercase tracking-widest font-mono">active</span>
+                </div>
+                <p className="text-[8px] text-slate-400 leading-normal">{agent.role}</p>
+                
+                {/* Validation checks */}
+                <div className="space-y-0.5 pt-1">
+                  <p className="text-[7px] font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">Checks:</p>
+                  {agent.validation_checks.map((check: any, cIdx: number) => (
+                    <div key={cIdx} className="flex items-center justify-between text-[7px] font-mono">
+                      <span className="text-slate-500">{check.check}</span>
+                      {check.status === "passed" ? (
+                        <span className="text-green-400">passed</span>
+                      ) : (
+                        <span className="text-amber-400 font-semibold">warning</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Approval button */}
       <button
         onClick={() => onApprove(action)}
@@ -236,7 +271,7 @@ function InvestigationPlanCard({
           shadow-[0_0_20px_rgba(64,138,113,0.25)]"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-        {loading ? "Launching Investigation..." : "✓ Approve & Investigate"}
+        {loading ? "Launching Multi-Agent Plan..." : "✓ Approve & Deploy Agents"}
       </button>
     </div>
   );
@@ -547,7 +582,16 @@ You can also use the quick-action chips to begin.
                         </span>
                       )}
                       {msg.confidence !== undefined && (
-                        <span className="text-[8px] font-mono text-slate-600">
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono border ${
+                          msg.confidence >= 75
+                            ? "bg-green-500/10 text-green-300 border-green-500/20"
+                            : msg.confidence >= 40
+                            ? "bg-amber-500/10 text-amber-300 border-amber-500/20"
+                            : "bg-red-500/10 text-red-300 border-red-500/20"
+                        }`}>
+                          <span className={`w-1 h-1 rounded-full ${
+                            msg.confidence >= 75 ? "bg-green-400 animate-pulse" : msg.confidence >= 40 ? "bg-amber-400" : "bg-red-400"
+                          }`} />
                           Confidence: {msg.confidence}%
                         </span>
                       )}

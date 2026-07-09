@@ -9,6 +9,7 @@ from jwt_utils import decode_token
 from services.extractor import extract_entities_from_text
 from socket_app import socketio
 from auth_middleware import require_auth, require_role, get_username
+from services.vector_service import index_text_entity
 
 cases_bp = Blueprint("cases_bp", __name__)
 
@@ -115,6 +116,13 @@ def create_case(current_user):
 
         conn.commit()
         conn.close()
+
+        # Update Vector DB
+        try:
+            index_text_entity(case_id, "case", f"Case {case_num}: {title}. Description: {desc}")
+            index_text_entity(timeline_id, "timeline_event", f"Timeline Event: case_created. Details: Incident case file {case_num} initialized by {user}. Auditor/User: {user}.")
+        except Exception as vec_err:
+            print("[Vector Index] Error indexing new case:", vec_err)
 
         return jsonify({
             "success": True,
@@ -243,6 +251,13 @@ def add_timeline_event(case_id):
 
         conn.commit()
         conn.close()
+
+        # Update Vector DB
+        try:
+            index_text_entity(timeline_id, "timeline_event", f"Timeline Event: {evt_type}. Details: {desc}. Auditor/User: {user}.")
+        except Exception as vec_err:
+            print("[Vector Index] Error indexing timeline event:", vec_err)
+
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -311,6 +326,13 @@ def upload_evidence(case_id):
 
         conn.commit()
         conn.close()
+
+        # Update Vector DB
+        try:
+            index_text_entity(file_id, "evidence", f"Evidence File: {base_name}. Hash: {sha256_hash}. Type: {file_type}. Size: {file_size} bytes.")
+            index_text_entity(timeline_id, "timeline_event", f"Timeline Event: evidence_uploaded. Details: {desc}. Auditor/User: {user}.")
+        except Exception as vec_err:
+            print("[Vector Index] Error indexing evidence:", vec_err)
 
         return jsonify({
             "success": True,

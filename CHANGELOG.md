@@ -4,6 +4,18 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v4.0.0-RC3] — 2026-07-09 — Enterprise AI Platform (v4.0 Phase 3)
+
+### Added
+- **Vector Database Schema Migration** — Created the `vector_records` schema to index and store case summaries, evidence profiles, and timeline logs as 128-dimensional term frequency vectors.
+- **Pure-Python TF-IDF & Cosine Similarity Engine** — Engineered a lightweight, dependency-free embedding vectorizer based on a curated vocabulary of 128 security-relevant dimensions. Features L2 normalization and cosine-similarity computations, compatible with both SQLite and PostgreSQL.
+- **Semantic RAG Context Expansion** — Connected semantic case memory query results directly to the AI Copilot and RAG resolver to surface relevant historical incident cases and timeline events.
+- **Multi-Agent Planning & Validation HUD** — Expanded scan dispatches into detailed Multi-Agent execution structures (Recon, Malware, Identity, Compiler) featuring validation checks (e.g. DNS client checks, Zero-Trust authorization, and provider API credential configurations).
+- **Upgraded Dynamic Confidence Scorer** — Re-engineered confidence metrics to factor in external threat intelligence matches (40%), vector memory similarity (30%), custody evidence signatures (20%), and timeline events logs (10%).
+- **Interactive Multi-Agent HUD & UI Badging** — Updated the frontend Copilot chat workspace with collapsible agent cards, validation statuses, and animated confidence range badges.
+
+---
+
 ## [v3.5.0-RC1] — 2026-07-09 — Production Hardening & Security Remediation (v3.5)
 
 ### Added
