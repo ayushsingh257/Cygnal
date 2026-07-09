@@ -238,6 +238,62 @@ def init_lookup_db():
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_logs_alert ON agent_logs(alert_id);")
 
+        # 16. User Identities (SSO OIDC/SAML integration mapping)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_identities (
+                id TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                external_id TEXT NOT NULL,
+                linked_at TEXT NOT NULL,
+                FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_identities_username ON user_identities(username);")
+
+        # 17. User Sessions (session validation, revocation, and tracking)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_sessions (
+                jti TEXT PRIMARY KEY,
+                refresh_jti TEXT NOT NULL,
+                username TEXT NOT NULL,
+                ip_address TEXT,
+                user_agent TEXT,
+                is_revoked INTEGER DEFAULT 0,
+                last_seen_at TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_username ON user_sessions(username);")
+
+        # 18. Directory Group Mappings (external AD/OIDC group to Cygnal role mappings)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS directory_group_mappings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider TEXT NOT NULL,
+                external_group_name TEXT NOT NULL,
+                internal_role TEXT NOT NULL CHECK (internal_role IN ('admin', 'director', 'soc_manager', 'red_lead', 'blue_lead', 'analyst', 'intern')),
+                created_at TEXT NOT NULL
+            );
+        """)
+
+        # 19. Service Accounts (client credentials flow)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS service_accounts (
+                client_id TEXT PRIMARY KEY,
+                client_secret_hash TEXT NOT NULL,
+                name TEXT NOT NULL,
+                scopes TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                is_active INTEGER DEFAULT 1,
+                created_by TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY(created_by) REFERENCES users(username) ON DELETE SET NULL
+            );
+        """)
+
+
         # SAFE MIGRATION ROUTINE checks
 
         cursor.execute("PRAGMA table_info(users);")

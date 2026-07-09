@@ -19,6 +19,21 @@ def get_current_user():
         return None
     try:
         decoded = decode_token(token)
+        if decoded:
+            jti = decoded.get("jti")
+            if jti:
+                # Zero Trust: Check if this session is marked as revoked in database
+                from db_utils import get_db_connection
+                try:
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT is_revoked FROM user_sessions WHERE jti = ?;", (jti,))
+                    row = cursor.fetchone()
+                    conn.close()
+                    if row and row[0] == 1:
+                        return None
+                except Exception:
+                    pass
         return decoded
     except Exception:
         return None

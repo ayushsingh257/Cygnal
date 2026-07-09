@@ -28,21 +28,19 @@ from routes.v2.admin import admin_bp  # B-03/B-07: Real audit log + health endpo
 
 
 # ========== LOGGING CONFIGURATION ==========
-log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-file_handler = RotatingFileHandler("cygnal_backend.log", maxBytes=1_000_000, backupCount=3)
-file_handler.setFormatter(log_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(log_formatter)
-
-logging.basicConfig(
-    level=logging.INFO,
-    handlers=[file_handler, stream_handler]
-)
+from log_utils import setup_structured_logging
+setup_structured_logging()
 
 # ========== FLASK SETUP ==========
 app = Flask(__name__)
+
+from flask import g, request
+import uuid
+
+@app.before_request
+def assign_correlation_id():
+    g.correlation_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
+
 
 # B-05 FIX: Limit request body size to prevent memory exhaustion attacks.
 # JSON API calls: 10 MB. File uploads use a separate streaming check in routes.
