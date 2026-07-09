@@ -23,3 +23,4 @@ pyotp
 flask-socketio
 gevent-websocket
 flask-limiter
+cryptography
