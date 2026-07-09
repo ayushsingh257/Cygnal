@@ -4,8 +4,15 @@ from db_utils import get_db_connection
 from auth_utils import hash_password, check_password
 from jwt_utils import create_token, decode_token
 from rate_limit import rate_limit_auth
+from auth_middleware import require_auth, require_role
 
 auth_bp = Blueprint("auth_bp", __name__)
+
+# Roles that any user may self-assign during public registration.
+# Privileged roles (admin, director, soc_manager, red_lead, blue_lead) require
+# an admin to create the account via POST /api/admin/users/create.
+SELF_REGISTER_ROLES = {"analyst", "intern"}
+ALL_VALID_ROLES = {"admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"}
 
 @auth_bp.route("/register", methods=["POST"])
 @rate_limit_auth
@@ -16,15 +23,22 @@ def register():
         
     username = data.get("username", "").strip()
     password = data.get("password", "").strip()
-    role = data.get("role", "analyst").strip()
+    # C-01 FIX: Self-registration silently clamps role to 'analyst'.
+    # Any attempt to self-assign a privileged role is rejected.
+    requested_role = data.get("role", "analyst").strip()
+    if requested_role not in SELF_REGISTER_ROLES:
+        return jsonify({
+            "success": False,
+            "error": "Self-registration is only permitted for 'analyst' or 'intern' roles. "
+                     "Contact your administrator to create accounts with elevated roles."
+        }), 403
+
+    role = requested_role  # safe: already validated above
     department = data.get("department", "Security Operations").strip()
     team = data.get("team", "Triage").strip()
 
     if not username or not password:
         return jsonify({"success": False, "error": "Username and password required."}), 400
-
-    if role not in ("admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst", "intern"):
-        return jsonify({"success": False, "error": "Invalid proposed role."}), 400
 
     try:
         conn = get_db_connection()
@@ -60,6 +74,8 @@ def register():
         })
     except Exception as e:
         return jsonify({"success": False, "error": f"Registration failed: {str(e)}"}), 500
+
+
 
 @auth_bp.route("/login", methods=["POST"])
 @rate_limit_auth
@@ -120,14 +136,39 @@ def login():
     except Exception as e:
         return jsonify({"success": False, "error": f"Login failed: {str(e)}"}), 500
 
-@auth_bp.route("/admin/users/<username>", methods=["PATCH"])
-def patch_user(username):
-    # Decode Authorization token to check permissions if needed
-    auth_header = request.headers.get("Authorization", "").replace("Bearer ", "")
-    decoded = decode_token(auth_header)
-    if not decoded:
-        return jsonify({"success": False, "error": "Unauthorised session token."}), 401
 
+@auth_bp.route("/logout", methods=["POST"])
+@require_auth
+def logout(current_user):
+    """
+    C-03 FIX: Invalidate the current JWT by adding its JTI to the revocation blocklist.
+    The token remains cryptographically valid until its natural expiry, but decode_token()
+    will reject it on every subsequent request.
+    """
+    from datetime import datetime, timezone
+    from jwt_utils import blocklist_token, JWT_SECRET
+    import jwt as _jwt
+
+    token = request.headers.get("Authorization", "").replace("Bearer ", "").strip()
+    try:
+        # Decode without blocklist check (we are revoking it now)
+        raw = _jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        jti = raw.get("jti")
+        exp = raw.get("exp", 0)
+        if jti:
+            remaining_ttl = max(int(exp - datetime.now(timezone.utc).timestamp()), 1)
+            blocklist_token(jti, remaining_ttl)
+    except Exception:
+        pass  # Token already expired or malformed — still return success
+
+    return jsonify({"success": True, "message": "Session terminated successfully."})
+
+
+@auth_bp.route("/admin/users/<username>", methods=["PATCH"])
+@require_auth
+@require_role("admin", "soc_manager", "director")
+def patch_user(username, current_user):
+    """Update a user's profile fields. Requires admin/soc_manager/director role."""
     data = request.get_json()
     if not data:
         return jsonify({"success": False, "error": "Missing patch payload."}), 400
@@ -177,3 +218,52 @@ def patch_user(username):
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@auth_bp.route("/admin/users/create", methods=["POST"])
+@require_auth
+@require_role("admin")
+def admin_create_user(current_user):
+    """
+    C-01 FIX: Admin-only endpoint to create accounts with any role.
+    Only users with the 'admin' JWT role may call this endpoint.
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "Missing payload."}), 400
+
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    role = data.get("role", "analyst").strip()
+    department = data.get("department", "Security Operations").strip()
+    team = data.get("team", "Triage").strip()
+
+    if not username or not password:
+        return jsonify({"success": False, "error": "Username and password required."}), 400
+
+    if role not in ALL_VALID_ROLES:
+        return jsonify({"success": False, "error": f"Invalid role. Valid roles: {', '.join(sorted(ALL_VALID_ROLES))}"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT username FROM users WHERE username = ?;", (username,))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"success": False, "error": "User already exists."}), 409
+
+        hashed = hash_password(password)
+        cursor.execute("""
+            INSERT INTO users (username, password_hash, role, department, team, created_at)
+            VALUES (?, ?, ?, ?, ?, ?);
+        """, (username, hashed, role, department, team, datetime.utcnow().isoformat() + "Z"))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": f"User '{username}' created with role '{role}'.",
+            "user": {"username": username, "role": role, "department": department, "team": team}
+        }), 201
+    except Exception as e:
+        return jsonify({"success": False, "error": f"User creation failed: {str(e)}"}), 500

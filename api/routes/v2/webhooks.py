@@ -15,7 +15,17 @@ from socket_app import socketio
 
 webhooks_bp = Blueprint("webhooks_bp", __name__)
 
-CYGNAL_WEBHOOK_SECRET = os.getenv("CYGNAL_WEBHOOK_SECRET", "cygnal-default-webhook-secret-2026")
+# C-04 FIX: Webhook secret is required at startup. No hardcoded default.
+# Operators MUST set CYGNAL_WEBHOOK_SECRET in their environment/.env file.
+CYGNAL_WEBHOOK_SECRET = os.getenv("CYGNAL_WEBHOOK_SECRET")
+if not CYGNAL_WEBHOOK_SECRET:
+    raise RuntimeError(
+        "CRITICAL: CYGNAL_WEBHOOK_SECRET environment variable is not set. "
+        "This secret authenticates inbound SIEM webhook payloads. "
+        "Set CYGNAL_WEBHOOK_SECRET in your .env file or environment before starting the application."
+    )
+
+
 
 def get_current_user():
     token = request.headers.get("Authorization", "").replace("Bearer ", "")

@@ -75,45 +75,15 @@ def classify_intent(prompt: str) -> str:
 # ─── IOC Extraction from Prompt ───────────────────────────────────────────────
 
 def extract_iocs_from_prompt(prompt: str) -> list:
-    """Extract structured IOC list from a raw text prompt."""
-    found = []
-    seen = set()
+    """
+    Extract structured IOC list from a raw text prompt.
+    Delegates to the unified ioc_pipeline.
+    """
+    from services.extraction_pipeline import ioc_pipeline
+    if not prompt:
+        return []
+    return ioc_pipeline.extract(prompt)
 
-    def _add(val, itype, conf=95):
-        if val not in seen:
-            seen.add(val)
-            found.append({"value": val, "type": itype, "confidence": conf})
-
-    for m in re.finditer(r'\b[A-Fa-f0-9]{64}\b', prompt):
-        _add(m.group(), "hash", 99)
-    for m in re.finditer(r'\b[A-Fa-f0-9]{40}\b', prompt):
-        _add(m.group(), "hash", 99)
-    for m in re.finditer(r'\b[A-Fa-f0-9]{32}\b', prompt):
-        _add(m.group(), "hash", 95)
-    for m in re.finditer(r'\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b', prompt):
-        val = m.group()
-        if not val.startswith(("127.", "0.", "192.168.", "10.", "172.")):
-            _add(val, "ip", 98)
-        else:
-            _add(val, "ip", 80)
-    for m in re.finditer(r'\bhttps?://[^\s<>"\']+', prompt):
-        _add(m.group(), "url", 97)
-    for m in re.finditer(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b', prompt):
-        _add(m.group(), "email", 96)
-    for m in re.finditer(r'\bCVE-\d{4}-\d{4,7}\b', prompt, re.IGNORECASE):
-        _add(m.group().upper(), "cve", 100)
-
-    # Domains — only if not already captured as part of URL or email
-    domain_candidates = re.finditer(r'\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}\b', prompt)
-    for m in domain_candidates:
-        val = m.group()
-        # Skip if already part of a URL or email
-        already = any(val in x["value"] for x in found if x["type"] in ("url", "email"))
-        # Skip common system TLDs
-        if not already and not any(val.endswith(t) for t in [".py", ".tsx", ".ts", ".js", ".md", ".txt", ".pdf"]):
-            _add(val, "domain", 85)
-
-    return found
 
 
 # ─── RAG Context Lookup ────────────────────────────────────────────────────────

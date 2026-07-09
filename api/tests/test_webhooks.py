@@ -24,10 +24,13 @@ def auth_headers():
 
 @pytest.fixture
 def webhook_headers():
+    # C-04 FIX: Use the test environment webhook secret set in conftest.py
+    webhook_secret = os.environ.get("CYGNAL_WEBHOOK_SECRET", "test_webhook_secret_for_cygnal_test_suite_2026")
     return {
-        "X-Cygnal-Webhook-Key": "cygnal-default-webhook-secret-2026",
+        "X-Cygnal-Webhook-Key": webhook_secret,
         "Content-Type": "application/json"
     }
+
 
 
 # ─── Unit: SIEM Pluggable Parsers ─────────────────────────────────────────────

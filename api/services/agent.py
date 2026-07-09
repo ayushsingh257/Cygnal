@@ -3,12 +3,13 @@ import uuid
 import logging
 from datetime import datetime
 from db_utils import get_db_connection
-from jwt_utils import create_token
+from jwt_utils import create_internal_service_token  # C-02: use scoped service token, not admin JWT
 from services.orchestrator import (
     build_execution_plan,
     run_investigation_worker
 )
 from socket_app import socketio
+
 
 def auto_create_siem_case(title, description, severity, user):
     conn = get_db_connection()
@@ -16,9 +17,9 @@ def auto_create_siem_case(title, description, severity, user):
     try:
         case_id = str(uuid.uuid4())
         year = datetime.utcnow().year
-        cursor.execute("SELECT COUNT(*) FROM cases;")
-        cnt = cursor.fetchone()[0]
-        case_number = f"CYG-{year}-{cnt+1:04d}"
+        # B-04 FIX: Use UUID suffix to avoid SELECT COUNT race condition
+        case_number = f"CYG-{year}-{uuid.uuid4().hex[:6].upper()}"
+
         
         # Enforce valid case severity
         if severity not in ("low", "medium", "high", "critical"):
@@ -214,7 +215,8 @@ def run_autonomic_loop_worker(app, alert_id):
             f"Generating parallel OSINT scans execution plan for target values."
         )
         
-        system_token = create_token({"username": "AutonomicAgent", "role": "admin"})
+        system_token = create_internal_service_token("AutonomicAgent", ttl_seconds=3600)
+
         
         completed_scans = 0
         total_scans_planned = 0

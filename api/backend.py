@@ -24,6 +24,8 @@ from routes.v2.investigations import investigations_bp
 from routes.v2.copilot import copilot_bp
 from routes.v2.mfa import mfa_bp
 from routes.v2.webhooks import webhooks_bp
+from routes.v2.admin import admin_bp  # B-03/B-07: Real audit log + health endpoints
+
 
 # ========== LOGGING CONFIGURATION ==========
 log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -42,16 +44,36 @@ logging.basicConfig(
 # ========== FLASK SETUP ==========
 app = Flask(__name__)
 
+# B-05 FIX: Limit request body size to prevent memory exhaustion attacks.
+# JSON API calls: 10 MB. File uploads use a separate streaming check in routes.
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH_MB", "10")) * 1024 * 1024
+
 # ========== SECURITY: HTTP HEADERS ==========
 @app.after_request
 def set_security_headers(response):
-    """Add security headers to all responses."""
+    """
+    Add security headers to all responses.
+    H-08 FIX: Removed 'unsafe-inline' from script-src.
+    NOTE: style-src retains 'unsafe-inline' as a documented exception required
+    by Next.js CSS-in-JS at runtime. This is acceptable given the frontend
+    is served separately and the backend only serves API JSON responses.
+    """
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss:;"
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self'; "                              # No unsafe-inline
+        "style-src 'self' 'unsafe-inline'; "              # Documented: required by Next.js
+        "img-src 'self' data: https:; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' ws: wss:; "
+        "frame-ancestors 'none'; "
+        "upgrade-insecure-requests;"
+    )
     return response
 
 # Enable CORS for configured origins (not wildcard in production)
@@ -68,7 +90,7 @@ app.register_blueprint(investigations_bp, url_prefix="/api")
 app.register_blueprint(copilot_bp, url_prefix="/api")
 app.register_blueprint(mfa_bp, url_prefix="/api")
 app.register_blueprint(webhooks_bp, url_prefix="/api")
-
+app.register_blueprint(admin_bp, url_prefix="/api")  # Admin + health + audit
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)
@@ -79,6 +101,23 @@ def handle_500_error(e):
 @app.errorhandler(404)
 def handle_404_error(e):
     return jsonify({"success": False, "error": "Route not found"}), 404
+
+@app.errorhandler(413)
+def handle_413_error(e):
+    """B-05 FIX: Request payload too large."""
+    return jsonify({
+        "success": False,
+        "error": "Request payload too large. Maximum allowed size is 10 MB."
+    }), 413
+
+@app.errorhandler(429)
+def handle_429_error(e):
+    return jsonify({
+        "success": False,
+        "error": "Too many requests. Please wait before trying again."
+    }), 429
+
+
 
 # ========== MAIN ==========
 if __name__ == "__main__":

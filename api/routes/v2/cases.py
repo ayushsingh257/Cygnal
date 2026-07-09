@@ -8,6 +8,7 @@ from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
 from services.extractor import extract_entities_from_text
 from socket_app import socketio
+from auth_middleware import require_auth, require_role, get_username
 
 cases_bp = Blueprint("cases_bp", __name__)
 
@@ -16,35 +17,33 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def get_current_user():
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    try:
-        decoded = decode_token(token)
-        return decoded.get("username", "unknown") if decoded else "unknown"
-    except Exception:
-        return "unknown"
+    """
+    Local compatibility shim — delegates to centralized middleware.
+    Returns username string (or 'unknown') for use in timeline and audit fields.
+    Note: Use @require_auth decorator to enforce authentication on endpoints.
+    """
+    return get_username()
 
-def generate_case_number():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM cases;")
-        count = cursor.fetchone()[0]
-        conn.close()
-        
-        year = datetime.now().year
-        seq = str(count + 1).zfill(4)
-        return f"CYG-{year}-{seq}"
-    except:
-        return f"CYG-2026-{uuid.uuid4().hex[:4].upper()}"
+
+
+def generate_case_number() -> str:
+    """
+    B-04 FIX: Generate a collision-resistant case number.
+    Uses a year prefix + random 6-character hex suffix instead of a COUNT query,
+    which was susceptible to race conditions under concurrent case creation.
+    Format: CYG-{YEAR}-{6 random hex chars uppercase}
+    Example: CYG-2026-A3F7C1
+    """
+    year = datetime.now().year
+    suffix = uuid.uuid4().hex[:6].upper()
+    return f"CYG-{year}-{suffix}"
+
+
 
 @cases_bp.route("/cases", methods=["GET"])
-def get_cases():
-    # Security: Verify JWT token
-    auth_header = request.headers.get("Authorization", "").replace("Bearer ", "")
-    decoded = decode_token(auth_header)
-    if not decoded:
-        return jsonify({"success": False, "error": "Unauthorised session token."}), 401
-    
+@require_auth
+def get_cases(current_user):
+    """List all cases. Requires authentication."""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -75,9 +74,12 @@ def get_cases():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
 @cases_bp.route("/cases", methods=["POST"])
-def create_case():
-    user = get_current_user()
+@require_auth
+def create_case(current_user):
+    """Create a new case. Requires authentication."""
+    user = current_user.get("username", "unknown")
     data = request.get_json()
     if not data:
         return jsonify({"success": False, "error": "Missing payload data."}), 400

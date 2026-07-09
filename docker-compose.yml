@@ -1,19 +1,23 @@
 version: '3.8'
 
+# C-05 FIX: All credentials and secrets are sourced from environment variables.
+# Copy .env.example to .env and fill in all required values before running.
+# NEVER commit .env to version control.
+
 services:
   db:
     image: postgres:15-alpine
     container_name: cygnal_db
     environment:
-      POSTGRES_USER: cygnal_user
-      POSTGRES_PASSWORD: cygnal_password
-      POSTGRES_DB: cygnal_prod
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cygnal_user -d cygnal_prod"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cygnal} -d ${POSTGRES_DB:-cygnal_prod}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -35,10 +39,14 @@ services:
       dockerfile: Dockerfile
     container_name: cygnal_backend
     environment:
-      - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
+      - DATABASE_URL=postgresql://${POSTGRES_USER:?error}:${POSTGRES_PASSWORD:?error}@db:5432/${POSTGRES_DB:?error}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - USE_CELERY=${USE_CELERY:-true}
-      - JWT_SECRET=${JWT_SECRET:?error}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - CYGNAL_WEBHOOK_SECRET=${CYGNAL_WEBHOOK_SECRET:?CYGNAL_WEBHOOK_SECRET is required}
+      - CYGNAL_ADMIN_USERNAME=${CYGNAL_ADMIN_USERNAME}
+      - CYGNAL_ADMIN_PASSWORD=${CYGNAL_ADMIN_PASSWORD}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
     ports:
       - "5000:5000"
     depends_on:
@@ -56,10 +64,11 @@ services:
     container_name: cygnal_celery_worker
     command: celery -A celery_app.celery worker --loglevel=info --pool=threads
     environment:
-      - DATABASE_URL=postgresql://cygnal_user:cygnal_password@db:5432/cygnal_prod
+      - DATABASE_URL=postgresql://${POSTGRES_USER:?error}:${POSTGRES_PASSWORD:?error}@db:5432/${POSTGRES_DB:?error}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - USE_CELERY=${USE_CELERY:-true}
-      - JWT_SECRET=${JWT_SECRET:?error}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - CYGNAL_WEBHOOK_SECRET=${CYGNAL_WEBHOOK_SECRET:?CYGNAL_WEBHOOK_SECRET is required}
     depends_on:
       db:
         condition: service_healthy
@@ -83,4 +92,3 @@ services:
 volumes:
   pgdata:
   uploads_volume:
-
