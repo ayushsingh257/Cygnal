@@ -13,6 +13,8 @@ import {
 import Hero from "@/components/ui/animated-shader-hero";
 import ParticleLoader from "@/components/ui/particle-loader";
 import { Sparkles } from "@/components/ui/sparkles";
+import { GooeyText } from "@/components/ui/gooey-text-morphing";
+import { FinancialScoreCards } from "@/components/ui/financial-score-cards";
 
 export default function MarketingLandingPage() {
   const router = useRouter();
@@ -233,204 +235,146 @@ export default function MarketingLandingPage() {
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 1 ✓</span>
             <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 2 ✓</span>
+            <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 3 ✓</span>
           </div>
         </div>
       </section>
 
-      {/* ─── PLATFORM CAPABILITIES (3 core pillars) ─────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10">
-        <div className="text-center space-y-2">
-          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
-            Platform Capabilities
-          </h2>
-          <p className="text-lg font-bold text-white uppercase">Aggregated Forensics &amp; Intelligence Matrix</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left">
-            <div className="h-10 w-10 bg-[#408A71]/10 border border-[#408A71]/20 rounded-xl flex items-center justify-center text-[#B0E4CC]">
-              <Terminal size={18} />
-            </div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Security Multi-Sensors</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Verify HTTP header directives, map DNS change histories, sweep ports, submit payload hashes to multi-provider malware sandboxes, and capture headless screenshots.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left">
-            <div className="h-10 w-10 bg-[#285A48]/10 border border-[#285A48]/20 rounded-xl flex items-center justify-center text-[#B0E4CC]">
-              <Fingerprint size={18} />
-            </div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Enterprise Identity</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Microsoft Entra ID OIDC, SAML 2.0 federation, Zero Trust session management, refresh token rotation, configurable directory group mapping, and service accounts.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left">
-            <div className="h-10 w-10 bg-[#408A71]/10 border border-[#408A71]/20 rounded-xl flex items-center justify-center text-[#B0E4CC]">
-              <Radar size={18} />
-            </div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Threat Intelligence</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              8-provider parallel IOC enrichment (VirusTotal, Shodan, AbuseIPDB, OTX, ThreatFox, URLHaus, Censys, MISP) with weighted confidence scoring and STIX/TAXII parsing.
-            </p>
-          </div>
-        </div>
+      {/* ─── GOOEY TEXT FOCUSED INTRO ────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center relative z-10 select-none">
+        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#408A71] mb-2">Automated Incident Triage</p>
+        <GooeyText
+          texts={["RECON & OSINT", "MALWARE SWEEP", "IDENTITY AUDIT", "EVIDENCE CUSTODY", "AI COPILOT"]}
+          morphTime={1.2}
+          cooldownTime={0.4}
+          className="font-bold font-mono text-green-400"
+        />
       </section>
 
-      {/* ─── PHASE 1: ENTERPRISE IDENTITY ───────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div className="space-y-2">
+      {/* ─── SECTION 1: WHY CYGNAL EXISTS (THE PAIN) ────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-6 text-left">
             <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
-              v4.0 Phase 1
+              The Security Challenge
             </span>
-            <h2 className="text-lg font-bold text-white uppercase">Enterprise Identity &amp; Authentication</h2>
-            <p className="text-xs text-slate-400 max-w-xl">
-              Production-grade federated identity supporting Fortune 500 SOC deployments. Provider-agnostic architecture means adding Okta or Ping Identity requires only a new adapter class.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <ShieldCheck size={14} className="text-[#408A71]" />
-            <span className="text-[10px] font-mono text-[#B0E4CC] tracking-widest uppercase">OWASP ASVS · OAuth 2.1</span>
-          </div>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {phase1Features.map((feat, idx) => (
-            <div
-              key={idx}
-              className="glass-card rounded-2xl p-5 bg-[#0f2422]/25 space-y-3 text-left border border-white/5 hover:border-[#408A71]/25 transition-colors duration-300"
-            >
-              <div className="h-9 w-9 bg-[#408A71]/10 border border-[#408A71]/20 rounded-lg flex items-center justify-center text-[#B0E4CC]">
-                <feat.icon size={16} />
-              </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{feat.title}</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed">{feat.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── PHASE 2: THREAT INTELLIGENCE ───────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div className="space-y-2">
-            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
-              v4.0 Phase 2
-            </span>
-            <h2 className="text-lg font-bold text-white uppercase">Threat Intelligence Platform</h2>
-            <p className="text-xs text-slate-400 max-w-xl">
-              Parallel fan-out enrichment across 8 providers. Each provider implements a common adapter interface — adding a new source requires only one class. Results are cached, aggregated, and scored.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Zap size={14} className="text-[#408A71]" />
-            <span className="text-[10px] font-mono text-[#B0E4CC] tracking-widest uppercase">STIX 2.x · TAXII 2.1</span>
-          </div>
-        </div>
-
-        {/* Provider grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {phase2Features.map((feat, idx) => (
-            <div
-              key={idx}
-              className="glass-card rounded-2xl p-5 bg-[#0f2422]/25 space-y-3 text-left border border-white/5 hover:border-[#408A71]/25 transition-colors duration-300"
-            >
-              <div className="h-9 w-9 bg-[#285A48]/10 border border-[#285A48]/20 rounded-lg flex items-center justify-center text-[#B0E4CC]">
-                <feat.icon size={16} />
-              </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{feat.title}</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed">{feat.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Confidence scoring callout */}
-        <div className="glass-panel rounded-2xl p-6 border border-[#408A71]/15 grid sm:grid-cols-3 gap-6 text-center">
-          {[
-            { label: "Providers", value: "8", sub: "Active Connectors" },
-            { label: "Free-Tier", value: "2", sub: "No API Key Required" },
-            { label: "Cache TTL", value: "6h", sub: "Result Deduplication" },
-          ].map((stat, i) => (
-            <div key={i} className="space-y-1">
-              <p className="text-2xl font-black text-[#B0E4CC] font-mono">{stat.value}</p>
-              <p className="text-[9px] font-bold text-[#408A71] uppercase tracking-widest font-mono">{stat.label}</p>
-              <p className="text-[10px] text-slate-500">{stat.sub}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── ROLE ORCHESTRATIONS ────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="text-center space-y-2">
-          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
-            Role Orchestrations
-          </h2>
-          <p className="text-lg font-bold text-white uppercase">Tailored Workspace Experiences</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { role: "SOC Managers", desc: "Delegate incident workloads, configure team permissions, manage Entra group mappings, and monitor telemetry lines." },
-            { role: "Threat Intel Leads", desc: "Run multi-provider IOC enrichment, ingest STIX bundles, query TAXII feeds, and audit confidence scores." },
-            { role: "DFIR Investigators", desc: "Upload evidence files, review custody logs, run metadata extraction, and compile presentation-ready reports." },
-            { role: "Compliance Auditors", desc: "Verify forensic timeline custody signatures, audit structured auth logs, and export compliance reports." },
-          ].map((r, i) => (
-            <div key={i} className="glass-card rounded-xl p-5 bg-[#0f2422]/20 text-left space-y-2">
-              <span className="text-[9px] font-bold text-[#B0E4CC] uppercase tracking-widest font-mono block">{r.role}</span>
-              <p className="text-[11.5px] text-slate-400 leading-relaxed">{r.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── WHAT IS CYGNAL ─────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-left">
-            <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
-              Overview
-            </h2>
-            <h3 className="text-3xl font-black text-white tracking-tight uppercase">What is Cygnal?</h3>
-            <p className="text-sm text-slate-350 leading-relaxed">
-              Cygnal is an enterprise-grade cooperative security operations and digital forensics investigation cockpit. v4.0 adds federated identity, a parallel 8-provider threat intelligence engine, STIX/TAXII support, and Zero Trust session management — all deployable in existing Fortune 500 SOC environments.
+            <h2 className="text-3xl font-black text-white tracking-tight uppercase">Unifying the Incident Workspace</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Traditional threat investigations require analysts to constantly cycle between fragmented tools: manual VirusTotal lookups, Shodan queries, WHOIS parsers, document metadata extractors, email header triages, and copy-pasting notes into static reports.
             </p>
             <p className="text-sm text-[#a3c2b4] leading-relaxed">
-              Built for high-velocity incident response, Cygnal enables security teams to collaborate on investigations in real-time, enrich IOCs across 8 providers simultaneously, seal evidentiary indicators under cryptographic hashes, and query operational logs with a local AI assistant.
+              <strong>Cygnal unifies all of these capabilities</strong> into one collaborative, audit-compliant security operations cockpit, backing your investigators with automated intelligence enrichment and cryptographic custody guarantees.
             </p>
           </div>
 
-          <div className="glass-panel rounded-2xl p-8 bg-[#0f2422]/15 border border-[#408A71]/15 space-y-6 text-left">
-            <h4 className="text-xs font-bold text-[#B0E4CC] uppercase tracking-widest font-mono">Critical Problems Solved</h4>
-            <div className="space-y-5">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Before (Traditional Chaos) */}
+            <div className="glass-panel rounded-2xl p-6 border border-red-500/10 bg-red-950/5 text-left space-y-4">
+              <div className="flex items-center gap-2 text-red-400 font-mono text-xs uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                Traditional Tool Sprawl
+              </div>
+              <ul className="space-y-2 text-[11px] text-slate-400">
+                <li className="flex items-center gap-2">❌ 10+ browser tabs open per alert</li>
+                <li className="flex items-center gap-2">❌ Disconnected copy-pasting of IOCs</li>
+                <li className="flex items-center gap-2">❌ Unsigned evidence files in local folders</li>
+                <li className="flex items-center gap-2">❌ Slow manual reporting cycles</li>
+                <li className="flex items-center gap-2">❌ No historical case correlation</li>
+              </ul>
+            </div>
+
+            {/* After (Cygnal Harmony) */}
+            <div className="glass-panel rounded-2xl p-6 border border-[#408A71]/20 bg-[#0f2422]/10 text-left space-y-4">
+              <div className="flex items-center gap-2 text-green-400 font-mono text-xs uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Cygnal Workspace Harmony
+              </div>
+              <ul className="space-y-2 text-[11px] text-slate-350">
+                <li className="flex items-center gap-2">✅ One unified browser dashboard</li>
+                <li className="flex items-center gap-2">✅ Parallel 8-provider threat enrichment</li>
+                <li className="flex items-center gap-2">✅ Signed SHA-256 evidence chain</li>
+                <li className="flex items-center gap-2">✅ AI Copilot automated report engine</li>
+                <li className="flex items-center gap-2">✅ SQLite vector memory search</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SECTION 2: INVESTIGATION WORKFLOW ──────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="text-center space-y-2 mb-12">
+          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            Platform Lifecycle
+          </span>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">The Investigation Lifecycle</h2>
+          <p className="text-xs text-slate-400 max-w-lg mx-auto">
+            From inbound alert ingestion to signed custody report compilation.
+          </p>
+        </div>
+
+        {/* Horizontal Timeline */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { step: "01", title: "Ingest Alert", desc: "Webhook parser ingests Splunk, Sentinel, or Generic JSON events, hashing raw payloads." },
+            { step: "02", title: "Extract IOCs", desc: "Modular regex pipeline parses IPs, domains, hashes, and emails in parallel." },
+            { step: "03", title: "Enrich Intelligence", desc: "Queries 8 threat intelligence networks concurrently, caching results." },
+            { step: "04", title: "Semantic RAG Search", desc: "Vector DB scans historical cases using term-frequency cosine similarity." },
+            { step: "05", title: "Deploy Orchestration", desc: "4 specialized agents (Recon, Malware, Identity, Compiler) triage findings." },
+            { step: "06", title: "Seal Evidence", desc: "Calculates forensic checksum hashes of uploaded files and updates the ledger." },
+            { step: "07", title: "Automated Report", desc: "Timeline logs and audit hashes compile into presentation-ready reports." },
+            { step: "08", title: "Resolution", desc: "Case lease locks release, incident status closes, and telemetry logs save." },
+          ].map((item, idx) => (
+            <div key={idx} className="relative glass-card p-5 bg-[#0f2422]/10 border border-[#408A71]/10 rounded-xl space-y-2.5 text-left group hover:border-[#408A71]/30 transition-all duration-300">
+              <div className="absolute top-4 right-4 text-xs font-bold font-mono text-[#408A71]/40 group-hover:text-[#408A71] transition-colors">{item.step}</div>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono pt-2">{item.title}</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── SECTION 3: PLATFORM ARCHITECTURE ───────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-6 text-left">
+            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+              Architecture Blueprint
+            </span>
+            <h2 className="text-2xl font-black text-white tracking-tight uppercase">High-Performance Pipeline</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Cygnal is engineered as a decoupled application. The Next.js frontend connects via REST and Socket.IO real-time pipelines to our Flask API server.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 text-xs text-slate-350">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+                Dual DB Dialect (SQLite Local / PostgreSQL Prod)
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-350">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+                Pure-Python 128-dimensional TF-IDF Vectorizer
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-350">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+                Token revocation registries &amp; sliding rate limits
+              </div>
+            </div>
+          </div>
+
+          {/* Dynamic Node Diagram */}
+          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#0f2422]/5">
+            <p className="text-[10px] font-bold text-[#B0E4CC] font-mono uppercase tracking-widest mb-6 text-left">🌐 System Data Flow Blueprint</p>
+            <div className="flex flex-col gap-3 font-mono text-[10px]">
               {[
-                {
-                  n: "1",
-                  title: "Tool sprawl & context switching",
-                  desc: "Consolidates DNS, WHOIS, email headers, malware scanning, and threat intelligence into a single browser dashboard.",
-                },
-                {
-                  n: "2",
-                  title: "Fragmented identity & access control",
-                  desc: "Unified OIDC/SAML identity with configurable directory group mapping replaces ad-hoc role management.",
-                },
-                {
-                  n: "3",
-                  title: "Blind-spot IOC enrichment",
-                  desc: "Single-provider reputation checks miss context. Parallel 8-provider enrichment with weighted confidence scoring eliminates false negatives.",
-                },
-                {
-                  n: "4",
-                  title: "Time-to-Containment Delays",
-                  desc: "AI copilot cross-references system events and local databases to surface mitigations in natural language.",
-                },
-              ].map((p) => (
-                <div key={p.n} className="space-y-1">
-                  <h5 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{p.n}. {p.title}</h5>
-                  <p className="text-xs text-slate-400">{p.desc}</p>
+                { label: "Browser (TypeScript + Next.js)", color: "border-[#408A71]/30 text-white" },
+                { label: "↳ API Layer (Flask + Gevent-WebSocket)", color: "border-[#408A71]/40 text-[#B0E4CC] bg-[#408A71]/5" },
+                { label: "  ↳ Threat Intelligence Gateway (STIX/TAXII)", color: "border-[#408A71]/20 text-slate-300" },
+                { label: "  ↳ AI Copilot Engine (Intent Classifier)", color: "border-[#408A71]/20 text-slate-300" },
+                { label: "  ↳ SQLite / Postgres Vector search index", color: "border-[#408A71]/20 text-slate-300" },
+                { label: "  ↳ Cryptographic Evidence Vault", color: "border-[#408A71]/20 text-slate-300" },
+              ].map((node, i) => (
+                <div key={i} className={`border rounded-lg p-3 text-left transition-all hover:scale-[1.01] hover:border-[#408A71] ${node.color}`}>
+                  {node.label}
                 </div>
               ))}
             </div>
@@ -438,51 +382,165 @@ export default function MarketingLandingPage() {
         </div>
       </section>
 
-      {/* ─── TARGET AUDIENCES ───────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="text-center space-y-2">
-          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
-            Target Audiences
-          </h2>
-          <p className="text-lg font-bold text-white uppercase">Engineered for Enterprise Security Units</p>
+      {/* ─── SECTION 4: COMPARISON TABLE ────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="text-center space-y-2 mb-12">
+          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            Head-to-Head Comparison
+          </span>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">Why Cygnal is Different</h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#0a1a18]/45">
+          <table className="min-w-full divide-y divide-white/5 font-mono text-[11px] text-left">
+            <thead className="bg-[#0f2422]/20 text-[#B0E4CC]">
+              <tr>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider">Operational Area</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider">Traditional Tools</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-green-400">Cygnal Enterprise v4.0</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-slate-300">
+              {[
+                { area: "Threat Intel", old: "Single-source Lookup", new: "8 Parallel Providers (VT, Shodan, AbuseIPDB, etc.)" },
+                { area: "Workspace Isolation", old: "Ad-hoc CLI utilities", new: "Unified Collaborative Investigation Workspace" },
+                { area: "Copilot RAG Memory", old: "Basic prompting", new: "128-dim TF-IDF Vector Search + Context Injection" },
+                { area: "Audit Ledger", old: "Plain text local files", new: "Cryptographic SHA-256 Custody Hash Ledger" },
+                { area: "SSO Identity", old: "Static API keys / Ad-hoc access", new: "Entra ID OIDC + SAML 2.0 Directory Mapping" },
+                { area: "Task Dispatch", old: "Manual scanning scripts", new: "Multi-Agent Planning HUD with Validation Checkers" },
+              ].map((row, idx) => (
+                <tr key={idx} className="hover:bg-[#0f2422]/5">
+                  <td className="px-6 py-4 font-bold text-white uppercase">{row.area}</td>
+                  <td className="px-6 py-4 text-slate-455">{row.old}</td>
+                  <td className="px-6 py-4 text-green-300 font-bold">{row.new}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ─── SECTION 5: PREMIUM METRICS SHOWCASE ────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 select-none border-t border-white/5">
+        <div className="text-center space-y-2 mb-8">
+          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            Operational Posture Auditing
+          </span>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">Active Security Posture Audits</h2>
+        </div>
+        <FinancialScoreCards />
+      </section>
+
+      {/* ─── SECTION 6: WHO CYGNAL IS BUILT FOR ─────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="text-center space-y-2 mb-12">
+          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            User Personas
+          </span>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">Engineered For Specialized Security Teams</h2>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { title: "SOC Teams", desc: "Standardise incident triage, monitor active threat feeds, and manage federated access from a centralised operational command dashboard." },
-            { title: "DFIR Investigators", desc: "Extract metadata, analyse email headers, track IOCs across 8 providers, and maintain strict chains of custody." },
-            { title: "Threat Intelligence Teams", desc: "Enrich indicators in parallel, ingest STIX bundles, query TAXII collections, and score threats by provider-weighted confidence." },
-            { title: "Law Enforcement", desc: "Gather digital evidence, verify document checksums, reconstruct incident timelines, and export certified custody reports for legal submission." },
-            { title: "Enterprise Security Teams", desc: "Manage federated identities via Entra ID, configure directory group mappings, and enforce least-privilege service accounts." },
-            { title: "Security Operations Centers", desc: "Collaborate in real-time, orchestrate multi-provider IOC enrichment, and audit every auth event with structured correlation IDs." },
-          ].map((a, i) => (
-            <div key={i} className="glass-card rounded-2xl p-6 bg-[#0f2422]/25 space-y-4 text-left border border-white/5">
-              <h3 className="text-sm font-bold text-[#B0E4CC] uppercase tracking-wider font-mono">{a.title}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">{a.desc}</p>
+            { role: "SOC Teams", desc: "Triage alerts dynamically, monitor live webhook ingestions, and configure user directory group authorization mappings." },
+            { role: "DFIR Investigators", desc: "Compute SHA-256 hashes of attached files, audit custody log files, and construct detailed chronological case narrators." },
+            { role: "Threat Hunters", desc: "Ingest threat indicators from STIX packages, coordinate TAXII feeds, and run bulk lookups on VirusTotal & AbuseIPDB." },
+            { role: "GRC Auditors", desc: "Review cryptographically-sealed evidence ledgers, verify lock leases, and export authenticated reports for legal review." },
+          ].map((r, i) => (
+            <div key={i} className="glass-card rounded-2xl p-6 bg-[#0f2422]/20 border border-[#408A71]/10 text-left space-y-3 hover:border-[#408A71]/30 transition-all">
+              <span className="text-[10px] font-bold text-[#B0E4CC] uppercase tracking-widest font-mono block">{r.role}</span>
+              <p className="text-[11px] text-slate-400 leading-relaxed">{r.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── FULL CAPABILITIES GRID ─────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 select-none relative z-10 border-t border-white/5">
-        <div className="text-center space-y-2">
-          <h2 className="text-xs font-bold text-[#408A71] uppercase tracking-widest font-mono">
-            Core Offerings
-          </h2>
-          <p className="text-lg font-bold text-white uppercase">Complete Platform Feature Set</p>
-        </div>
+      {/* ─── SECTION 7: AI COPILOT TERMINAL SHOWCASE ───────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-6 text-left">
+            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+              v4.0 AI Assistant
+            </span>
+            <h2 className="text-3xl font-black text-white tracking-tight uppercase">Cognitive Copilot Workspace</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Query cases, timeline events, and network records using natural language. The backend RAG pipeline matches query vectors to database memories, building structured Markdown reports dynamically.
+            </p>
+            <p className="text-sm text-[#a3c2b4] leading-relaxed">
+              <strong>Multi-Agent Orchestrator</strong> validates DNS configs, Shodan credential environment variables, and zero-trust API leases to prevent blind investigations.
+            </p>
+          </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {coreOfferings.map((item, idx) => (
-            <div key={idx} className="glass-card rounded-xl p-5 bg-[#0f2422]/15 text-left border border-white/5 space-y-3 hover:border-[#408A71]/20 transition-colors duration-300">
-              <div className="h-9 w-9 bg-[#408A71]/10 border border-[#408A71]/20 rounded-lg flex items-center justify-center text-[#B0E4CC]">
-                <item.icon size={16} />
+          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#091413] text-left">
+            {/* Mock Copilot Chat interface */}
+            <div className="flex items-center justify-between pb-4 border-b border-[#408A71]/20 mb-4">
+              <div className="flex items-center gap-2 text-[9px] font-mono text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                COPILOT PROTOCOL ACTIVE
               </div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{item.title}</h4>
-              <p className="text-[11px] text-slate-455 leading-relaxed">{item.desc}</p>
+              <div className="text-[9px] font-mono text-slate-500">SESSION ID: E2E-PH3</div>
+            </div>
+            <div className="space-y-4 h-48 overflow-y-auto scrollbar-none font-mono text-[10px]">
+              <div>
+                <p className="text-slate-500">[17:03:10] Investigator:</p>
+                <p className="text-white">Query relevant history for case malicious command and control callbacks.</p>
+              </div>
+              <div className="p-3.5 rounded-xl border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
+                <p className="text-[#B0E4CC] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
+                <p className="text-slate-400">Memory Ref #case-1029: Suspicious DNS C2 Beaconing to C2 server domain.</p>
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-300 border border-green-500/20 rounded">
+                  <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                  Calculated Confidence: 92%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SECTION 8: PLATFORM STATISTICS ─────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="glass-panel rounded-2xl p-8 border border-[#408A71]/15 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          {[
+            { label: "Security Capabilities", value: "35+", sub: "Enrichment Sensors" },
+            { label: "Threat Providers", value: "8", sub: "Active Connectors" },
+            { label: "Automated Tests", value: "160+", sub: "All Passing Successfully" },
+            { label: "Enterprise Phases", value: "3", sub: "Roadmap Complete" },
+          ].map((stat, i) => (
+            <div key={i} className="space-y-1">
+              <p className="text-3xl font-black text-[#B0E4CC] font-mono">{stat.value}</p>
+              <p className="text-[10px] font-bold text-[#408A71] uppercase tracking-widest font-mono">{stat.label}</p>
+              <p className="text-[10px] text-slate-500">{stat.sub}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ─── FUTURE PROOFING ROADMAP ────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+        <div className="text-center space-y-2 mb-12">
+          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            Development Blueprint
+          </span>
+          <h2 className="text-2xl font-bold text-white uppercase font-sans">Future Enterprise Roadmap</h2>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-6 font-mono text-[11px] text-left">
+          <div className="glass-card rounded-xl p-5 border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
+            <span className="text-[9px] font-bold text-[#B0E4CC] uppercase tracking-widest block">Phase 4 (Up Next)</span>
+            <h4 className="text-white uppercase font-bold">Collaborative Webhooks Ingestion</h4>
+            <p className="text-slate-400 leading-relaxed">Integrated alert rulesets, automated trigger pools, and Socket.IO notifications for SOC-wide incident triages.</p>
+          </div>
+          <div className="glass-card rounded-xl p-5 border border-white/5 space-y-2">
+            <span className="text-[9px] text-slate-500 uppercase tracking-widest block">Phase 5</span>
+            <h4 className="text-slate-350 uppercase font-bold">Plugin Developer SDK</h4>
+            <p className="text-slate-500 leading-relaxed">Extensible module registry allowing teams to deploy proprietary OSINT crawlers and custom local scanners.</p>
+          </div>
+          <div className="glass-card rounded-xl p-5 border border-white/5 space-y-2">
+            <span className="text-[9px] text-slate-500 uppercase tracking-widest block">Version 5.0</span>
+            <h4 className="text-slate-350 uppercase font-bold">Autonomic Orchestration Loop</h4>
+            <p className="text-slate-500 leading-relaxed">Multi-agent autonomic task networks executing target resolutions and mitigation deployments automatically.</p>
+          </div>
         </div>
       </section>
 
@@ -536,7 +594,7 @@ export default function MarketingLandingPage() {
       <footer className="border-t border-white/5 py-8 select-none z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
-            Cygnal v4.0 · Phase 1 &amp; Phase 2 Complete · SSL Handshake Active
+            Cygnal v4.0 · Phase 1, 2 &amp; 3 Complete · SSL Handshake Active
           </span>
           <span className="text-[10px] text-slate-500">
             © 2026 Cygnal Operations. All rights reserved.
