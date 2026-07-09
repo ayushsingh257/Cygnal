@@ -1,14 +1,17 @@
 # Testing Strategy
 
-This document specifies the testing plan, coverage requirements, and verification checklists for Cygnal v1.0.
+This document specifies the testing plan, coverage requirements, and verification checklists for Cygnal v3.5.
 
 ## 🧪 1. Backend Unit Testing (`pytest`)
 Backend API endpoints are tested using the Pytest framework:
-- **Test File Location:** `api/tests/`.
+- **Test File Location:** `api/tests/` and `api/tests/v2/`.
 - **Target Areas:**
   - `test_endpoints.py`: Validates authorization middleware, registration payloads, and scanner dispatches.
   - `test_validators.py`: Checks URL, domain name, and IP address sanitization inputs.
   - `test_task_manager.py`: Tests the background thread executor and progress key updates.
+  - `test_auth.py`: Validates session authentication, token creation, MFA setup/TOTP verify, and logout blocklists.
+  - `test_webhooks.py`: Covers pluggable SIEM parsers (Splunk, Azure Sentinel, Generic), webhook secrets validation, payload hashing, and analyst takeover gates.
+  - `test_audit_health.py`: Verifies administrative audit logging operations and system health/readiness endpoints.
 
 ## 🖥️ 2. Frontend Local Compilation Gates
 Before files are pushed, developers must run the production compiler:

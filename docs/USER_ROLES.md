@@ -1,6 +1,6 @@
 # User Roles & Workspace Authorities
 
-Cygnal v1.0 implements a role-based access control (RBAC) rank registry to define platform capability thresholds.
+Cygnal v3.5 implements a role-based access control (RBAC) rank registry to define platform capability thresholds.
 
 ## 🎖️ User Rank Hierarchy Registry
 The roles matrix maps authority levels to ranks from 10 to 70:
@@ -14,6 +14,11 @@ The roles matrix maps authority levels to ranks from 10 to 70:
 | **blue_lead** | 40 | Defensive Investigations Leads | Operations Command Console |
 | **analyst** | 20 | Tier 1/2 Investigators | Analyst Command Workspace |
 | **intern** | 10 | Junior Operators / Viewers | Analyst Command Workspace |
+
+## 🚀 Registration & Provisioning Flow Security
+To prevent unauthorized privilege escalation:
+- **Self-Registration (`POST /api/register`):** Restricted strictly to low-privilege ranks (`analyst`, `intern`). High-privilege roles cannot self-register.
+- **Administrative Provisioning (`POST /api/admin/users/create`):** High-privilege accounts (e.g. `admin`, `director`, `soc_manager`, etc.) must be explicitly provisioned by an authenticated administrator.
 
 ## 👁️ Interface Layout Control
 The sidebar navigation maps links dynamically by parsing the active user role:

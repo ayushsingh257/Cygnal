@@ -4,6 +4,17 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v3.5.0-RC1] — 2026-07-09 — Production Hardening & Security Remediation (v3.5)
+
+### Added
+- **Authentication & Authorization Hardening** — Restricted user registration (`/api/register`) to low-privilege roles, introduced an admin-only seeding endpoint (`POST /api/admin/users/create`), secured websocket room join events with JWT verification, and consolidated access checking into a reusable `@require_role` decorator.
+- **Session Security** — Added JWT ID (`jti`) claims to all tokens, and created a blocklist check in middleware coupled with a `/api/logout` endpoint backed by Redis/in-memory cache.
+- **Enterprise Operations** — Implemented sliding window rate limiting via Redis Sorted Sets (with memory fallback). Standardized database-backed audit logging (`api/routes/v2/admin.py`) for administrative queries (`GET /api/admin/audit`). Configured Flask request limits (`MAX_CONTENT_LENGTH`) to 10MB to protect against heap-exhaustion attacks.
+- **Reliability & Scaling** — Resolved concurrency race conditions on case numbering by generating collision-resistant strings (year + random suffix). Provided live `/api/health` and `/api/ready` monitoring routes. Unified threat regex extractors into a single `ioc_pipeline` registry.
+- **Automated Verification** — Scaled unit tests from 88 to 98 green tests, establishing robust regression checks for the complete security layer.
+
+---
+
 ## [v3.0.0-RC1] — 2026-07-08 — Connected Integrations & Agentic Loops (v3.0 / v3.5)
 
 ### Added
