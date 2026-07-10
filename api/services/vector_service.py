@@ -109,29 +109,39 @@ def index_text_entity(entity_id: str, entity_type: str, text_content: str) -> No
     vector = vectorize_text(text_content)
     vector_json = json.dumps(vector)
 
+    from db_utils import get_current_tenant_id
+    tenant_id = get_current_tenant_id()
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         # Check if already exists to perform upsert
-        cursor.execute(
+        cursor.execute_tenant(
             "SELECT id FROM vector_records WHERE entity_id = ? AND entity_type = ?;",
             (entity_id, entity_type)
         )
         row = cursor.fetchone()
 
         if row:
-            cursor.execute("""
+            cursor.execute_tenant("""
                 UPDATE vector_records
                 SET text_content = ?, vector_data = ?, created_at = ?
                 WHERE entity_id = ? AND entity_type = ?;
             """, (text_content, vector_json, _utcnow(), entity_id, entity_type))
         else:
             rec_id = str(uuid.uuid4())
-            cursor.execute("""
+            cursor.execute_tenant("""
                 INSERT INTO vector_records (id, entity_id, entity_type, text_content, vector_data, created_at)
                 VALUES (?, ?, ?, ?, ?, ?);
             """, (rec_id, entity_id, entity_type, text_content, vector_json, _utcnow()))
         conn.commit()
+        
+        # Invalidate vector search cache for this tenant
+        try:
+            from services.cache_service import invalidate_cache
+            invalidate_cache(tenant_id, "vector_search")
+        except Exception:
+            pass
     except Exception as e:
         logger.error("[Vector Index] Failed to index entity %s (%s): %s", entity_id, entity_type, e)
     finally:
@@ -140,11 +150,21 @@ def index_text_entity(entity_id: str, entity_type: str, text_content: str) -> No
 
 def remove_text_entity(entity_id: str) -> None:
     """Remove entity from vector search database."""
+    from db_utils import get_current_tenant_id
+    tenant_id = get_current_tenant_id()
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("DELETE FROM vector_records WHERE entity_id = ?;", (entity_id,))
+        cursor.execute_tenant("DELETE FROM vector_records WHERE entity_id = ?;", (entity_id,))
         conn.commit()
+        
+        # Invalidate cache
+        try:
+            from services.cache_service import invalidate_cache
+            invalidate_cache(tenant_id, "vector_search")
+        except Exception:
+            pass
     except Exception as e:
         logger.error("[Vector Index] Failed to remove entity %s: %s", entity_id, e)
     finally:
@@ -161,6 +181,20 @@ def semantic_search(query: str, limit: int = 5, entity_type: Optional[str] = Non
     if not query or not query.strip():
         return []
 
+    import hashlib
+    from db_utils import get_current_tenant_id
+    tenant_id = get_current_tenant_id()
+
+    # L1 Redis Cache Lookup
+    cache_key = f"{entity_type or 'all'}:{limit}:{hashlib.md5(query.encode('utf-8')).hexdigest()}"
+    try:
+        from services.cache_service import get_cached
+        cached = get_cached(tenant_id, "vector_search", cache_key)
+        if cached is not None:
+            return cached
+    except Exception:
+        pass
+
     query_vector = vectorize_text(query)
 
     conn = get_db_connection()
@@ -170,12 +204,12 @@ def semantic_search(query: str, limit: int = 5, entity_type: Optional[str] = Non
     try:
         # Retrieve all records (filtered by type if specified)
         if entity_type:
-            cursor.execute(
+            cursor.execute_tenant(
                 "SELECT entity_id, entity_type, text_content, vector_data, created_at FROM vector_records WHERE entity_type = ?;",
                 (entity_type,)
             )
         else:
-            cursor.execute("SELECT entity_id, entity_type, text_content, vector_data, created_at FROM vector_records;")
+            cursor.execute_tenant("SELECT entity_id, entity_type, text_content, vector_data, created_at FROM vector_records;")
 
         rows = cursor.fetchall()
         for row in rows:
@@ -201,7 +235,16 @@ def semantic_search(query: str, limit: int = 5, entity_type: Optional[str] = Non
     finally:
         conn.close()
 
-    return results[:limit]
+    matched_results = results[:limit]
+
+    # Store in Redis Cache
+    try:
+        from services.cache_service import set_cached
+        set_cached(tenant_id, "vector_search", cache_key, matched_results, ttl=600)
+    except Exception:
+        pass
+
+    return matched_results
 
 
 # ─── Synchronisation Batch Hook ──────────────────────────────────────────────
@@ -212,35 +255,50 @@ def full_database_reindex() -> dict[str, int]:
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    cases = []
+    evidence = []
+    timeline = []
+
     try:
-        # 1. Index cases
+        # 1. Fetch cases
         cursor.execute("SELECT id, case_number, title, description FROM cases;")
         cases = cursor.fetchall()
-        for c in cases:
+
+        # 2. Fetch evidence
+        cursor.execute("SELECT id, filename, file_hash, file_type, file_size FROM evidence;")
+        evidence = cursor.fetchall()
+
+        # 3. Fetch timeline events
+        cursor.execute("SELECT id, event_type, description, user FROM timeline;")
+        timeline = cursor.fetchall()
+    except Exception as e:
+        logger.error("[Vector Index] Reindex fetch phase failed: %s", e)
+    finally:
+        conn.close()
+
+    # Index in memory after connection is closed to prevent SQLite locking
+    for c in cases:
+        try:
             text = f"Case {c[1]}: {c[2]}. Description: {c[3] or ''}"
             index_text_entity(c[0], "case", text)
             stats["cases"] += 1
+        except Exception as e:
+            logger.error("[Vector Index] Failed to index case %s: %s", c[0], e)
 
-        # 2. Index evidence
-        cursor.execute("SELECT id, filename, file_hash, file_type, file_size FROM evidence;")
-        evidence = cursor.fetchall()
-        for e in evidence:
+    for e in evidence:
+        try:
             text = f"Evidence File: {e[1]}. Hash: {e[2]}. Type: {e[3]}. Size: {e[4]} bytes."
             index_text_entity(e[0], "evidence", text)
             stats["evidence"] += 1
+        except Exception as e:
+            logger.error("[Vector Index] Failed to index evidence %s: %s", e[0], e)
 
-        # 3. Index timeline events
-        cursor.execute("SELECT id, event_type, description, user FROM timeline;")
-        timeline = cursor.fetchall()
-        for t in timeline:
+    for t in timeline:
+        try:
             text = f"Timeline Event: {t[1]}. Details: {t[2]}. Auditor/User: {t[3]}."
             index_text_entity(t[0], "timeline_event", text)
             stats["timeline"] += 1
-
-        logger.info("[Vector Reindex] Reindexed all database records: %s", stats)
-    except Exception as e:
-        logger.error("[Vector Reindex] Batch sync failed: %s", e)
-    finally:
-        conn.close()
+        except Exception as e:
+            logger.error("[Vector Index] Failed to index timeline event %s: %s", t[0], e)
 
     return stats

@@ -48,6 +48,9 @@ def register():
     department = data.get("department", "Security Operations").strip()
     team = data.get("team", "Triage").strip()
 
+    org_name = data.get("organization_name", "").strip()
+    tenant_id = 1
+
     if not username or not password:
         return jsonify({"success": False, "error": "Username and password required."}), 400
 
@@ -55,6 +58,18 @@ def register():
         conn = get_db_connection()
         cursor = conn.cursor()
         
+        # Verify organization exists if specified
+        if org_name:
+            cursor.execute("SELECT id FROM tenants WHERE name = ?;", (org_name,))
+            t_row = cursor.fetchone()
+            if not t_row:
+                conn.close()
+                return jsonify({
+                    "success": False,
+                    "error": f"Organization '{org_name}' is not registered. Please contact your administrator."
+                }), 400
+            tenant_id = t_row[0]
+
         cursor.execute("SELECT username FROM users WHERE username = ?;", (username,))
         if cursor.fetchone():
             conn.close()
@@ -63,9 +78,9 @@ def register():
 
         hashed = hash_password(password)
         cursor.execute("""
-            INSERT INTO users (username, password_hash, role, department, team, created_at)
-            VALUES (?, ?, ?, ?, ?, ?);
-        """, (username, hashed, role, department, team, datetime.now(timezone.utc).isoformat() + "Z"))
+            INSERT INTO users (username, password_hash, role, department, team, created_at, tenant_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+        """, (username, hashed, role, department, team, datetime.now(timezone.utc).isoformat() + "Z", tenant_id))
         
         conn.commit()
         conn.close()

@@ -11,7 +11,13 @@ from jwt_utils import decode_token
 
 # Initialize socketio instance with configurable CORS origins
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
-socketio = SocketIO(cors_allowed_origins=cors_origins)
+redis_url = os.getenv("REDIS_URL")
+
+if redis_url:
+    # Use Redis as the message queue to synchronize WebSockets across multiple scaled nodes
+    socketio = SocketIO(cors_allowed_origins=cors_origins, message_queue=redis_url)
+else:
+    socketio = SocketIO(cors_allowed_origins=cors_origins)
 
 # Thread-safe in-memory store tracking active investigators per case
 presence_lock = threading.Lock()

@@ -391,7 +391,43 @@ def init_lookup_db():
 
 
 
+        # ── Phase 5: Enterprise Infrastructure & Multi-Tenancy ────────────────
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tenants (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL
+            );
+        """)
+
         # SAFE MIGRATION ROUTINE checks
+        # Seed default organization
+        try:
+            cursor.execute("SELECT id FROM tenants WHERE id = 1;")
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO tenants (id, name, created_at) VALUES (1, 'Default Organization', ?);",
+                    (datetime.now().isoformat() + "Z",)
+                )
+        except Exception:
+            pass
+
+        # Dynamically add tenant_id column to all enterprise tables
+        tenant_tables = [
+            "users", "cases", "evidence", "notifications", "inbound_alerts",
+            "comments", "timeline", "case_indicators",
+            "evidence_relations", "investigation_jobs", "tool_permissions",
+            "reports", "vector_records"
+        ]
+
+        for table in tenant_tables:
+            try:
+                cursor.execute(f"PRAGMA table_info({table});")
+                cols = [row[1] for row in cursor.fetchall()]
+                if cols and "tenant_id" not in cols:
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN tenant_id INTEGER DEFAULT 1;")
+            except Exception as e:
+                print(f"[DATABASE MIGRATION EXCEPTION] Table {table}: {str(e)}")
 
         cursor.execute("PRAGMA table_info(users);")
         user_cols = [row[1] for row in cursor.fetchall()]

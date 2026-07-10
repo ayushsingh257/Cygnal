@@ -76,7 +76,7 @@ def mfa_verify():
             return jsonify({"success": False, "error": "MFA has not been set up for this user."}), 400
             
         totp = pyotp.TOTP(secret)
-        if not totp.verify(code):
+        if not totp.verify(code, valid_window=1):
             conn.close()
             return jsonify({"success": False, "error": "Invalid verification code."}), 401
             

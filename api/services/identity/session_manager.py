@@ -69,11 +69,25 @@ def create_user_session(username: str, role: str, ip_address: str, user_agent: s
     
     access_expiry = now + timedelta(hours=1)
     refresh_expiry = now + timedelta(days=14)
+
+    # Fetch tenant_id for multi-tenancy context
+    tenant_id = 1
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT tenant_id FROM users WHERE username = ?;", (username,))
+        row = cursor.fetchone()
+        conn.close()
+        if row and row[0] is not None:
+            tenant_id = int(row[0])
+    except Exception:
+        pass
     
     # Access Token Payload
     access_payload = {
         "username": username,
         "role": role,
+        "tenant_id": tenant_id,
         "type": "access",
         "jti": access_jti,
         "iat": now,
@@ -84,6 +98,7 @@ def create_user_session(username: str, role: str, ip_address: str, user_agent: s
     # Refresh Token Payload
     refresh_payload = {
         "username": username,
+        "tenant_id": tenant_id,
         "type": "refresh",
         "jti": refresh_jti,
         "iat": now,

@@ -194,12 +194,38 @@ def _persist_enrichment(
     except Exception as exc:
         logger.error("[Enrichment] Failed to persist result: %s", exc)
 
+    # L1 Redis Caching
+    try:
+        from services.cache_service import set_cached
+        from db_utils import get_current_tenant_id
+        tenant_id = get_current_tenant_id()
+        set_cached(
+            tenant_id=tenant_id,
+            cache_type="threat_intel",
+            key=f"{indicator_type}:{indicator}",
+            value=data,
+            ttl=3600 * CACHE_TTL_HOURS
+        )
+    except Exception:
+        pass
+
 
 def _load_from_cache(indicator: str, indicator_type: str) -> Optional[dict]:
     """
     Return a cached enrichment result if it exists and is within TTL.
     TTL is defined by CACHE_TTL_HOURS.
     """
+    # L1 Redis Cache Lookup
+    try:
+        from services.cache_service import get_cached
+        from db_utils import get_current_tenant_id
+        tenant_id = get_current_tenant_id()
+        redis_val = get_cached(tenant_id, "threat_intel", f"{indicator_type}:{indicator}")
+        if redis_val:
+            return redis_val
+    except Exception:
+        pass
+
     try:
         from datetime import timedelta
         cutoff = (
@@ -220,7 +246,7 @@ def _load_from_cache(indicator: str, indicator_type: str) -> Optional[dict]:
         if not row:
             return None
 
-        return {
+        result = {
             "indicator": indicator,
             "indicator_type": indicator_type,
             "verdict": row[0],
@@ -229,6 +255,23 @@ def _load_from_cache(indicator: str, indicator_type: str) -> Optional[dict]:
             "provider_results": json.loads(row[3] or "[]"),
             "queried_at": row[4],
         }
+
+        # Warm up L1 Redis Cache
+        try:
+            from services.cache_service import set_cached
+            from db_utils import get_current_tenant_id
+            tenant_id = get_current_tenant_id()
+            set_cached(
+                tenant_id=tenant_id,
+                cache_type="threat_intel",
+                key=f"{indicator_type}:{indicator}",
+                value=result,
+                ttl=3600 * CACHE_TTL_HOURS
+            )
+        except Exception:
+            pass
+
+        return result
     except Exception as exc:
         logger.warning("[Enrichment] Cache lookup failed: %s", exc)
         return None

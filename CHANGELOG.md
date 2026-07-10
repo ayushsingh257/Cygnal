@@ -4,6 +4,18 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v4.0.0] — 2026-07-10 — Enterprise Infrastructure & High Availability (v4.0 Phase 5)
+
+### Added
+- **Redis Pub/Sub WebSocket Synchronisation** — Upgraded Socket.IO implementation to scale events (alerts, cases, chats, notifications, agent logs) across multiple backend instances using Redis Pub/Sub manager.
+- **Tenant-Aware Query Rewriting** — Engineered thread-local context middleware and a dynamic query rewriter (`rewrite_query` in `db_utils.py`) to isolate cases, timeline, evidence, and audit logs per-tenant.
+- **Multi-Tenant User Mapping & SSO Onboarding** — Restricted arbitrary organization creation. Standard users now register into pre-onboarded domains or verified workspace invite codes. Created dedicated `/api/admin/onboard-organization` admin command endpoint.
+- **Cache Circuit Breaker Engine** — Introduced Redis socket connect and write timeouts (500ms) with a latching circuit breaker. If Redis falls offline, the client temporarily disables cache calls to prevent request worker pool stalls, gracefully falling back to database lookups.
+- **Systems Resource Monitoring API** — Added `/api/health/metrics` exposing server CPU, memory, active database connection pools, and Redis link statuses.
+- **Automated Regression Auditing** — Expanded Pytest suite to 172 tests, validating tenant data boundaries, onboarding gates, circuit breaker cache states, and metrics.
+
+---
+
 ## [v4.0.0-RC3] — 2026-07-09 — Enterprise AI Platform (v4.0 Phase 3)
 
 ### Added

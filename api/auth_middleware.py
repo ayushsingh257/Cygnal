@@ -14,12 +14,14 @@ def get_current_user():
     Extract and validate the JWT from the Authorization header.
     Returns the decoded payload dict on success, or None if invalid/missing.
     """
+    from flask import g
     token = request.headers.get("Authorization", "").replace("Bearer ", "").strip()
     if not token:
         return None
     try:
         decoded = decode_token(token)
         if decoded:
+            g.tenant_id = decoded.get("tenant_id", 1)
             jti = decoded.get("jti")
             if jti:
                 # Zero Trust: Check if this session is marked as revoked in database

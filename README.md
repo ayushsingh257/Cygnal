@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-lightblue?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-98%2F98%20Passing-brightgreen?style=flat-square)](#-testing)
+[![Tests](https://img.shields.io/badge/Tests-172%2F172%20Passing-brightgreen?style=flat-square)](#-testing)
 
 
 **Cygnal turns raw cyber evidence into complete investigations in minutes—not hours.** It unifies disparate OSINT threat lookup resources, forensics evidence vaulting, visual relationship graph charting, and AI timeline narration into a single workspace window.
@@ -93,10 +93,16 @@ Cygnal unifies the entire investigation workflow into a single window:
 -   **Job Progress Dashboard:** Interactive HUD sidebar with progress bars, elapsed timer, completed checkpoints, and live visual graph updates.
 
 ### 🔒 Cryptographic Vault & Timeline
-
 -   **SHA-256 Custody Seals:** Evidence files receive unique hashes on upload. Records are immutable and logged.
 -   **Chronological timeline ledger:** Tracks all case activities with analyst attribution.
 -   **SVG IOC Link Graph:** Visually maps relationships between cases, indicators, and files.
+
+### 🌐 Enterprise Infrastructure (Phase 5)
+-   **Redis Pub/Sub WebSocket Synchronization:** Scale events dynamically across multiple Flask API server cluster nodes.
+-   **Strict Tenant Isolation:** Data tables automatically filter queries via context-bound `tenant_id` SQL query rewriter.
+-   **Onboarding & Domain Mapping:** Auto-maps users to pre-authenticated enterprise domains or verified workspace invite codes.
+-   **Circuit Breaker Caching:** Fault-tolerant L1 Redis cache with local SQLite/PG fallback and 500ms socket timeouts.
+-   **Continuous Health Metrics:** Endpoint `/api/health/metrics` reports host metrics, database pools, and Redis connection state.
 
 ### 🛰️ Unified Security Sensors (10 Modules)
 -   **Domain & Host Intel:** WHOIS registrar check, DNS A/MX/NS/TXT records.
@@ -202,7 +208,7 @@ cygnal/
 │   ├── jwt_utils.py              # HS256 token creation and verification
 │   ├── routes/
 │   │   └── v2/                   # Blueprints (auth, cases, scanners, ai, reports, copilot, mfa)
-│   └── tests/                    # Backend pytest suite (79 tests)
+│   └── tests/                    # Backend pytest suite (172 tests)
 │
 ├── frontend/                     # Next.js Workspace
 │   ├── app/                      # Routes (cases, chat, scanners, analytics, copilot, settings, login)

@@ -80,6 +80,18 @@ def set_security_headers(response):
 CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")}})
 socketio.init_app(app, cors_allowed_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","))
 
+# Resolve and bind tenant ID to request context
+from flask import g
+@app.before_request
+def resolve_tenant_id():
+    from auth_middleware import get_current_user
+    try:
+        get_current_user()
+    except Exception:
+        pass
+    if not hasattr(g, "tenant_id") or g.tenant_id is None:
+        g.tenant_id = 1
+
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/api")
 app.register_blueprint(cases_bp, url_prefix="/api")
@@ -98,7 +110,9 @@ app.register_blueprint(collaboration_bp, url_prefix="/api")  # Phase 4: Collabor
 @app.errorhandler(500)
 def handle_500_error(e):
     logging.error(f"Global 500 error: {e}")
-    return jsonify({"success": False, "error": "Internal Server Error"}), 500
+    # Extract underlying exception if present
+    err_msg = str(getattr(e, "original_exception", e))
+    return jsonify({"success": False, "error": err_msg}), 500
 
 @app.errorhandler(404)
 def handle_404_error(e):

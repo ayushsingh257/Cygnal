@@ -1,6 +1,8 @@
 import os
 import re
 import sqlite3
+import threading
+from typing import Any
 from urllib.parse import urlparse
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -81,6 +83,28 @@ class DialectCursor:
         self.cursor.executemany(sql, params_list)
         return self
 
+    def execute_tenant(self, sql, params=None, tenant_id=None):
+        """Explicit tenant-aware execution wrapper."""
+        if tenant_id is None:
+            tenant_id = get_current_tenant_id()
+        sql, params = rewrite_query(sql, params, tenant_id)
+        return self.execute(sql, params)
+
+    def executemany_tenant(self, sql, params_list, tenant_id=None):
+        """Explicit tenant-aware batch execution wrapper."""
+        if tenant_id is None:
+            tenant_id = get_current_tenant_id()
+        
+        sample_params = params_list[0] if params_list else None
+        rewritten_sql, _ = rewrite_query(sql, sample_params, tenant_id)
+        
+        new_params_list = []
+        for params in params_list:
+            _, new_params = rewrite_query(sql, params, tenant_id)
+            new_params_list.append(new_params)
+            
+        return self.executemany(rewritten_sql, new_params_list)
+
     def fetchone(self):
         return self.cursor.fetchone()
 
@@ -135,3 +159,142 @@ def get_db_connection():
     
     conn = sqlite3.connect(DB_PATH)
     return DialectConnection(conn, False)
+
+# ─── Multi-Tenancy Context & Query Rewriter Helpers ──────────────────────────
+_thread_local = threading.local()
+
+def set_thread_tenant_id(tenant_id: int):
+    """Sets tenant_id on active background thread."""
+    _thread_local.tenant_id = tenant_id
+
+def clear_thread_tenant_id():
+    """Removes tenant_id from thread local context."""
+    if hasattr(_thread_local, "tenant_id"):
+        del _thread_local.tenant_id
+
+def get_current_tenant_id() -> int:
+    """Resolves the current tenant context from thread local or flask.g context."""
+    if hasattr(_thread_local, "tenant_id"):
+        return _thread_local.tenant_id
+    from flask import has_request_context, g
+    if has_request_context():
+        if hasattr(g, "tenant_id") and g.tenant_id is not None:
+            return g.tenant_id
+    return 1
+
+def rewrite_query(sql: str, params: Any, tenant_id: int) -> tuple[str, Any]:
+    """Helper to transform query schemas dynamically for tenant isolation."""
+    tenant_tables = {
+        "users", "cases", "evidence", "notifications", "inbound_alerts",
+        "comments", "timeline", "case_indicators",
+        "evidence_relations", "investigation_jobs", "tool_permissions",
+        "reports", "vector_records", "audit_log"
+    }
+    
+    words = set(re.findall(r"\b\w+\b", sql.lower()))
+    target_tables = tenant_tables.intersection(words)
+    if not target_tables:
+        return sql, params
+        
+    sql_strip = sql.strip()
+    has_semicolon = sql_strip.endswith(";")
+    if has_semicolon:
+        sql_strip = sql_strip[:-1].strip()
+        
+    sql_lower = sql_strip.lower()
+
+    # Only rewrite standard DML commands
+    if not (sql_lower.startswith("select") or 
+            sql_lower.startswith("update") or 
+            sql_lower.startswith("delete") or 
+            sql_lower.startswith("insert")):
+        orig_sql = sql_strip
+        if has_semicolon:
+            orig_sql += ";"
+        return orig_sql, params
+    
+    # 1. Insert statements
+    if sql_lower.startswith("insert into"):
+        match = re.search(r"insert\s+into\s+(\w+)\s*\((.*?)\)\s*values\s*\((.*?)\)", sql_lower, re.DOTALL)
+        if match:
+            table_name = match.group(1)
+            if table_name in tenant_tables:
+                orig_match = re.search(r"insert\s+into\s+(\w+)\s*\((.*?)\)\s*values\s*\((.*?)\)", sql_strip, re.IGNORECASE | re.DOTALL)
+                orig_table, cols_str, vals_str = orig_match.groups()
+                
+                new_cols = cols_str.strip() + ", tenant_id"
+                
+                placeholder = "?"
+                if "%s" in vals_str:
+                    placeholder = "%s"
+                elif ":" in vals_str:
+                    placeholder = ":tenant_id"
+                
+                new_vals = vals_str.strip() + f", {placeholder}"
+                
+                new_sql = f"INSERT INTO {orig_table} ({new_cols}) VALUES ({new_vals})"
+                if has_semicolon:
+                    new_sql += ";"
+                
+                if params is None:
+                    new_params = (tenant_id,)
+                elif isinstance(params, dict):
+                    new_params = params.copy()
+                    new_params["tenant_id"] = tenant_id
+                elif isinstance(params, tuple):
+                    new_params = params + (tenant_id,)
+                elif isinstance(params, list):
+                    new_params = list(params) + [tenant_id]
+                else:
+                    new_params = (params, tenant_id)
+                return new_sql, new_params
+
+    # 2. Select, Update, Delete statements
+    clauses = ["order by", "group by", "limit", "offset"]
+    split_pos = len(sql_strip)
+    for c in clauses:
+        pos = sql_lower.find(c)
+        if pos != -1:
+            split_pos = min(split_pos, pos)
+            
+    main_query = sql_strip[:split_pos].strip()
+    tail_query = sql_strip[split_pos:].strip()
+    
+    main_lower = main_query.lower()
+    
+    placeholder = "?"
+    if "%s" in main_query:
+        placeholder = "%s"
+    elif ":" in main_query:
+        placeholder = ":tenant_id"
+        
+    num_placeholders_in_main = main_query.count("?") if placeholder == "?" else main_query.count("%s")
+    
+    if re.search(r"\bwhere\b", main_lower):
+        new_main = main_query + f" AND tenant_id = {placeholder}"
+    else:
+        new_main = main_query + f" WHERE tenant_id = {placeholder}"
+        
+    new_sql = new_main
+    if tail_query:
+        new_sql += " " + tail_query
+        
+    if has_semicolon:
+        new_sql += ";"
+        
+    if params is None:
+        new_params = (tenant_id,)
+    elif isinstance(params, dict):
+        new_params = params.copy()
+        new_params["tenant_id"] = tenant_id
+    elif isinstance(params, (tuple, list)):
+        params_list = list(params)
+        params_list.insert(num_placeholders_in_main, tenant_id)
+        new_params = tuple(params_list) if isinstance(params, tuple) else params_list
+    else:
+        if num_placeholders_in_main == 0:
+            new_params = (tenant_id, params)
+        else:
+            new_params = (params, tenant_id)
+            
+    return new_sql, new_params

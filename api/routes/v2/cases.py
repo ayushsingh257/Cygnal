@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 import hashlib
 import uuid
+import json
 from datetime import datetime, timedelta
 from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
@@ -48,7 +49,7 @@ def get_cases(current_user):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute_tenant("""
             SELECT id, case_number, title, description, status, severity, created_by, created_at, updated_at, assigned_to, department
             FROM cases
             ORDER BY created_at DESC;
@@ -102,17 +103,17 @@ def create_case(current_user):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("""
+        cursor.execute_tenant("""
             INSERT INTO cases (id, case_number, title, description, status, severity, created_by, created_at, updated_at, assigned_to, department)
             VALUES (?, ?, ?, ?, 'open', ?, ?, ?, ?, ?, ?);
         """, (case_id, case_num, title, desc, sev, user, now_str, now_str, assigned if assigned else None, dept))
 
         # Log creation in case timeline
         timeline_id = str(uuid.uuid4())
-        cursor.execute("""
+        cursor.execute_tenant("""
             INSERT INTO timeline (id, case_id, event_type, description, timestamp, user, metadata)
             VALUES (?, ?, 'case_created', ?, ?, ?, ?);
-        """, (timeline_id, case_id, f"Incident case file {case_num} initialized by {user}.", now_str, user, json_dumps({"title": title})))
+        """, (timeline_id, case_id, f"Incident case file {case_num} initialized by {user}.", now_str, user, json.dumps({"title": title})))
 
         conn.commit()
         conn.close()
@@ -147,7 +148,7 @@ def get_case_details(case_id):
         cursor = conn.cursor()
         
         # Get Case Profile
-        cursor.execute("""
+        cursor.execute_tenant("""
             SELECT id, case_number, title, description, status, severity, created_by, created_at, updated_at, assigned_to, department
             FROM cases WHERE id = ?;
         """, (case_id,))
@@ -171,7 +172,7 @@ def get_case_details(case_id):
         }
 
         # Get timeline ledger
-        cursor.execute("""
+        cursor.execute_tenant("""
             SELECT id, event_type, description, timestamp, user, metadata
             FROM timeline WHERE case_id = ? ORDER BY timestamp DESC;
         """, (case_id,))
@@ -188,7 +189,7 @@ def get_case_details(case_id):
             })
 
         # Get evidence custody ledger
-        cursor.execute("""
+        cursor.execute_tenant("""
             SELECT id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at
             FROM evidence WHERE case_id = ? ORDER BY uploaded_at DESC;
         """, (case_id,))

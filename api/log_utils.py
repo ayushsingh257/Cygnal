@@ -11,6 +11,13 @@ class StructuredFormatter(logging.Formatter):
             "message": record.getMessage(),
             "logger": record.name,
         }
+        # Resolve active tenant context
+        from db_utils import get_current_tenant_id
+        try:
+            log_data["tenant_id"] = get_current_tenant_id()
+        except Exception:
+            log_data["tenant_id"] = 1
+
         # Ingress correlation ID
         if has_request_context():
             if not hasattr(g, "correlation_id") or not g.correlation_id:
