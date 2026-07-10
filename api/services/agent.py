@@ -146,20 +146,25 @@ def run_autonomic_loop_worker(app, alert_id):
         title, description, severity, parsed_iocs_json, source = row
         parsed_iocs = json.loads(parsed_iocs_json)
         
-        # 2. Update Alert state to investigating (Running)
+        # 2. Update Alert state to investigating (Running) — atomic conditional update.
+        # We only transition from 'unhandled' → 'investigating'. If the analyst already
+        # called Take Over (status = 'failed') before this thread reached this point,
+        # rowcount will be 0 and we abort without overwriting the takeover state.
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT status FROM inbound_alerts WHERE id = ?;", (alert_id,))
-        cur_status_row = cursor.fetchone()
-        if cur_status_row and cur_status_row[0] == "failed":
-            conn.close()
-            logging.info(f"[AUTONOMIC AGENT] Alert {alert_id} was aborted before starting loop.")
-            return
-            
-        cursor.execute("UPDATE inbound_alerts SET status = 'investigating' WHERE id = ?;", (alert_id,))
+        cursor.execute(
+            "UPDATE inbound_alerts SET status = 'investigating' WHERE id = ? AND status = 'unhandled';",
+            (alert_id,)
+        )
+        rows_updated = cursor.rowcount
         conn.commit()
         conn.close()
-        
+
+        if rows_updated == 0:
+            # Either already taken over (status='failed') or alert disappeared — abort.
+            logging.info(f"[AUTONOMIC AGENT] Alert {alert_id} was aborted before starting loop (status already changed).")
+            return
+
         socketio.emit("alert_updated", {"id": alert_id, "status": "investigating"})
         
         # 3. Create dynamic Case folder
