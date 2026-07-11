@@ -18,7 +18,7 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-[#B0E4CC] border border-[#408A71]/30 hover:bg-[#408A71]/10",
+          "bg-[var(--bg-panel)] text-[var(--accent-blue)] border border-[var(--border-blue)] hover:bg-[var(--bg-hover)]",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -67,7 +67,7 @@ const liquidbuttonVariants = cva(
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-[#B0E4CC] border border-[#408A71]/30 hover:bg-[#408A71]/10",
+          "bg-[var(--bg-panel)] text-[var(--accent-blue)] border border-[var(--border-blue)] hover:bg-[var(--bg-hover)]",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },

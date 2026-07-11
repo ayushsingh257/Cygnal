@@ -7,37 +7,71 @@
 
 @layer base {
   :root {
-    /* Core backgrounds - Deep dark cold winter night */
-    --bg-deep: #091413;
-    --bg-surface: #0f2422;
-    --bg-panel: rgba(40, 90, 72, 0.25);
-    --bg-card: rgba(9, 20, 19, 0.70);
-    --bg-hover: rgba(64, 138, 113, 0.08);
+    /* LIGHT MODE (Default root variables if no .dark class) */
+    --bg-deep: #ffffff;
+    --bg-surface: #f4f4f5;
+    --bg-panel: rgba(228, 228, 231, 0.4);
+    --bg-card: rgba(255, 255, 255, 0.9);
+    --bg-hover: rgba(244, 244, 245, 0.6);
 
-    /* Accent palette - Dark teal, Deep green, Cold winter night */
-    --accent-blue: #408A71;
-    --accent-blue-dim: rgba(64, 138, 113, 0.15);
-    --accent-cyan: #B0E4CC;
-    --accent-indigo: #285A48;
-    --accent-emerald: #408A71;
+    /* Accent palette - Burnt Orange and Deep Royal Blue */
+    --accent-blue: #ea580c; /* Burnt Orange */
+    --accent-blue-dim: rgba(234, 88, 12, 0.15);
+    --accent-cyan: #2563eb; /* Deep Blue for info/AI */
+    --accent-indigo: #1d4ed8;
+    --accent-emerald: #ea580c;
+    --accent-red: #dc2626;
+    --accent-amber: #d97706;
+
+    /* Borders */
+    --border-subtle: rgba(228, 228, 231, 0.8);
+    --border-blue: rgba(234, 88, 12, 0.2);
+    --border-focus: rgba(234, 88, 12, 0.45);
+
+    /* Typography */
+    --text-primary: #18181b; /* Dark Slate */
+    --text-secondary: #52525b; /* Slate Gray */
+    --text-muted: #71717a;
+    --text-dimmed: #a1a1aa;
+
+    /* Shadows */
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-glow-blue: 0 0 20px rgba(234, 88, 12, 0.05);
+    --shadow-glow-blue-strong: 0 0 30px rgba(234, 88, 12, 0.1);
+  }
+
+  .dark {
+    /* DARK MODE (Active with .dark class on html/body) */
+    --bg-deep: #000000; /* Deep Black background */
+    --bg-surface: #0a0a0a; /* Dark Graphite */
+    --bg-panel: rgba(18, 18, 20, 0.7); /* Dark Slate surface */
+    --bg-card: rgba(24, 24, 27, 0.85); /* Dark Slate card */
+    --bg-hover: rgba(234, 88, 12, 0.08); /* Burnt Orange subtle hover */
+
+    /* Accent palette - Burnt Orange and Deep Royal Blue */
+    --accent-blue: #ea580c; /* Burnt Orange for threats/alerts/CTA */
+    --accent-blue-dim: rgba(234, 88, 12, 0.15);
+    --accent-cyan: #2563eb; /* Deep Blue for AI/analytics/intel */
+    --accent-indigo: #1d4ed8;
+    --accent-emerald: #ea580c;
     --accent-red: #ef4444;
     --accent-amber: #f59e0b;
 
     /* Borders */
-    --border-subtle: rgba(176, 228, 204, 0.08);
-    --border-blue: rgba(64, 138, 113, 0.25);
-    --border-focus: rgba(176, 228, 204, 0.45);
+    --border-subtle: rgba(255, 255, 255, 0.04); /* Very subtle borders */
+    --border-blue: rgba(234, 88, 12, 0.25);
+    --border-focus: rgba(234, 88, 12, 0.45);
 
     /* Typography */
-    --text-primary: #e6f3ed;
-    --text-secondary: #a3c2b4;
-    --text-muted: #6e8c80;
-    --text-dimmed: #455d53;
+    --text-primary: #ffffff; /* Soft White typography */
+    --text-secondary: #a1a1aa; /* Light Gray text */
+    --text-muted: #71717a;
+    --text-dimmed: #52525b;
 
     /* Shadows */
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
-    --shadow-glow-blue: 0 0 20px rgba(64, 138, 113, 0.15);
-    --shadow-glow-blue-strong: 0 0 30px rgba(176, 228, 204, 0.25);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.75);
+    --shadow-glow-blue: 0 0 20px rgba(234, 88, 12, 0.15);
+    --shadow-glow-blue-strong: 0 0 30px rgba(234, 88, 12, 0.25);
   }
 
   *, *::before, *::after {
@@ -58,6 +92,7 @@
     line-height: 1.6;
     overflow-x: hidden;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   /* Selection */
@@ -441,5 +476,79 @@ select.cyber-input {
 
 .text-white\/80 {
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================================
+   GLOBAL STYLE OVERRIDES FOR BRAND INTEGRITY AND LIGHT MODE
+   ============================================================ */
+
+/* Input fixes */
+.cyber-input {
+  background-color: var(--bg-deep) !important;
+  color: var(--text-primary) !important;
+}
+
+.cyber-input:focus {
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.10) !important;
+}
+
+/* Primary buttons shadow */
+.btn-cyber-primary:hover {
+  background-color: #c2410c !important;
+  box-shadow: 0 0 20px rgba(234, 88, 12, 0.40) !important;
+}
+
+/* Map legacy color classes to theme variables */
+.bg-\[\#091413\] { background-color: var(--bg-deep) !important; }
+.bg-\[\#030712\] { background-color: var(--bg-deep) !important; }
+.bg-\[\#0f2422\] { background-color: var(--bg-surface) !important; }
+.bg-\[\#0b0f19\] { background-color: var(--bg-surface) !important; }
+.bg-\[\#111827\] { background-color: var(--bg-panel) !important; }
+
+.bg-\[\#0f2422\]\/10 { background-color: var(--bg-panel) !important; }
+.bg-\[\#0f2422\]\/20 { background-color: var(--bg-panel) !important; }
+.bg-\[\#0f2422\]\/30 { background-color: var(--bg-panel) !important; }
+.bg-\[\#111827\]\/40 { background-color: var(--bg-panel) !important; }
+.bg-\[\#0b0f19\]\/90 { background-color: var(--bg-surface) !important; }
+.bg-\[\#0b0f19\]\/80 { background-color: var(--bg-surface) !important; }
+.bg-\[\#0b0f19\]\/95 { background-color: var(--bg-surface) !important; }
+.bg-black\/10       { background-color: var(--bg-surface) !important; }
+
+.text-\[\#B0E4CC\] { color: var(--accent-blue) !important; }
+.text-\[\#408A71\] { color: var(--accent-blue) !important; }
+.text-\[\#ea580c\] { color: var(--accent-blue) !important; }
+.text-\[\#e6f3ed\] { color: var(--text-primary) !important; }
+.text-\[\#a3c2b4\] { color: var(--text-secondary) !important; }
+
+.border-\[\#408A71\]\/15 { border-color: var(--border-blue) !important; }
+.border-\[\#408A71\]\/20 { border-color: var(--border-blue) !important; }
+.border-\[\#408A71\]\/30 { border-color: var(--border-blue) !important; }
+.border-\[\#408A71\]\/50 { border-color: var(--border-blue) !important; }
+.border-white\/5        { border-color: var(--border-subtle) !important; }
+.border-white\/10       { border-color: var(--border-subtle) !important; }
+
+/* Light Mode Overrides (When .dark is not present on html) */
+html:not(.dark) .text-white { color: var(--text-primary) !important; }
+html:not(.dark) .text-slate-100 { color: var(--text-primary) !important; }
+html:not(.dark) .text-slate-200 { color: var(--text-primary) !important; }
+html:not(.dark) .text-slate-300 { color: var(--text-secondary) !important; }
+html:not(.dark) .text-slate-450 { color: var(--text-secondary) !important; }
+html:not(.dark) .text-slate-400 { color: var(--text-muted) !important; }
+html:not(.dark) .text-slate-500 { color: var(--text-dimmed) !important; }
+
+/* Light Mode Status indicators */
+html:not(.dark) .bg-red-950\/30 { background-color: rgba(220, 38, 38, 0.08) !important; }
+html:not(.dark) .bg-emerald-950\/20 { background-color: rgba(16, 185, 129, 0.08) !important; }
+html:not(.dark) .border-emerald-500\/15 { border-color: rgba(16, 185, 129, 0.2) !important; }
+html:not(.dark) .bg-blue-950\/20 { background-color: rgba(37, 99, 235, 0.08) !important; }
+html:not(.dark) .bg-amber-950\/30 { background-color: rgba(217, 119, 6, 0.08) !important; }
+html:not(.dark) .text-slate-650 { color: var(--text-muted) !important; }
+html:not(.dark) .placeholder-slate-650::placeholder { color: var(--text-dimmed) !important; }
+
+/* Selection fix for Light Mode */
+html:not(.dark) ::selection {
+  background-color: rgba(234, 88, 12, 0.15);
+  color: #ea580c;
 }
 

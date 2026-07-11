@@ -124,6 +124,18 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
+### 🟢 Cygnal v4.0 (Pre-v4.5): Launch Readiness & Brand Update [Complete]
+*   **Purpose:** Solidify visual branding, accessibility, user experience, and GRC policies for SaaS production deployments.
+*   **Business Value:** Positions Cygnal as a production-grade enterprise product for clients, security agencies, and external SOC teams.
+*   **Technical Goals:** Implement light and dark theme modes using CSS variables, compile comprehensive GRC documentation pages, fix clipping and interactive scoring widgets on the homepage, and update the automated timeline loops.
+*   **Architecture Changes:** Integrate class-based theme injection scripting inside the Next.js header shell; unify styling variables in `globals.css` to allow seamless light/dark rendering.
+*   **Database Changes:** None.
+*   **Frontend Work:** Created `/about`, `/contact`, `/privacy`, `/terms`, `/cookie-policy`, and `/security` public pages; added `ThemeToggle` component to the landing page and dashboard; updated scores half-circle viewports and animated timeline orbital path trackers.
+*   **Success Criteria:** Next.js application builds compile flawlessly and visual themes shift seamlessly without layout flashes.
+*   **Expected Users:** Prospective Enterprise customers, external Security Auditors, and SOC Analysts.
+
+---
+
 ### 🟣 Cygnal v4.5: Extensible Plugin SDK
 *   **Purpose:** Enable developers to write custom scanners, AI agents, and integrations.
 *   **Business Value:** Drives rapid feature growth and ecosystem support by letting the community maintain niche security connectors.

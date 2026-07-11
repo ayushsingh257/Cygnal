@@ -399,63 +399,49 @@ const Hero: React.FC<HeroProps> = ({
         {/* Trust Badge */}
         {trustBadge && (
           <div className="mb-8 animate-fade-in-down">
-            <div className="flex items-center gap-2 px-6 py-3 bg-[#285A48]/10 backdrop-blur-md border border-[#408A71]/30 rounded-full text-sm">
-              {trustBadge.icons && (
-                <div className="flex">
-                  {trustBadge.icons.map((icon, index) => (
-                    <span key={index} className="text-[#B0E4CC]">
-                      {icon}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <span className="text-[#B0E4CC]">{trustBadge.text}</span>
+            <div className="flex items-center gap-2 px-6 py-3 bg-[#ea580c]/10 backdrop-blur-md border border-[#ea580c]/30 rounded-full text-sm">
+              {trustBadge.icons?.map((icon, index) => (
+                <span key={index} className="text-[#ea580c]">
+                  {icon}
+                </span>
+              ))}
+              <span className="text-[#ea580c] font-mono text-xs uppercase tracking-widest">{trustBadge.text}</span>
             </div>
           </div>
         )}
 
-        <div className="text-center space-y-6 max-w-5xl mx-auto px-4">
-          {/* Main Heading with Animation */}
-          <div className="space-y-2">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#B0E4CC] via-[#408A71] to-[#285A48] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-200">
-              {headline.line1}
-            </h1>
-            {headline.line2 && (
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#408A71] via-[#285A48] to-[#091413] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-400">
-                {headline.line2}
-              </h1>
+        {headline && (
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#ff8c00] via-[#ea580c] to-[#2563eb] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-200">
+            {headline.line1}
+          </h1>
+        )}
+
+        {subtitle && (
+          <p className="text-sm md:text-base lg:text-lg text-[var(--text-secondary)] font-normal max-w-2xl mx-auto leading-relaxed">
+            {subtitle}
+          </p>
+        )}
+
+        {buttons && (
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
+            {buttons.primary && (
+              <button
+                onClick={buttons.primary.onClick}
+                className="px-8 py-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] hover:from-[#c2410c] hover:to-[#9a3412] text-white rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#ea580c]/25 cursor-pointer uppercase tracking-wider"
+              >
+                {buttons.primary.text}
+              </button>
+            )}
+            {buttons.secondary && (
+              <button
+                onClick={buttons.secondary.onClick}
+                className="px-8 py-4 bg-[#2563eb]/10 hover:bg-[#2563eb]/20 border border-[#2563eb]/30 hover:border-[#2563eb]/50 text-[#2563eb] dark:text-[#60a5fa] rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer uppercase tracking-wider"
+              >
+                {buttons.secondary.text}
+              </button>
             )}
           </div>
-          
-          {/* Subtitle with Animation */}
-          <div className="max-w-3xl mx-auto animate-fade-in-up animation-delay-600">
-            <p className="text-lg md:text-xl lg:text-2xl text-[#B0E4CC]/90 font-light leading-relaxed">
-              {subtitle}
-            </p>
-          </div>
-          
-          {/* CTA Buttons with Animation */}
-          {buttons && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 animate-fade-in-up animation-delay-800">
-              {buttons.primary && (
-                <button 
-                  onClick={buttons.primary.onClick}
-                  className="px-8 py-4 bg-gradient-to-r from-[#408A71] to-[#285A48] hover:from-[#285A48] hover:to-[#091413] text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#408A71]/25 cursor-pointer"
-                >
-                  {buttons.primary.text}
-                </button>
-              )}
-              {buttons.secondary && (
-                <button 
-                  onClick={buttons.secondary.onClick}
-                  className="px-8 py-4 bg-[#285A48]/10 hover:bg-[#285A48]/20 border border-[#408A71]/30 hover:border-[#408A71]/50 text-[#B0E4CC] rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
-                >
-                  {buttons.secondary.text}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
@@ -522,10 +508,10 @@ void main(void) {
 		uv+=.15*cos(i*vec2(.15+.01*i, .75)+i*i+T*.15+.1*uv.x);
 		vec2 p=uv;
 		float d=length(p);
-		col+=.0015/d*(cos(sin(i)*vec3(0.09, 0.20, 0.19))+1.);
+		col+=.0015/d*(cos(sin(i)*vec3(0.91, 0.34, 0.05))+1.);
 		float b=noise(i+p+bg*1.5);
 		col+=.0015*b/length(max(p,vec2(b*p.x*.01,p.y)));
-		col=mix(col,vec3(bg*.035,bg*.22,bg*.176),d);
+		col=mix(col,vec3(bg*.15,bg*.05,bg*.35),d);
 	}
 	O=vec4(col,1);
 }`;

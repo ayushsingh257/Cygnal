@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { LiquidCard, CardContent, CardHeader } from "@/components/ui/liquid-glass-card"
 import { Badge } from "@/components/ui/badge"
 import { LiquidButton } from "@/components/ui/liquid-glass-button"
@@ -144,7 +145,7 @@ function FinancialScoreButton({ children, isOutlined, onClick }: FinancialScoreB
     <LiquidButton
       variant={"secondary"}
       onClick={onClick}
-      className="w-full h-12 text-sm py-2 hover:scale-[1.02] border border-[#408A71]/30 text-[#B0E4CC] bg-[#408A71]/5 hover:bg-[#408A71]/15 transition-all duration-300 font-mono tracking-wider"
+      className="w-full h-12 text-xs py-2 hover:scale-[1.02] border border-[#ea580c]/30 text-[#ea580c] dark:text-[#ea580c] bg-[#ea580c]/5 hover:bg-[#ea580c]/15 transition-all duration-300 font-mono tracking-wider"
     >
       {children}
     </LiquidButton>
@@ -177,7 +178,7 @@ function FinancialScoreCard({ children }: FinancialScoreCardProps) {
   if (!appearing) return null
 
   return (
-    <LiquidCard className="w-full max-w-sm border border-[#408A71]/10 bg-[#0f2422]/10 hover:border-[#408A71]/20 transition-all duration-500 rounded-2xl">
+    <LiquidCard className="w-full max-w-sm border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:border-[var(--border-blue)] transition-all duration-500 rounded-2xl">
       <CardContent className="p-7">{children}</CardContent>
     </LiquidCard>
   )
@@ -191,7 +192,7 @@ function FinancialScoreDisplay({ value, max }: FinancialScoreDisplayProps) {
 
   return (
     <div className="absolute bottom-0 w-full text-center">
-      <div className="text-4xl font-bold h-12 overflow-hidden relative font-mono text-[#B0E4CC]">
+      <div className="text-4xl font-bold h-12 overflow-hidden relative font-mono text-[#ea580c] dark:text-[#ea580c]">
         <div className="absolute inset-0 opacity-0">
           <div className="inline-block">0</div>
         </div>
@@ -211,7 +212,7 @@ function FinancialScoreDisplay({ value, max }: FinancialScoreDisplayProps) {
             ))}
         </div>
       </div>
-      <div className="text-[10px] text-[#408A71] font-mono uppercase tracking-widest mt-1">{label}</div>
+      <div className="text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest mt-1">{label}</div>
     </div>
   )
 }
@@ -230,12 +231,12 @@ function FinancialScoreHalfCircle({ value, max }: FinancialScoreHalfCircleProps)
   const strokeDashoffset = value !== null ? distForValue : -distFourth
   const strength = Utils.getStrength(value, max)
   
-  // Custom theme colors for green-toned Cygnal
+  // Custom brand colors: Orange accents
   const strengthColors: StrengthColors = {
-    none: ["hsl(170, 10%, 40%)", "hsl(170, 10%, 25%)"],
-    weak: ["hsl(0, 84%, 60%)", "hsl(0, 84%, 40%)"],
-    moderate: ["hsl(38, 92%, 60%)", "hsl(38, 92%, 40%)"],
-    strong: ["hsl(142, 71%, 60%)", "hsl(142, 71%, 40%)"],
+    none: ["#71717a", "#52525b"],
+    weak: ["#ef4444", "#b91c1c"],
+    moderate: ["#f59e0b", "#d97706"],
+    strong: ["#f97316", "#ea580c"],
   }
   const colorStops = strengthColors[strength]
 
@@ -258,7 +259,7 @@ function FinancialScoreHalfCircle({ value, max }: FinancialScoreHalfCircleProps)
   }, [value, max, strokeDashoffset])
 
   return (
-    <svg className="block mx-auto w-auto max-w-full h-32" viewBox="0 0 100 50" aria-hidden="true">
+    <svg className="block mx-auto w-auto max-w-full h-32" viewBox="0 -6 100 56" aria-hidden="true">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
           {colorStops.map((stop, i) => {
@@ -268,7 +269,7 @@ function FinancialScoreHalfCircle({ value, max }: FinancialScoreHalfCircleProps)
         </linearGradient>
       </defs>
       <g fill="none" strokeWidth="9" transform="translate(50, 48)">
-        <circle className="stroke-slate-800" r={radius} />
+        <circle className="stroke-zinc-200 dark:stroke-zinc-800" r={radius} />
         <circle ref={strokeRef} stroke={gradStroke} strokeDasharray={strokeDasharray} r={radius} />
       </g>
     </svg>
@@ -281,11 +282,11 @@ function FinancialScoreHeader({ title, strength }: FinancialScoreHeaderProps) {
   const getBadgeClassName = (s: Strength) => {
     switch (s) {
       case Strength.Weak:
-        return "bg-red-950/40 text-red-400 border border-red-900/30"
+        return "bg-red-500/10 text-red-500 border border-red-500/20"
       case Strength.Moderate:
-        return "bg-amber-950/40 text-amber-400 border border-amber-900/30"
+        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
       case Strength.Strong:
-        return "bg-green-950/40 text-[#B0E4CC] border border-[#408A71]/30"
+        return "bg-[#ea580c]/10 text-[#ea580c] border border-[#ea580c]/20"
       default:
         return ""
     }
@@ -293,10 +294,10 @@ function FinancialScoreHeader({ title, strength }: FinancialScoreHeaderProps) {
 
   return (
     <CardHeader className="flex flex-row items-center justify-between gap-4 pb-6 px-0">
-      <h2 className="text-sm font-bold tracking-wider font-mono text-white uppercase truncate">{title}</h2>
+      <h2 className="text-xs font-bold tracking-wider font-mono text-[var(--text-primary)] uppercase truncate">{title}</h2>
       {hasStrength && (
         <Badge
-          className={`uppercase text-[9px] font-mono tracking-widest px-2 py-0.5 shrink-0 rounded ${getBadgeClassName(strength as Strength)}`}
+          className={`uppercase text-[8px] font-mono tracking-widest px-2 py-0.5 shrink-0 rounded ${getBadgeClassName(strength as Strength)}`}
         >
           {strength}
         </Badge>
@@ -306,14 +307,30 @@ function FinancialScoreHeader({ title, strength }: FinancialScoreHeaderProps) {
 }
 
 function FinancialScore({ title, description, initialScore }: FinancialScoreProps) {
+  const router = useRouter()
   const [score, setScore] = useState<Score>(initialScore ?? null)
-  const hasScore = score !== null
+  const [isAuditing, setIsAuditing] = useState(false)
+  const hasScore = score !== null && !isAuditing
   const max = 100
   const strength = Utils.getStrength(score, max)
 
-  function handleGenerateScore(): void {
-    if (!hasScore) {
-      setScore(Utils.randomInt(40, max))
+  function handleAuditClick(): void {
+    if (score !== null && !isAuditing) {
+      // Re-audit or Learn More link
+      router.push("/login")
+    } else {
+      // Run auditing animation
+      setIsAuditing(true)
+      let count = 0
+      const interval = setInterval(() => {
+        setScore(Utils.randomInt(40, 99))
+        count++
+        if (count >= 12) {
+          clearInterval(interval)
+          setScore(Utils.randomInt(85, max))
+          setIsAuditing(false)
+        }
+      }, 90)
     }
   }
 
@@ -324,11 +341,11 @@ function FinancialScore({ title, description, initialScore }: FinancialScoreProp
         <FinancialScoreHalfCircle value={score} max={max} />
         <FinancialScoreDisplay value={score} max={max} />
       </div>
-      <p className="text-slate-400 text-xs text-center mb-6 min-h-[3rem] leading-relaxed">
+      <p className="text-[var(--text-secondary)] text-xs text-center mb-6 min-h-[3rem] leading-relaxed">
         {description}
       </p>
-      <FinancialScoreButton isOutlined={hasScore} onClick={handleGenerateScore}>
-        {hasScore ? "Verify Credentials" : "Audit Score"}
+      <FinancialScoreButton isOutlined={hasScore} onClick={handleAuditClick}>
+        {isAuditing ? "Auditing Node..." : hasScore ? "Learn More" : "Audit Score"}
       </FinancialScoreButton>
     </FinancialScoreCard>
   )

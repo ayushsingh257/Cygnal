@@ -17,6 +17,8 @@ import { GooeyText } from "@/components/ui/gooey-text-morphing";
 import { FinancialScoreCards } from "@/components/ui/financial-score-cards";
 import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import { Radar as RadarEffect, IconContainer } from "@/components/ui/radar-effect";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import MarketingFooter from "@/components/MarketingFooter";
 
 export default function MarketingLandingPage() {
   const router = useRouter();
@@ -223,39 +225,47 @@ export default function MarketingLandingPage() {
   /* ─── render ────────────────────────────────────────────────────────── */
 
   return (
-    <div className="min-h-screen bg-[#091413] text-slate-100 flex flex-col justify-between font-sans relative selection:bg-[#408A71]/30 selection:text-[#B0E4CC]">
+    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] flex flex-col justify-between font-sans relative selection:bg-[var(--accent-blue-dim)] selection:text-[var(--accent-cyan)] transition-colors duration-300">
 
       {/* Background radial overlays */}
-      <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-[#285A48]/10 via-[#091413]/5 to-transparent pointer-events-none" />
-      <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#408A71]/[0.02] rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-[60%] right-[5%] w-[400px] h-[400px] bg-[#285A48]/[0.015] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-[#ea580c]/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#ea580c]/[0.015] rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-[60%] right-[5%] w-[400px] h-[400px] bg-[#2563eb]/[0.015] rounded-full blur-[120px] pointer-events-none" />
 
       {/* ─── STICKY NAVBAR ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#091413]/70 backdrop-blur-md transition-all select-none">
+      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-subtle)] bg-[var(--bg-deep)]/70 backdrop-blur-md transition-all select-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Shield className="h-5 w-5 text-[#408A71]" />
-            <span className="text-xs font-bold tracking-[0.25em] text-white uppercase font-sans">
+            <Shield className="h-5 w-5 text-[#ea580c]" />
+            <span className="text-xs font-bold tracking-[0.25em] text-[var(--text-primary)] uppercase font-sans">
               Cygnal
             </span>
-            <span className="hidden sm:inline text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-1.5 py-0.5 rounded tracking-widest">
+            <span className="hidden sm:inline text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-1.5 py-0.5 rounded tracking-widest">
               v4.0
             </span>
           </div>
 
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-[11px] font-semibold tracking-wider text-slate-400 hover:text-white uppercase px-3 py-1.5 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              className="btn-cyber-primary py-2 px-4.5 text-[11px] font-semibold tracking-wider"
-            >
-              Enlist Node
-            </Link>
+          <nav className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-6 text-[11px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">
+              <Link href="/about" className="hover:text-[var(--text-primary)] transition-colors">About</Link>
+              <Link href="/contact" className="hover:text-[var(--text-primary)] transition-colors">Contact</Link>
+              <Link href="/security" className="hover:text-[var(--text-primary)] transition-colors">Disclosure</Link>
+            </div>
+            <ThemeToggle />
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="text-[11px] font-semibold tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] uppercase px-3 py-1.5 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="btn-cyber-primary py-2 px-4.5 text-[11px] font-semibold tracking-wider bg-gradient-to-r from-[#ea580c] to-[#c2410c] hover:from-[#c2410c] hover:to-[#9a3412] text-white rounded-lg"
+              >
+                Enlist Node
+              </Link>
+            </div>
           </nav>
         </div>
       </header>
@@ -279,50 +289,50 @@ export default function MarketingLandingPage() {
 
       {/* ─── V4.0 RELEASE BANNER ────────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4 select-none relative z-10">
-        <div className="glass-panel rounded-2xl px-6 py-5 border border-[#408A71]/20 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="h-9 w-9 shrink-0 bg-[#408A71]/10 border border-[#408A71]/25 rounded-xl flex items-center justify-center text-[#B0E4CC]">
+        <div className="glass-panel rounded-2xl px-6 py-5 border border-[#ea580c]/25 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="h-9 w-9 shrink-0 bg-[#ea580c]/10 border border-[#ea580c]/25 rounded-xl flex items-center justify-center text-[#ea580c]">
             <Zap size={16} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold text-[#408A71] uppercase tracking-widest font-mono mb-0.5">
+            <p className="text-[10px] font-bold text-[#ea580c] uppercase tracking-widest font-mono mb-0.5">
               What&apos;s New in v4.0
             </p>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Cygnal v4.0 introduces <span className="text-[#B0E4CC] font-semibold">Enterprise Identity &amp; Authentication</span> (Phase 1) and a{" "}
-              <span className="text-[#B0E4CC] font-semibold">8-Provider Threat Intelligence Platform</span> (Phase 2) — built for Fortune 500 SOC environments.
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              Cygnal v4.0 introduces <span className="text-[#ea580c] font-semibold">Enterprise Identity &amp; Authentication</span> (Phase 1) and a{" "}
+              <span className="text-[#ea580c] font-semibold">8-Provider Threat Intelligence Platform</span> (Phase 2) — built for Fortune 500 SOC environments.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 1 ✓</span>
-            <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 2 ✓</span>
-            <span className="text-[9px] font-mono text-[#B0E4CC] bg-[#408A71]/10 border border-[#408A71]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 3 ✓</span>
+            <span className="text-[9px] font-mono text-[#ea580c] bg-[#ea580c]/10 border border-[#ea580c]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 1 ✓</span>
+            <span className="text-[9px] font-mono text-[#ea580c] bg-[#ea580c]/10 border border-[#ea580c]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 2 ✓</span>
+            <span className="text-[9px] font-mono text-[#ea580c] bg-[#ea580c]/10 border border-[#ea580c]/20 px-2 py-1 rounded tracking-widest uppercase">Phase 3 ✓</span>
           </div>
         </div>
       </section>
 
       {/* ─── GOOEY TEXT FOCUSED INTRO ────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center relative z-10 select-none">
-        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#408A71] mb-2">Automated Incident Triage</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#ea580c] mb-2">Automated Incident Triage</p>
         <GooeyText
           texts={["RECON & OSINT", "MALWARE SWEEP", "IDENTITY AUDIT", "EVIDENCE CUSTODY", "AI COPILOT"]}
           morphTime={1.2}
           cooldownTime={0.4}
-          className="font-bold font-mono text-green-400"
+          className="font-bold font-mono text-[#ea580c] dark:text-orange-400"
         />
       </section>
 
       {/* ─── SECTION 1: WHY CYGNAL EXISTS (THE PAIN) ────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-6 text-left">
-            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
               The Security Challenge
             </span>
-            <h2 className="text-3xl font-black text-white tracking-tight uppercase">Unifying the Incident Workspace</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tight uppercase">Unifying the Incident Workspace</h2>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               Traditional threat investigations require analysts to constantly cycle between fragmented tools: manual VirusTotal lookups, Shodan queries, WHOIS parsers, document metadata extractors, email header triages, and copy-pasting notes into static reports.
             </p>
-            <p className="text-sm text-[#a3c2b4] leading-relaxed">
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               <strong>Cygnal unifies all of these capabilities</strong> into one collaborative, audit-compliant security operations cockpit, backing your investigators with automated intelligence enrichment and cryptographic custody guarantees.
             </p>
           </div>
@@ -344,12 +354,12 @@ export default function MarketingLandingPage() {
             </div>
 
             {/* After (Cygnal Harmony) */}
-            <div className="glass-panel rounded-2xl p-6 border border-[#408A71]/20 bg-[#0f2422]/10 text-left space-y-4">
-              <div className="flex items-center gap-2 text-green-400 font-mono text-xs uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <div className="glass-panel rounded-2xl p-6 border border-[#ea580c]/20 bg-[#ea580c]/5 text-left space-y-4">
+              <div className="flex items-center gap-2 text-[#ea580c] dark:text-orange-400 font-mono text-xs uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                 Cygnal Workspace Harmony
               </div>
-              <ul className="space-y-2 text-[11px] text-slate-350">
+              <ul className="space-y-2 text-[11px] text-[var(--text-secondary)]">
                 <li className="flex items-center gap-2">✅ One unified browser dashboard</li>
                 <li className="flex items-center gap-2">✅ Parallel 8-provider threat enrichment</li>
                 <li className="flex items-center gap-2">✅ Signed SHA-256 evidence chain</li>
@@ -362,13 +372,13 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── SECTION 2: INVESTIGATION WORKFLOW ──────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="text-center space-y-2 mb-8">
-          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+          <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
             Interactive Node Map
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">The Automated Investigation Loop</h2>
-          <p className="text-xs text-slate-400 max-w-lg mx-auto">
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">The Automated Investigation Loop</h2>
+          <p className="text-xs text-[var(--text-muted)] max-w-lg mx-auto">
             Click on nodes within the orbital tracker to view active stage metrics, connected pipelines, and execution data.
           </p>
         </div>
@@ -377,45 +387,45 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── SECTION 3: PLATFORM ARCHITECTURE ───────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-6 text-left">
-            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
               Architecture Blueprint
             </span>
-            <h2 className="text-2xl font-black text-white tracking-tight uppercase">High-Performance Pipeline</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight uppercase">High-Performance Pipeline</h2>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               Cygnal is engineered as a decoupled application. The Next.js frontend connects via REST and Socket.IO real-time pipelines to our Flask API server.
             </p>
             <div className="space-y-3">
-              <div className="flex items-center gap-2.5 text-xs text-slate-350">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+              <div className="flex items-center gap-2.5 text-xs text-[var(--text-secondary)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] animate-pulse" />
                 Dual DB Dialect (SQLite Local / PostgreSQL Prod)
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-350">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+              <div className="flex items-center gap-2.5 text-xs text-[var(--text-secondary)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] animate-pulse" />
                 Pure-Python 128-dimensional TF-IDF Vectorizer
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-350">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B0E4CC] animate-pulse" />
+              <div className="flex items-center gap-2.5 text-xs text-[var(--text-secondary)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] animate-pulse" />
                 Token revocation registries &amp; sliding rate limits
               </div>
             </div>
           </div>
 
           {/* Dynamic Node Diagram */}
-          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#0f2422]/5">
-            <p className="text-[10px] font-bold text-[#B0E4CC] font-mono uppercase tracking-widest mb-6 text-left">🌐 System Data Flow Blueprint</p>
+          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <p className="text-[10px] font-bold text-[#ea580c] font-mono uppercase tracking-widest mb-6 text-left">🌐 System Data Flow Blueprint</p>
             <div className="flex flex-col gap-3 font-mono text-[10px]">
               {[
-                { label: "Browser (TypeScript + Next.js)", color: "border-[#408A71]/30 text-white" },
-                { label: "↳ API Layer (Flask + Gevent-WebSocket)", color: "border-[#408A71]/40 text-[#B0E4CC] bg-[#408A71]/5" },
-                { label: "  ↳ Threat Intelligence Gateway (STIX/TAXII)", color: "border-[#408A71]/20 text-slate-300" },
-                { label: "  ↳ AI Copilot Engine (Intent Classifier)", color: "border-[#408A71]/20 text-slate-300" },
-                { label: "  ↳ SQLite / Postgres Vector search index", color: "border-[#408A71]/20 text-slate-300" },
-                { label: "  ↳ Cryptographic Evidence Vault", color: "border-[#408A71]/20 text-slate-300" },
+                { label: "Browser (TypeScript + Next.js)", color: "border-[var(--border-subtle)] text-[var(--text-primary)]" },
+                { label: "↳ API Layer (Flask + Gevent-WebSocket)", color: "border-[var(--border-subtle)] text-[#ea580c] bg-[#ea580c]/5" },
+                { label: "  ↳ Threat Intelligence Gateway (STIX/TAXII)", color: "border-[var(--border-subtle)] text-[var(--text-secondary)]" },
+                { label: "  ↳ AI Copilot Engine (Intent Classifier)", color: "border-[var(--border-subtle)] text-[var(--text-secondary)]" },
+                { label: "  ↳ SQLite / Postgres Vector search index", color: "border-[var(--border-subtle)] text-[var(--text-secondary)]" },
+                { label: "  ↳ Cryptographic Evidence Vault", color: "border-[var(--border-subtle)] text-[var(--text-secondary)]" },
               ].map((node, i) => (
-                <div key={i} className={`border rounded-lg p-3 text-left transition-all hover:scale-[1.01] hover:border-[#408A71] ${node.color}`}>
+                <div key={i} className={`border rounded-lg p-3 text-left transition-all hover:scale-[1.01] hover:border-[#ea580c] ${node.color}`}>
                   {node.label}
                 </div>
               ))}
@@ -425,24 +435,24 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── SECTION 4: COMPARISON TABLE ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="text-center space-y-2 mb-12">
-          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+          <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
             Head-to-Head Comparison
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">Why Cygnal is Different</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Why Cygnal is Different</h2>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#0a1a18]/45">
-          <table className="min-w-full divide-y divide-white/5 font-mono text-[11px] text-left">
-            <thead className="bg-[#0f2422]/20 text-[#B0E4CC]">
+        <div className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+          <table className="min-w-full divide-y divide-[var(--border-subtle)] font-mono text-[11px] text-left">
+            <thead className="bg-[#ea580c]/5 text-[#ea580c]">
               <tr>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider">Operational Area</th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider">Traditional Tools</th>
-                <th className="px-6 py-4 font-bold uppercase tracking-wider text-green-400">Cygnal Enterprise v4.0</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-blue-500">Cygnal Enterprise v4.0</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-slate-300">
+            <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
               {[
                 { area: "Threat Intel", old: "Single-source Lookup", new: "8 Parallel Providers (VT, Shodan, AbuseIPDB, etc.)" },
                 { area: "Workspace Isolation", old: "Ad-hoc CLI utilities", new: "Unified Collaborative Investigation Workspace" },
@@ -451,10 +461,10 @@ export default function MarketingLandingPage() {
                 { area: "SSO Identity", old: "Static API keys / Ad-hoc access", new: "Entra ID OIDC + SAML 2.0 Directory Mapping" },
                 { area: "Task Dispatch", old: "Manual scanning scripts", new: "Multi-Agent Planning HUD with Validation Checkers" },
               ].map((row, idx) => (
-                <tr key={idx} className="hover:bg-[#0f2422]/5">
-                  <td className="px-6 py-4 font-bold text-white uppercase">{row.area}</td>
-                  <td className="px-6 py-4 text-slate-455">{row.old}</td>
-                  <td className="px-6 py-4 text-green-300 font-bold">{row.new}</td>
+                <tr key={idx} className="hover:bg-[var(--bg-hover)]">
+                  <td className="px-6 py-4 font-bold text-[var(--text-primary)] uppercase">{row.area}</td>
+                  <td className="px-6 py-4 text-[var(--text-muted)]">{row.old}</td>
+                  <td className="px-6 py-4 text-blue-500 dark:text-blue-400 font-bold">{row.new}</td>
                 </tr>
               ))}
             </tbody>
@@ -463,23 +473,23 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── SECTION 5: PREMIUM METRICS SHOWCASE ────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="text-center space-y-2 mb-8">
-          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+          <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
             Operational Posture Auditing
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">Active Security Posture Audits</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Active Security Posture Audits</h2>
         </div>
         <FinancialScoreCards />
       </section>
 
       {/* ─── SECTION 6: WHO CYGNAL IS BUILT FOR ─────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="text-center space-y-2 mb-12">
-          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+          <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
             User Personas
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">Engineered For Specialized Security Teams</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Engineered For Specialized Security Teams</h2>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -489,50 +499,50 @@ export default function MarketingLandingPage() {
             { role: "Threat Hunters", desc: "Ingest threat indicators from STIX packages, coordinate TAXII feeds, and run bulk lookups on VirusTotal & AbuseIPDB." },
             { role: "GRC Auditors", desc: "Review cryptographically-sealed evidence ledgers, verify lock leases, and export authenticated reports for legal review." },
           ].map((r, i) => (
-            <div key={i} className="glass-card rounded-2xl p-6 bg-[#0f2422]/20 border border-[#408A71]/10 text-left space-y-3 hover:border-[#408A71]/30 transition-all">
-              <span className="text-[10px] font-bold text-[#B0E4CC] uppercase tracking-widest font-mono block">{r.role}</span>
-              <p className="text-[11px] text-slate-400 leading-relaxed">{r.desc}</p>
+            <div key={i} className="glass-card rounded-2xl p-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-blue)] text-left space-y-3 transition-all">
+              <span className="text-[10px] font-bold text-[#ea580c] uppercase tracking-widest font-mono block">{r.role}</span>
+              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ─── SECTION 7: AI COPILOT TERMINAL SHOWCASE ───────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-6 text-left">
-            <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+            <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
               v4.0 AI Assistant
             </span>
-            <h2 className="text-3xl font-black text-white tracking-tight uppercase">Cognitive Copilot Workspace</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tight uppercase">Cognitive Copilot Workspace</h2>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               Query cases, timeline events, and network records using natural language. The backend RAG pipeline matches query vectors to database memories, building structured Markdown reports dynamically.
             </p>
-            <p className="text-sm text-[#a3c2b4] leading-relaxed">
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               <strong>Multi-Agent Orchestrator</strong> validates DNS configs, Shodan credential environment variables, and zero-trust API leases to prevent blind investigations.
             </p>
           </div>
 
           <div className="lg:col-span-7 grid md:grid-cols-12 gap-6 items-center">
             {/* Terminal Panel */}
-            <div className="md:col-span-7 glass-panel rounded-2xl p-6 border border-[#408A71]/15 bg-[#091413] text-left">
+            <div className="md:col-span-7 glass-panel rounded-2xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-left">
               {/* Mock Copilot Chat interface */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#408A71]/20 mb-4">
-                <div className="flex items-center gap-2 text-[9px] font-mono text-green-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-4">
+                <div className="flex items-center gap-2 text-[9px] font-mono text-green-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   COPILOT PROTOCOL ACTIVE
                 </div>
-                <div className="text-[9px] font-mono text-slate-500">SESSION ID: E2E-PH3</div>
+                <div className="text-[9px] font-mono text-[var(--text-muted)]">SESSION ID: E2E-PH3</div>
               </div>
               <div className="space-y-4 h-48 overflow-y-auto scrollbar-none font-mono text-[10px]">
                 <div>
                   <p className="text-slate-500">[17:03:10] Investigator:</p>
-                  <p className="text-white">Query relevant history for case malicious command and control callbacks.</p>
+                  <p className="text-[var(--text-primary)]">Query relevant history for case malicious command and control callbacks.</p>
                 </div>
-                <div className="p-3.5 rounded-xl border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
-                  <p className="text-[#B0E4CC] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
+                <div className="p-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-deep)] space-y-2">
+                  <p className="text-[#ea580c] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
                   <p className="text-slate-400">Memory Ref #case-1029: Suspicious DNS C2 Beaconing to C2 server domain.</p>
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-300 border border-green-500/20 rounded">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded">
                     <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
                     Calculated Confidence: 92%
                   </div>
@@ -541,7 +551,7 @@ export default function MarketingLandingPage() {
             </div>
 
             {/* Radar Panel */}
-            <div className="md:col-span-5 relative flex h-64 w-full flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border border-[#408A71]/10 bg-[#0f2422]/5">
+            <div className="md:col-span-5 relative flex h-64 w-full flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
               {/* Floating indicators */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <RadarEffect className="scale-[0.8]" />
@@ -549,16 +559,16 @@ export default function MarketingLandingPage() {
               
               {/* Floating sweep targets */}
               <div className="absolute top-4 left-4">
-                <IconContainer text="VT Hash" delay={0.2} icon={<Search className="h-4 w-4 text-[#B0E4CC]" />} />
+                <IconContainer text="VT Hash" delay={0.2} icon={<Search className="h-4 w-4 text-[#ea580c]" />} />
               </div>
               <div className="absolute top-4 right-4">
-                <IconContainer text="WHOIS DNS" delay={0.4} icon={<Globe className="h-4 w-4 text-[#B0E4CC]" />} />
+                <IconContainer text="WHOIS DNS" delay={0.4} icon={<Globe className="h-4 w-4 text-[#ea580c]" />} />
               </div>
               <div className="absolute bottom-4 left-4">
-                <IconContainer text="OIDC User" delay={0.6} icon={<Fingerprint className="h-4 w-4 text-[#B0E4CC]" />} />
+                <IconContainer text="OIDC User" delay={0.6} icon={<Fingerprint className="h-4 w-4 text-[#ea580c]" />} />
               </div>
               <div className="absolute bottom-4 right-4">
-                <IconContainer text="Case Memory" delay={0.8} icon={<Database className="h-4 w-4 text-[#B0E4CC]" />} />
+                <IconContainer text="Case Memory" delay={0.8} icon={<Database className="h-4 w-4 text-[#ea580c]" />} />
               </div>
             </div>
           </div>
@@ -566,8 +576,8 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── SECTION 8: PLATFORM STATISTICS ─────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
-        <div className="glass-panel rounded-2xl p-8 border border-[#408A71]/15 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
+        <div className="glass-panel rounded-2xl p-8 border border-[var(--border-subtle)] bg-[var(--bg-surface)] grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {[
             { label: "Security Capabilities", value: "35+", sub: "Enrichment Sensors" },
             { label: "Threat Providers", value: "8", sub: "Active Connectors" },
@@ -575,82 +585,82 @@ export default function MarketingLandingPage() {
             { label: "Enterprise Phases", value: "3", sub: "Roadmap Complete" },
           ].map((stat, i) => (
             <div key={i} className="space-y-1">
-              <p className="text-3xl font-black text-[#B0E4CC] font-mono">{stat.value}</p>
-              <p className="text-[10px] font-bold text-[#408A71] uppercase tracking-widest font-mono">{stat.label}</p>
-              <p className="text-[10px] text-slate-500">{stat.sub}</p>
+              <p className="text-3xl font-black text-[#ea580c] font-mono">{stat.value}</p>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest font-mono">{stat.label}</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{stat.sub}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ─── FUTURE PROOFING ROADMAP ────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-white/5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10 select-none border-t border-[var(--border-subtle)]">
         <div className="text-center space-y-2 mb-12">
-          <span className="text-[9px] font-mono text-[#408A71] border border-[#408A71]/30 px-2 py-0.5 rounded tracking-widest uppercase">
+          <span className="text-[9px] font-mono text-[#ea580c] border border-[#ea580c]/30 px-2 py-0.5 rounded tracking-widest uppercase">
             Development Blueprint
           </span>
-          <h2 className="text-2xl font-bold text-white uppercase font-sans">Future Enterprise Roadmap</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Future Enterprise Roadmap</h2>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-6 font-mono text-[11px] text-left">
-          <div className="glass-card rounded-xl p-5 border border-[#408A71]/15 bg-[#0f2422]/10 space-y-2">
-            <span className="text-[9px] font-bold text-[#B0E4CC] uppercase tracking-widest block">Phase 4 (Up Next)</span>
-            <h4 className="text-white uppercase font-bold">Collaborative Webhooks Ingestion</h4>
-            <p className="text-slate-400 leading-relaxed">Integrated alert rulesets, automated trigger pools, and Socket.IO notifications for SOC-wide incident triages.</p>
+          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)] space-y-2">
+            <span className="text-[9px] font-bold text-[#ea580c] uppercase tracking-widest block">Phase 4 (Up Next)</span>
+            <h4 className="text-[var(--text-primary)] uppercase font-bold">Collaborative Webhooks Ingestion</h4>
+            <p className="text-[var(--text-secondary)] leading-relaxed">Integrated alert rulesets, automated trigger pools, and Socket.IO notifications for SOC-wide incident triages.</p>
           </div>
-          <div className="glass-card rounded-xl p-5 border border-white/5 space-y-2">
-            <span className="text-[9px] text-slate-500 uppercase tracking-widest block">Phase 5</span>
-            <h4 className="text-slate-350 uppercase font-bold">Plugin Developer SDK</h4>
-            <p className="text-slate-500 leading-relaxed">Extensible module registry allowing teams to deploy proprietary OSINT crawlers and custom local scanners.</p>
+          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-2">
+            <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest block">Phase 5</span>
+            <h4 className="text-[var(--text-secondary)] uppercase font-bold">Plugin Developer SDK</h4>
+            <p className="text-[var(--text-muted)] leading-relaxed">Extensible module registry allowing teams to deploy proprietary OSINT crawlers and custom local scanners.</p>
           </div>
-          <div className="glass-card rounded-xl p-5 border border-white/5 space-y-2">
-            <span className="text-[9px] text-slate-500 uppercase tracking-widest block">Version 5.0</span>
-            <h4 className="text-slate-350 uppercase font-bold">Autonomic Orchestration Loop</h4>
-            <p className="text-slate-500 leading-relaxed">Multi-agent autonomic task networks executing target resolutions and mitigation deployments automatically.</p>
+          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-2">
+            <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest block">Version 5.0</span>
+            <h4 className="text-[var(--text-secondary)] uppercase font-bold">Autonomic Orchestration Loop</h4>
+            <p className="text-[var(--text-muted)] leading-relaxed">Multi-agent autonomic task networks executing target resolutions and mitigation deployments automatically.</p>
           </div>
         </div>
       </section>
 
       {/* ─── TRUST / SPARKLES BANNER ────────────────────────────────────── */}
-      <section className="relative overflow-hidden w-full bg-[#091413] pt-20 pb-28 border-t border-white/5 select-none z-10 flex flex-col items-center">
+      <section className="relative overflow-hidden w-full bg-[var(--bg-deep)] pt-20 pb-28 border-t border-[var(--border-subtle)] select-none z-10 flex flex-col items-center">
         <div className="max-w-4xl mx-auto w-full px-6 text-center space-y-8">
           <div className="text-center space-y-3 font-mono cursor-default group">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-slate-350 transition-all duration-300">
-              <span className="bg-gradient-to-r from-[#B0E4CC] to-[#408A71] bg-clip-text text-transparent group-hover:from-white group-hover:to-[#B0E4CC] transition-all duration-350">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-[var(--text-secondary)] transition-all duration-300">
+              <span className="bg-gradient-to-r from-[#ea580c] to-[#ff8c00] group-hover:to-[#ea580c] bg-clip-text text-transparent transition-all duration-350">
                 Trusted by Global Intelligence Units
               </span>
             </h2>
-            <p className="text-[#a3c2b4]/70 tracking-widest uppercase text-[10px] sm:text-xs group-hover:text-[#B0E4CC] transition-colors duration-350">
+            <p className="text-[var(--text-secondary)] group-hover:text-[#ea580c] tracking-widest uppercase text-[10px] sm:text-xs transition-colors duration-350">
               deployed across critical enterprise security operations centers
             </p>
           </div>
 
           {/* Sparkles Box */}
-          <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[#408A71]/15 bg-[#0f2422]/10 flex flex-col justify-center items-center group transition-all duration-500 hover:border-[#408A71]/40 hover:bg-[#0f2422]/15 hover:shadow-[0_0_30px_rgba(64,138,113,0.12)]">
-            <div className="absolute inset-0 bg-gradient-to-t from-[#091413] via-transparent to-transparent pointer-events-none z-10" />
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[120%] h-36 rounded-full bg-[radial-gradient(circle_at_center,rgba(64,138,113,0.12)_0%,transparent_75%)] blur-xl pointer-events-none group-hover:bg-[radial-gradient(circle_at_center,rgba(176,228,204,0.2)_0%,transparent_75%)] transition-all duration-500" />
+          <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[#ea580c]/40 hover:shadow-[var(--shadow-glow-blue)] flex flex-col justify-center items-center group transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-deep)] via-transparent to-transparent pointer-events-none z-10" />
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[120%] h-36 rounded-full bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.06)_0%,transparent_75%)] blur-xl pointer-events-none group-hover:bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.15)_0%,transparent_75%)] transition-all duration-500" />
             <Sparkles
               density={400}
               speed={0.6}
               size={1.1}
-              color="#B0E4CC"
+              color="#ea580c"
               hover={true}
               className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80"
             />
 
             {/* Badges */}
-            <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-50 group-hover:opacity-90 transition-opacity duration-500 px-6">
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
-                <Shield className="w-4 h-4 text-[#B0E4CC]" /> SOC 2 TYPE II
+            <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-55 group-hover:opacity-95 transition-opacity duration-500 px-6">
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Shield className="w-4 h-4 text-[#ea580c]" /> SOC 2 TYPE II
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
-                <Lock className="w-4 h-4 text-[#B0E4CC]" /> FIPS 140-3
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Lock className="w-4 h-4 text-[#ea580c]" /> FIPS 140-3
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
-                <Activity className="w-4 h-4 text-[#B0E4CC]" /> ISO/IEC 27001
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Activity className="w-4 h-4 text-[#ea580c]" /> ISO/IEC 27001
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#B0E4CC] tracking-widest uppercase">
-                <CheckCircle className="w-4 h-4 text-[#B0E4CC]" /> OWASP ASVS
+              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <CheckCircle className="w-4 h-4 text-[#ea580c]" /> OWASP ASVS
               </div>
             </div>
           </div>
@@ -658,16 +668,7 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── FOOTER ─────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-8 select-none z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
-            Cygnal v4.0 · Phase 1, 2 &amp; 3 Complete · SSL Handshake Active
-          </span>
-          <span className="text-[10px] text-slate-500">
-            © 2026 Cygnal Operations. All rights reserved.
-          </span>
-        </div>
-      </footer>
+      <MarketingFooter />
 
     </div>
   );
