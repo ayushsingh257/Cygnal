@@ -118,7 +118,7 @@ export function GooeyText({
           ref={text1Ref}
           className={cn(
             "absolute inline-block select-none text-center text-4xl md:text-5xl font-mono tracking-wider font-extrabold",
-            "text-green-400 drop-shadow-[0_0_15px_rgba(64,138,113,0.3)]",
+            "text-white dark:text-white drop-shadow-[0_0_15px_rgba(37,99,235,0.45)]",
             textClassName
           )}
         />
@@ -126,7 +126,7 @@ export function GooeyText({
           ref={text2Ref}
           className={cn(
             "absolute inline-block select-none text-center text-4xl md:text-5xl font-mono tracking-wider font-extrabold",
-            "text-green-400 drop-shadow-[0_0_15px_rgba(64,138,113,0.3)]",
+            "text-white dark:text-white drop-shadow-[0_0_15px_rgba(37,99,235,0.45)]",
             textClassName
           )}
         />

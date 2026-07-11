@@ -312,7 +312,7 @@ export default function MarketingLandingPage() {
 
       {/* ─── GOOEY TEXT FOCUSED INTRO ────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center relative z-10 select-none">
-        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#ea580c] mb-2">Automated Incident Triage</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#ea580c] mb-6">Automated Incident Triage</p>
         <GooeyText
           texts={["RECON & OSINT", "MALWARE SWEEP", "IDENTITY AUDIT", "EVIDENCE CUSTODY", "AI COPILOT"]}
           morphTime={1.2}
@@ -340,11 +340,11 @@ export default function MarketingLandingPage() {
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Before (Traditional Chaos) */}
             <div className="glass-panel rounded-2xl p-6 border border-red-500/10 bg-red-950/5 text-left space-y-4">
-              <div className="flex items-center gap-2 text-red-400 font-mono text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-red-400 font-mono text-sm uppercase tracking-wider">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                 Traditional Tool Sprawl
               </div>
-              <ul className="space-y-2 text-[11px] text-slate-400">
+              <ul className="space-y-2 text-[13px] text-slate-400">
                 <li className="flex items-center gap-2">❌ 10+ browser tabs open per alert</li>
                 <li className="flex items-center gap-2">❌ Disconnected copy-pasting of IOCs</li>
                 <li className="flex items-center gap-2">❌ Unsigned evidence files in local folders</li>
@@ -355,11 +355,11 @@ export default function MarketingLandingPage() {
 
             {/* After (Cygnal Harmony) */}
             <div className="glass-panel rounded-2xl p-6 border border-[#ea580c]/20 bg-[#ea580c]/5 text-left space-y-4">
-              <div className="flex items-center gap-2 text-[#ea580c] dark:text-orange-400 font-mono text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#ea580c] dark:text-orange-400 font-mono text-sm uppercase tracking-wider">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                 Cygnal Workspace Harmony
               </div>
-              <ul className="space-y-2 text-[11px] text-[var(--text-secondary)]">
+              <ul className="space-y-2 text-[13px] text-[var(--text-secondary)]">
                 <li className="flex items-center gap-2">✅ One unified browser dashboard</li>
                 <li className="flex items-center gap-2">✅ Parallel 8-provider threat enrichment</li>
                 <li className="flex items-center gap-2">✅ Signed SHA-256 evidence chain</li>
@@ -499,9 +499,9 @@ export default function MarketingLandingPage() {
             { role: "Threat Hunters", desc: "Ingest threat indicators from STIX packages, coordinate TAXII feeds, and run bulk lookups on VirusTotal & AbuseIPDB." },
             { role: "GRC Auditors", desc: "Review cryptographically-sealed evidence ledgers, verify lock leases, and export authenticated reports for legal review." },
           ].map((r, i) => (
-            <div key={i} className="glass-card rounded-2xl p-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-blue)] text-left space-y-3 transition-all">
-              <span className="text-[10px] font-bold text-[#ea580c] uppercase tracking-widest font-mono block">{r.role}</span>
-              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
+            <div key={i} className="glass-card rounded-2xl p-7 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-blue)] text-left space-y-3 transition-all shadow-sm">
+              <span className="text-xs font-bold text-[#ea580c] uppercase tracking-widest font-mono block">{r.role}</span>
+              <p className="text-[13px] text-[var(--text-primary)] leading-relaxed">{r.desc}</p>
             </div>
           ))}
         </div>
@@ -528,8 +528,8 @@ export default function MarketingLandingPage() {
             <div className="md:col-span-7 glass-panel rounded-2xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-left">
               {/* Mock Copilot Chat interface */}
               <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-4">
-                <div className="flex items-center gap-2 text-[9px] font-mono text-green-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <div className="flex items-center gap-2 text-[9px] font-mono text-blue-500 dark:text-blue-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse" />
                   COPILOT PROTOCOL ACTIVE
                 </div>
                 <div className="text-[9px] font-mono text-[var(--text-muted)]">SESSION ID: E2E-PH3</div>
@@ -542,8 +542,8 @@ export default function MarketingLandingPage() {
                 <div className="p-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-deep)] space-y-2">
                   <p className="text-[#ea580c] font-bold">🧠 Relevant Semantic Memories (Cosine Similarity: 88%)</p>
                   <p className="text-slate-400">Memory Ref #case-1029: Suspicious DNS C2 Beaconing to C2 server domain.</p>
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded">
-                    <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded">
+                    <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" />
                     Calculated Confidence: 92%
                   </div>
                 </div>
@@ -602,21 +602,21 @@ export default function MarketingLandingPage() {
           <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Future Enterprise Roadmap</h2>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-6 font-mono text-[11px] text-left">
-          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)] space-y-2">
-            <span className="text-[9px] font-bold text-[#ea580c] uppercase tracking-widest block">Phase 4 (Up Next)</span>
+        <div className="grid sm:grid-cols-3 gap-6 font-mono text-[13px] text-left">
+          <div className="glass-card rounded-xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)] space-y-3">
+            <span className="text-[11px] font-bold text-[#ea580c] uppercase tracking-widest block">Phase 4 (Up Next)</span>
             <h4 className="text-[var(--text-primary)] uppercase font-bold">Collaborative Webhooks Ingestion</h4>
             <p className="text-[var(--text-secondary)] leading-relaxed">Integrated alert rulesets, automated trigger pools, and Socket.IO notifications for SOC-wide incident triages.</p>
           </div>
-          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-2">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest block">Phase 5</span>
-            <h4 className="text-[var(--text-secondary)] uppercase font-bold">Plugin Developer SDK</h4>
-            <p className="text-[var(--text-muted)] leading-relaxed">Extensible module registry allowing teams to deploy proprietary OSINT crawlers and custom local scanners.</p>
+          <div className="glass-card rounded-xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-3">
+            <span className="text-[11px] text-[#ea580c] font-bold uppercase tracking-widest block">Phase 5</span>
+            <h4 className="text-[var(--text-primary)] uppercase font-bold">Plugin Developer SDK</h4>
+            <p className="text-[var(--text-secondary)] leading-relaxed">Extensible module registry allowing teams to deploy proprietary OSINT crawlers and custom local scanners.</p>
           </div>
-          <div className="glass-card rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-2">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest block">Version 5.0</span>
-            <h4 className="text-[var(--text-secondary)] uppercase font-bold">Autonomic Orchestration Loop</h4>
-            <p className="text-[var(--text-muted)] leading-relaxed">Multi-agent autonomic task networks executing target resolutions and mitigation deployments automatically.</p>
+          <div className="glass-card rounded-xl p-6 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 space-y-3">
+            <span className="text-[11px] text-[#ea580c] font-bold uppercase tracking-widest block">Version 5.0</span>
+            <h4 className="text-[var(--text-primary)] uppercase font-bold">Autonomic Orchestration Loop</h4>
+            <p className="text-[var(--text-secondary)] leading-relaxed">Multi-agent autonomic task networks executing target resolutions and mitigation deployments automatically.</p>
           </div>
         </div>
       </section>
@@ -636,8 +636,8 @@ export default function MarketingLandingPage() {
           </div>
 
           {/* Sparkles Box */}
-          <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[#ea580c]/40 hover:shadow-[var(--shadow-glow-blue)] flex flex-col justify-center items-center group transition-all duration-500">
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-deep)] via-transparent to-transparent pointer-events-none z-10" />
+          <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[#ea580c]/30 bg-neutral-950 hover:border-[#ea580c]/60 hover:shadow-[0_0_20px_rgba(234,88,12,0.15)] flex flex-col justify-center items-center group transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent pointer-events-none z-10" />
             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[120%] h-36 rounded-full bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.06)_0%,transparent_75%)] blur-xl pointer-events-none group-hover:bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.15)_0%,transparent_75%)] transition-all duration-500" />
             <Sparkles
               density={400}
@@ -649,18 +649,18 @@ export default function MarketingLandingPage() {
             />
 
             {/* Badges */}
-            <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-55 group-hover:opacity-95 transition-opacity duration-500 px-6">
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
-                <Shield className="w-4 h-4 text-[#ea580c]" /> SOC 2 TYPE II
+            <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-65 group-hover:opacity-95 transition-opacity duration-500 px-6">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Shield className="w-4.5 h-4.5 text-[#ea580c]" /> SOC 2 TYPE II
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
-                <Lock className="w-4 h-4 text-[#ea580c]" /> FIPS 140-3
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Lock className="w-4.5 h-4.5 text-[#ea580c]" /> FIPS 140-3
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
-                <Activity className="w-4 h-4 text-[#ea580c]" /> ISO/IEC 27001
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <Activity className="w-4.5 h-4.5 text-[#ea580c]" /> ISO/IEC 27001
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-mono text-[#ea580c] tracking-widest uppercase">
-                <CheckCircle className="w-4 h-4 text-[#ea580c]" /> OWASP ASVS
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#ea580c] tracking-widest uppercase">
+                <CheckCircle className="w-4.5 h-4.5 text-[#ea580c]" /> OWASP ASVS
               </div>
             </div>
           </div>

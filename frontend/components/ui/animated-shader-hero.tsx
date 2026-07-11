@@ -411,7 +411,7 @@ const Hero: React.FC<HeroProps> = ({
         )}
 
         {headline && (
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight bg-gradient-to-r from-[#ff8c00] via-[#ea580c] to-[#2563eb] bg-clip-text text-transparent pb-3 animate-fade-in-up animation-delay-200">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-[1.2] py-2 pb-4 drop-shadow-[0_4px_20px_rgba(37,99,235,0.25)] animate-fade-in-up animation-delay-200">
             {headline.line1}
           </h1>
         )}
@@ -508,12 +508,23 @@ void main(void) {
 		uv+=.15*cos(i*vec2(.15+.01*i, .75)+i*i+T*.15+.1*uv.x);
 		vec2 p=uv;
 		float d=length(p);
-		col+=.0015/d*(cos(sin(i)*vec3(0.91, 0.34, 0.05))+1.);
+		vec3 threadColor = (mod(i, 2.0) == 0.0) ? vec3(0.92, 0.35, 0.05) : vec3(0.15, 0.40, 0.95);
+		col+=.0015/d*(cos(sin(i)*threadColor)+1.);
 		float b=noise(i+p+bg*1.5);
 		col+=.0015*b/length(max(p,vec2(b*p.x*.01,p.y)));
-		col=mix(col,vec3(bg*.15,bg*.05,bg*.35),d);
+		
+		vec3 burntOrange = vec3(0.92, 0.35, 0.05);
+		vec3 darkOrange = vec3(0.76, 0.25, 0.02);
+		vec3 deepBlue = vec3(0.02, 0.08, 0.45);
+		vec3 deepBlack = vec3(0.01, 0.01, 0.03);
+		
+		vec3 cloudColor = mix(deepBlack, deepBlue * bg, sin(uv.x + T*0.1)*0.5+0.5);
+		cloudColor = mix(cloudColor, burntOrange * bg * 0.35 + darkOrange * bg * 0.15, cos(uv.y + T*0.05)*0.5+0.5);
+		
+		col=mix(col,cloudColor,d);
 	}
 	O=vec4(col,1);
-}`;
+}
+`;
 
 export default Hero;

@@ -129,7 +129,7 @@ export default function RadialOrbitalTimeline({
 
   const calculateNodePosition = (index: number, total: number) => {
     const angle = ((index / total) * 360 + rotationAngle) % 360;
-    const radius = 190; // Increased radius by ~10% (from 170 to 190)
+    const radius = 220; // Increased radius by ~15% (from 190 to 220)
     const radian = (angle * Math.PI) / 180;
 
     const x = radius * Math.cos(radian) + centerOffset.x;
@@ -170,7 +170,7 @@ export default function RadialOrbitalTimeline({
 
   return (
     <div
-      className="w-full h-[600px] flex flex-col items-center justify-center bg-transparent overflow-hidden relative select-none"
+      className="w-full h-[690px] flex flex-col items-center justify-center bg-transparent overflow-hidden relative select-none"
       ref={containerRef}
       onClick={handleContainerClick}
     >
@@ -195,8 +195,8 @@ export default function RadialOrbitalTimeline({
             </div>
           </div>
 
-          {/* Orbital path line - increased size by 10% (340px to 380px) */}
-          <div className="absolute w-[380px] h-[380px] rounded-full border border-[var(--border-blue)] opacity-60"></div>
+          {/* Orbital path line - increased size by 15% (380px to 440px) and thickness/contrast */}
+          <div className="absolute w-[440px] h-[440px] rounded-full border-[3px] border-[#ea580c] dark:border-orange-500/70 shadow-[0_0_15px_rgba(234,88,12,0.1)]"></div>
 
           {timelineData.map((item, index) => {
             const position = calculateNodePosition(index, timelineData.length);

@@ -97,8 +97,8 @@
 
   /* Selection */
   ::selection {
-    background-color: rgba(64, 138, 113, 0.25);
-    color: #b0e4cc;
+    background-color: rgba(234, 88, 12, 0.2);
+    color: #ea580c;
   }
 }
 
@@ -129,14 +129,24 @@
 }
 
 /* ============================================================
-   INPUT FIELDS
+   FORMS & INPUTS
    ============================================================ */
+
+.cyber-label {
+  display: block;
+  font-family: monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+  color: var(--text-secondary);
+}
 
 .cyber-input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.8rem;
-  background-color: rgba(6, 8, 20, 0.70);
+  padding: 0.65rem 0.9rem;
+  background-color: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-subtle);
   border-radius: 0.625rem;
   color: var(--text-primary);
@@ -152,7 +162,7 @@
 
 .cyber-input:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(64, 138, 113, 0.10);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.10);
 }
 
 .cyber-input:disabled {
@@ -196,7 +206,7 @@ select.cyber-input {
 
 .btn-cyber-primary:hover {
   background-color: var(--accent-indigo);
-  box-shadow: 0 0 20px rgba(64, 138, 113, 0.40);
+  box-shadow: 0 0 20px rgba(234, 88, 12, 0.40);
   transform: translateY(-1px);
 }
 
