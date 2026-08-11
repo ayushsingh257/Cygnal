@@ -5,11 +5,11 @@ import os
 import sys
 import jwt
 from datetime import datetime, timezone, timedelta
-from db_utils import get_db_connection
 
 # Set path to import from parent
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from db_utils import get_db_connection
 from backend import app as flask_app
 from database import DB_PATH, init_lookup_db
 from auth_utils import init_db

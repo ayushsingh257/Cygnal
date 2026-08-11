@@ -505,8 +505,9 @@ def sso_login_initiate(provider_name):
 
     return jsonify({
         "success": True,
-        "provider": provider.provider_name,
+        "url": login_url,
         "login_url": login_url,
+        "provider": provider.provider_name,
         "state": state
     })
 

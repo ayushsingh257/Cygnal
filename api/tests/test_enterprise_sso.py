@@ -131,7 +131,7 @@ def test_entra_id_provider_flow():
     
     profile = provider.handle_callback("mock_entra_code_12345", "https://cygnal.local/sso-callback")
     assert profile.email == "entra-analyst@enterprise.local"
-    assert "Security-Admins" in profile.groups
+    assert "SOC Managers" in profile.groups
 
 def test_okta_provider_flow():
     """Verify Okta provider initialization, login URL, and callback."""
@@ -178,11 +178,17 @@ def test_google_workspace_domain_restriction():
 
 def test_directory_group_to_rbac_role_mapping():
     """Verify external directory groups map to highest-weight internal role."""
+    # SOC Managers only -> soc_manager
+    assert map_groups_to_role("entra_id", ["SOC Managers"]) == "soc_manager"
+    
+    # Enterprise Admin only -> admin
+    assert map_groups_to_role("entra_id", ["Enterprise Admin"]) == "admin"
+    
+    # SOC Managers + Enterprise Admin -> admin (highest weight 100 > 70)
+    assert map_groups_to_role("entra_id", ["SOC Managers", "Enterprise Admin"]) == "admin"
+
     # Security-Admins -> admin (weight 100)
     assert map_groups_to_role("entra_id", ["Security-Admins"]) == "admin"
-    
-    # SOC-Managers -> soc_manager (weight 70)
-    assert map_groups_to_role("entra_id", ["SOC-Managers"]) == "soc_manager"
     
     # SOC-Analysts / DFIR -> analyst (weight 40)
     assert map_groups_to_role("google", ["Incident-Responders", "DFIR"]) == "analyst"
@@ -222,7 +228,9 @@ def test_sso_login_and_callback_flow(client):
     assert init_res.status_code == 200
     init_data = init_res.get_json()
     assert init_data["success"] is True
+    assert "url" in init_data
     assert "login_url" in init_data
+    assert init_data["url"] == init_data["login_url"]
     state = init_data["state"]
     
     # 2. Callback
@@ -240,7 +248,7 @@ def test_sso_login_and_callback_flow(client):
     assert "token" in cb_data
     assert "refresh_token" in cb_data
     assert cb_data["user"]["username"] == "entra_analyst"
-    assert cb_data["user"]["role"] == "admin"  # Mapped from "Security-Admins"
+    assert cb_data["user"]["role"] == "soc_manager"  # Mapped from "SOC Managers"
 
 def test_sso_callback_rejection_on_missing_code(client):
     """Verify callback fails if authorization code is missing."""

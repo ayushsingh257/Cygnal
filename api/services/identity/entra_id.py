@@ -58,12 +58,12 @@ class EntraIDProvider(OIDCProvider):
         return f"{base_url}?{urllib.parse.urlencode(params)}"
 
     def handle_callback(self, code_or_response: str, redirect_uri: str, state: Optional[str] = None, tenant_id: int = 1) -> IdentityProfile:
-        if self.mock_mode or code_or_response == "mock_entra_code_12345":
+        if self.mock_mode or str(code_or_response).startswith("mock_"):
             return IdentityProfile(
                 external_id="entra-user-id-9999",
                 email="entra-analyst@enterprise.local",
                 username="entra_analyst",
-                groups=["Security-Admins", "SOC-Analysts"],
+                groups=["SOC Managers", "DFIR"],
                 raw_claims={"typ": "JWT", "iss": f"https://login.microsoftonline.com/{self.azure_tenant}/v2.0"},
                 tenant_id=tenant_id
             )

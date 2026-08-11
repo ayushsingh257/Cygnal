@@ -20,60 +20,77 @@ DEFAULT_GROUP_MAPPINGS = {
     "security-admins": "admin",
     "security-admin": "admin",
     "global-admins": "admin",
+    "global-admin": "admin",
+    "enterprise-admins": "admin",
+    "enterprise-admin": "admin",
     "soc-managers": "soc_manager",
     "soc-manager": "soc_manager",
     "soc-analysts": "analyst",
     "soc-analyst": "analyst",
     "incident-responders": "analyst",
+    "incident-responder": "analyst",
     "dfir": "analyst",
-    "auditors": "director"
+    "dfir-team": "analyst",
+    "auditors": "director",
+    "auditor": "director"
 }
 
 def map_groups_to_role(provider: str, groups: list, tenant_id: int = 1) -> str:
     """
     Dynamically maps external identity group lists to the highest weight internal role.
     Checks database directory_group_mappings per tenant, then standard enterprise conventions.
+    Compares ALL matching roles and returns the one with the maximum privilege level.
     Fallback role is 'analyst'.
     """
     if not groups:
         return "analyst"
 
     matched_roles = []
+    normalized_groups = [str(g).strip().lower() for g in groups if g is not None]
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Load mappings for this provider or all providers for this tenant
+        # Load mappings with column fallback support (provider_group / external_group_name, cygnal_role / internal_role)
         cursor.execute(
-            "SELECT provider_group, cygnal_role FROM directory_group_mappings WHERE tenant_id = ? AND (provider = ? OR provider = 'all');",
+            """
+            SELECT 
+                COALESCE(provider_group, external_group_name), 
+                COALESCE(cygnal_role, internal_role) 
+            FROM directory_group_mappings 
+            WHERE (tenant_id = ? OR tenant_id IS NULL) 
+              AND (provider = ? OR provider = 'all' OR provider IS NULL);
+            """,
             (tenant_id, provider)
         )
         mappings = cursor.fetchall()
         conn.close()
-        
-        normalized_groups = [str(g).strip().lower() for g in groups]
 
         for row in mappings:
-            group_name = row[0].strip().lower()
-            role = row[1]
-            if group_name in normalized_groups:
-                matched_roles.append(role)
+            raw_group = row[0]
+            raw_role = row[1]
+            if raw_group and raw_role:
+                group_name = str(raw_group).strip().lower()
+                role = str(raw_role).strip().lower()
+                if group_name in normalized_groups:
+                    matched_roles.append(role)
     except Exception as e:
         print("[ROLE MAP DB LOOKUP]", str(e))
 
-    # Check standard default mappings if no DB mapping matched
-    if not matched_roles:
-        for g in groups:
-            clean_g = str(g).strip().lower().replace(" ", "-").replace("_", "-")
-            if clean_g in DEFAULT_GROUP_MAPPINGS:
-                matched_roles.append(DEFAULT_GROUP_MAPPINGS[clean_g])
+    # Check standard default mappings if no explicit DB match
+    for g in groups:
+        if g is None:
+            continue
+        clean_g = str(g).strip().lower().replace(" ", "-").replace("_", "-")
+        if clean_g in DEFAULT_GROUP_MAPPINGS:
+            matched_roles.append(DEFAULT_GROUP_MAPPINGS[clean_g])
 
     if not matched_roles:
         return "analyst"
 
     # Select the role with the maximum privilege level/weight
-    best_role = max(matched_roles, key=lambda r: ROLE_WEIGHTS.get(r, 0))
+    best_role = max(matched_roles, key=lambda r: ROLE_WEIGHTS.get(str(r).lower().strip(), 0))
     return best_role
 
 
