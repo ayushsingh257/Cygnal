@@ -21,7 +21,13 @@ def get_current_user():
     try:
         decoded = decode_token(token)
         if decoded:
-            g.tenant_id = decoded.get("tenant_id", 1)
+            tenant_id = decoded.get("tenant_id", 1)
+            # Allow admin override via X-Tenant-ID header if user has administrative rank
+            if decoded.get("role") == "admin":
+                override_header = request.headers.get("X-Tenant-ID")
+                if override_header and override_header.isdigit():
+                    tenant_id = int(override_header)
+            g.tenant_id = tenant_id
             jti = decoded.get("jti")
             if jti:
                 # Zero Trust: Check if this session is marked as revoked in database

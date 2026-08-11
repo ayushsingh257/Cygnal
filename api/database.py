@@ -417,7 +417,7 @@ def init_lookup_db():
             "users", "cases", "evidence", "notifications", "inbound_alerts",
             "comments", "timeline", "case_indicators",
             "evidence_relations", "investigation_jobs", "tool_permissions",
-            "reports", "vector_records"
+            "reports", "vector_records", "audit_log"
         ]
 
         for table in tenant_tables:
@@ -428,6 +428,29 @@ def init_lookup_db():
                     cursor.execute(f"ALTER TABLE {table} ADD COLUMN tenant_id INTEGER DEFAULT 1;")
             except Exception as e:
                 print(f"[DATABASE MIGRATION EXCEPTION] Table {table}: {str(e)}")
+
+        # PostgreSQL Native Row Level Security (RLS) Policy Setup
+        if getattr(cursor, "is_pg", False) or getattr(conn, "is_pg", False):
+            for table in tenant_tables:
+                try:
+                    cursor.execute(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;")
+                    cursor.execute(f"ALTER TABLE {table} FORCE ROW LEVEL SECURITY;")
+                    cursor.execute(f"DROP POLICY IF EXISTS tenant_isolation_policy ON {table};")
+                    cursor.execute(f"""
+                        CREATE POLICY tenant_isolation_policy ON {table}
+                        FOR ALL
+                        TO PUBLIC
+                        USING (
+                            tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::integer
+                            OR current_setting('app.current_tenant_id', true) = '0'
+                        )
+                        WITH CHECK (
+                            tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::integer
+                            OR current_setting('app.current_tenant_id', true) = '0'
+                        );
+                    """)
+                except Exception as rls_err:
+                    print(f"[RLS MIGRATION EXCEPTION] Table {table}: {str(rls_err)}")
 
         cursor.execute("PRAGMA table_info(users);")
         user_cols = [row[1] for row in cursor.fetchall()]

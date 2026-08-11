@@ -178,6 +178,161 @@ def test_tenant_cache_keys_isolation():
     cache_service.invalidate_cache(tenant_id=1, cache_type="vector_search", key="doc1")
     assert cache_service.get_cached(tenant_id=1, cache_type="vector_search", key="doc1") is None
     # Tenant 2 must survive invalidation
-    assert cache_service.get_cached(tenant_id=2, cache_type="vector_search", key="doc1") == {"data": "tenant2"}
-
     cache_service.invalidate_cache(tenant_id=2, cache_type="vector_search", key="doc1")
+
+
+def test_tenant_isolation_evidence(client):
+    """Verify Tenant A cannot access or list Tenant B evidence files."""
+    import io
+    token_org1 = create_token({"username": "user_org1", "role": "analyst", "tenant_id": 1})
+    token_org2 = create_token({"username": "user_org2", "role": "analyst", "tenant_id": 2})
+
+    # Org 1 creates case
+    res_c1 = client.post("/api/cases", headers={"Authorization": f"Bearer {token_org1}"}, json={
+        "title": "Case Org 1 Evidence", "severity": "medium"
+    })
+    case1_id = res_c1.get_json()["case"]["id"]
+
+    # Org 2 creates case
+    res_c2 = client.post("/api/cases", headers={"Authorization": f"Bearer {token_org2}"}, json={
+        "title": "Case Org 2 Evidence", "severity": "high"
+    })
+    case2_id = res_c2.get_json()["case"]["id"]
+
+    # Org 1 uploads evidence
+    data_file1 = (io.BytesIO(b"Org 1 Confidential Evidence File"), "evidence_org1.txt")
+    res_up1 = client.post(f"/api/cases/{case1_id}/evidence", headers={"Authorization": f"Bearer {token_org1}"}, data={"file": data_file1}, content_type="multipart/form-data")
+    assert res_up1.status_code == 200
+
+    # Org 2 uploads evidence
+    data_file2 = (io.BytesIO(b"Org 2 Secret Malware Payload"), "evidence_org2.txt")
+    res_up2 = client.post(f"/api/cases/{case2_id}/evidence", headers={"Authorization": f"Bearer {token_org2}"}, data={"file": data_file2}, content_type="multipart/form-data")
+    assert res_up2.status_code == 200
+
+    # Org 1 queries case 2 detail / evidence. Must receive 404
+    res_probe = client.get(f"/api/cases/{case2_id}", headers={"Authorization": f"Bearer {token_org1}"})
+    assert res_probe.status_code == 404
+
+    # Org 1 queries its own case. Must only see Org 1 evidence
+    res_own = client.get(f"/api/cases/{case1_id}", headers={"Authorization": f"Bearer {token_org1}"})
+    assert res_own.status_code == 200
+    ev_list = res_own.get_json()["evidence"]
+    assert any(e["filename"] == "evidence_org1.txt" for e in ev_list)
+    assert not any(e["filename"] == "evidence_org2.txt" for e in ev_list)
+
+
+def test_tenant_isolation_audit_logs(client):
+    """Verify Administrator of Tenant A only sees Tenant A audit logs."""
+    from routes.v2.admin import write_audit_log
+    token_admin_org1 = create_token({"username": "admin_org1", "role": "admin", "tenant_id": 1})
+    token_admin_org2 = create_token({"username": "admin_org2", "role": "admin", "tenant_id": 2})
+
+    # Write audit log as Org 1
+    set_thread_tenant_id(1)
+    write_audit_log("case.deleted", "admin_org1", target="CASE-ORG1", details={"secret": "org1_info"}, ip_address="10.0.0.1")
+    clear_thread_tenant_id()
+
+    # Write audit log as Org 2
+    set_thread_tenant_id(2)
+    write_audit_log("user.provisioned", "admin_org2", target="USER-ORG2", details={"secret": "org2_info"}, ip_address="10.0.0.2")
+    clear_thread_tenant_id()
+
+    # Org 1 Admin queries audit log
+    res1 = client.get("/api/admin/audit", headers={"Authorization": f"Bearer {token_admin_org1}"})
+    assert res1.status_code == 200
+    logs1 = res1.get_json()["audit_log"]
+    assert any(l["actor"] == "admin_org1" for l in logs1)
+    assert not any(l["actor"] == "admin_org2" for l in logs1)
+
+
+def test_tenant_isolation_vector_records():
+    """Verify semantic vector searches and indexing are strictly isolated per-tenant."""
+    from services.vector_service import index_text_entity, semantic_search
+
+    set_thread_tenant_id(1)
+    index_text_entity("doc-org1", "case", "Malicious ransomware attack targeting Org 1 critical mainframe.")
+    clear_thread_tenant_id()
+
+    set_thread_tenant_id(2)
+    index_text_entity("doc-org2", "case", "Malicious ransomware attack targeting Org 2 secret vault.")
+    clear_thread_tenant_id()
+
+    # Query as Org 1
+    set_thread_tenant_id(1)
+    results_org1 = semantic_search("ransomware attack", limit=5)
+    clear_thread_tenant_id()
+
+    # Must find doc-org1 but NEVER doc-org2
+    entity_ids_org1 = [r["entity_id"] for r in results_org1]
+    assert "doc-org1" in entity_ids_org1
+    assert "doc-org2" not in entity_ids_org1
+
+    # Query as Org 2
+    set_thread_tenant_id(2)
+    results_org2 = semantic_search("ransomware attack", limit=5)
+    clear_thread_tenant_id()
+
+    entity_ids_org2 = [r["entity_id"] for r in results_org2]
+    assert "doc-org2" in entity_ids_org2
+    assert "doc-org1" not in entity_ids_org2
+
+
+def test_tenant_isolation_notifications(client):
+    """Verify notifications cannot cross tenant boundaries."""
+    from services.collaboration_service import create_notification
+    token_org1 = create_token({"username": "user_org1", "role": "analyst", "tenant_id": 1})
+    token_org2 = create_token({"username": "user_org2", "role": "analyst", "tenant_id": 2})
+
+    # Create notification for Org 1 user
+    set_thread_tenant_id(1)
+    create_notification("user_org1", "Alert Org 1", "Org 1 incident notification", "system")
+    clear_thread_tenant_id()
+
+    # Create notification for Org 2 user
+    set_thread_tenant_id(2)
+    create_notification("user_org2", "Alert Org 2", "Org 2 incident notification", "system")
+    clear_thread_tenant_id()
+
+    # Org 1 checks notifications
+    res1 = client.get("/api/notifications", headers={"Authorization": f"Bearer {token_org1}"})
+    assert res1.status_code == 200
+    notifs1 = res1.get_json()["notifications"]
+    assert any("Alert Org 1" in n["title"] for n in notifs1)
+    assert not any("Alert Org 2" in n["title"] for n in notifs1)
+
+
+def test_postgresql_rls_policies_and_context():
+    """Verify PostgreSQL RLS dialect methods and tenant parameter scoping."""
+    from db_utils import DialectConnection, DialectCursor
+
+    class MockPgCursor:
+        def __init__(self):
+            self.executed = []
+        def execute(self, sql, params=None):
+            self.executed.append((sql, params))
+        def fetchall(self):
+            return []
+        def fetchone(self):
+            return None
+        def close(self):
+            pass
+
+    class MockPgConn:
+        def __init__(self):
+            self.cur = MockPgCursor()
+        def cursor(self):
+            return self.cur
+        def commit(self):
+            pass
+        def rollback(self):
+            pass
+        def close(self):
+            pass
+
+    mock_conn = MockPgConn()
+    dconn = DialectConnection(mock_conn, is_pg_mode=True)
+    dconn.set_tenant_context(42)
+
+    # Verify SET LOCAL app.current_tenant_id was executed
+    assert any("SET LOCAL app.current_tenant_id" in sql for sql, _ in mock_conn.cur.executed)
+

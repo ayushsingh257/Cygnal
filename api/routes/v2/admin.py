@@ -109,7 +109,7 @@ def write_audit_log(action: str, actor: str, target: str = None, details: dict =
         _ensure_audit_table()
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute_tenant("""
             INSERT INTO audit_log (id, action, actor, target, details, ip_address, timestamp)
             VALUES (?, ?, ?, ?, ?, ?, ?);
         """, (
@@ -165,14 +165,14 @@ def get_audit_log(current_user):
         query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?;"
         params.extend([limit, offset])
 
-        cursor.execute(query, params)
+        cursor.execute_tenant(query, params)
         rows = cursor.fetchall()
 
         # Count total matching records for pagination
         count_query = "SELECT COUNT(*) FROM audit_log"
         if conditions:
             count_query += " WHERE " + " AND ".join(conditions)
-        cursor.execute(count_query, params[:-2] if params else [])
+        cursor.execute_tenant(count_query, params[:-2] if params else [])
         total = cursor.fetchone()[0]
 
         conn.close()

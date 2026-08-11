@@ -84,16 +84,26 @@ class DialectCursor:
         return self
 
     def execute_tenant(self, sql, params=None, tenant_id=None):
-        """Explicit tenant-aware execution wrapper."""
+        """Explicit tenant-aware execution wrapper with PostgreSQL RLS and dialect rewriting."""
         if tenant_id is None:
             tenant_id = get_current_tenant_id()
+        if self.is_pg:
+            try:
+                self.cursor.execute("SET LOCAL app.current_tenant_id = %s;", (str(tenant_id),))
+            except Exception:
+                pass
         sql, params = rewrite_query(sql, params, tenant_id)
         return self.execute(sql, params)
 
     def executemany_tenant(self, sql, params_list, tenant_id=None):
-        """Explicit tenant-aware batch execution wrapper."""
+        """Explicit tenant-aware batch execution wrapper with PostgreSQL RLS and dialect rewriting."""
         if tenant_id is None:
             tenant_id = get_current_tenant_id()
+        if self.is_pg:
+            try:
+                self.cursor.execute("SET LOCAL app.current_tenant_id = %s;", (str(tenant_id),))
+            except Exception:
+                pass
         
         sample_params = params_list[0] if params_list else None
         rewritten_sql, _ = rewrite_query(sql, sample_params, tenant_id)
@@ -120,6 +130,16 @@ class DialectConnection:
         self.is_pg = is_pg_mode
         self.pool = pool
 
+    def set_tenant_context(self, tenant_id: int):
+        """Sets PostgreSQL session-level tenant parameter for native Row-Level Security."""
+        if self.is_pg:
+            try:
+                cur = self.conn.cursor()
+                cur.execute("SET LOCAL app.current_tenant_id = %s;", (str(tenant_id),))
+                cur.close()
+            except Exception as e:
+                print("[DB_UTILS] Failed to set tenant context:", str(e))
+
     def cursor(self):
         return DialectCursor(self.conn.cursor(), self.is_pg)
 
@@ -132,6 +152,13 @@ class DialectConnection:
     def close(self):
         if self.is_pg and self.pool:
             try:
+                # Reset tenant context parameter before recycling connection to pool
+                try:
+                    cur = self.conn.cursor()
+                    cur.execute("RESET app.current_tenant_id;")
+                    cur.close()
+                except Exception:
+                    pass
                 self.pool.putconn(self.conn)
             except Exception:
                 self.conn.close()
@@ -148,12 +175,16 @@ class DialectConnection:
             self.commit()
         self.close()
 
-def get_db_connection():
+def get_db_connection(tenant_id: int = None):
+    if tenant_id is None:
+        tenant_id = get_current_tenant_id()
     if is_pg and pg_pool:
         try:
             conn = pg_pool.getconn()
             conn.autocommit = False
-            return DialectConnection(conn, True, pg_pool)
+            dconn = DialectConnection(conn, True, pg_pool)
+            dconn.set_tenant_context(tenant_id)
+            return dconn
         except Exception as e:
             print("[DB_UTILS] Failed to get connection from pool, trying direct connection:", str(e))
     

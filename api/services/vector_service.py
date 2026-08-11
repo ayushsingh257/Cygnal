@@ -246,6 +246,8 @@ def semantic_search(query: str, limit: int = 5, entity_type: Optional[str] = Non
 
     return matched_results
 
+search_similar_entities = semantic_search
+
 
 # ─── Synchronisation Batch Hook ──────────────────────────────────────────────
 
