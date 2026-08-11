@@ -20,9 +20,23 @@ export default function LoginPage() {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [totpCode, setTotpCode] = useState("");
 
-  useEffect(() => {
-    loadUserFromStorage();
-  }, []);
+  const handleSSOLogin = async (provider: string) => {
+    setLoading(true);
+    try {
+      const redirectUri = `${window.location.origin}/sso-callback`;
+      const res = await fetch(`/api/auth/sso/login/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`);
+      const data = await res.json();
+      if (data.success && (data.login_url || data.url)) {
+        window.location.href = data.login_url || data.url;
+      } else {
+        toast.error(data.error || "SSO Login Link generation failed.");
+        setLoading(false);
+      }
+    } catch {
+      toast.error("Failed to contact SSO authentication provider.");
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,31 +219,44 @@ export default function LoginPage() {
                 <div className="flex-grow border-t border-[#408A71]/15"></div>
               </div>
 
-              <div>
-                <button 
-                  type="button"
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const redirectUri = `${window.location.origin}/sso-callback`;
-                      const res = await fetch(`/api/auth/sso/login/entra_id?redirect_uri=${encodeURIComponent(redirectUri)}`);
-                      const data = await res.json();
-                      if (data.success && data.url) {
-                        window.location.href = data.url;
-                      } else {
-                        toast.error(data.error || "SSO Login Link generation failed.");
-                        setLoading(false);
-                      }
-                    } catch {
-                      toast.error("Failed to contact SSO authentication provider.");
-                      setLoading(false);
-                    }
-                  }}
-                  disabled={loading}
-                  className="w-full bg-transparent border border-[#408A71]/30 hover:bg-[#408A71]/10 text-[#B0E4CC] py-3 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all font-mono disabled:opacity-50 cursor-pointer"
-                >
-                  Sign in with Entra ID
-                </button>
+              <div className="space-y-2">
+                <div className="text-[10px] font-mono text-slate-400 text-center uppercase tracking-wider mb-2">
+                  Enterprise SSO Federation
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    type="button"
+                    onClick={() => handleSSOLogin("entra_id")}
+                    disabled={loading}
+                    className="w-full bg-[#0a1815] border border-[#408A71]/30 hover:bg-[#408A71]/15 text-[#B0E4CC] py-2.5 px-2 rounded-xl text-[11px] font-semibold tracking-wider transition-all font-mono disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Entra ID</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => handleSSOLogin("google")}
+                    disabled={loading}
+                    className="w-full bg-[#0a1815] border border-[#408A71]/30 hover:bg-[#408A71]/15 text-[#B0E4CC] py-2.5 px-2 rounded-xl text-[11px] font-semibold tracking-wider transition-all font-mono disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Google</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => handleSSOLogin("okta")}
+                    disabled={loading}
+                    className="w-full bg-[#0a1815] border border-[#408A71]/30 hover:bg-[#408A71]/15 text-[#B0E4CC] py-2.5 px-2 rounded-xl text-[11px] font-semibold tracking-wider transition-all font-mono disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Okta SSO</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => handleSSOLogin("saml")}
+                    disabled={loading}
+                    className="w-full bg-[#0a1815] border border-[#408A71]/30 hover:bg-[#408A71]/15 text-[#B0E4CC] py-2.5 px-2 rounded-xl text-[11px] font-semibold tracking-wider transition-all font-mono disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>SAML 2.0</span>
+                  </button>
+                </div>
               </div>
             </form>
           ) : (

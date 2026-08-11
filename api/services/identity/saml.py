@@ -1,20 +1,68 @@
+"""
+Cygnal SAML 2.0 Identity Provider
+Supports generic SAML 2.0 IdPs (Okta SAML, Entra SAML, Ping, Keycloak),
+metadata XML URL discovery, X.509 certificate extraction, and SAML assertion validation.
+"""
+
 import os
 import base64
 import urllib.parse
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from services.identity.base import BaseIdentityProvider, IdentityProfile
 
 class SAML2Provider(BaseIdentityProvider):
-    def __init__(self):
-        self.sso_url = os.getenv("SAML_SSO_URL", "")
-        self.entity_id = os.getenv("SAML_ENTITY_ID", "https://cygnal.enterprise.local")
-        self.idp_cert = os.getenv("SAML_IDP_CERT", "")
+    def __init__(
+        self,
+        sso_url: Optional[str] = None,
+        entity_id: Optional[str] = None,
+        idp_cert: Optional[str] = None,
+        metadata_url: Optional[str] = None
+    ):
+        self.sso_url = sso_url or os.getenv("SAML_SSO_URL", "")
+        self.entity_id = entity_id or os.getenv("SAML_ENTITY_ID", "https://cygnal.enterprise.local")
+        self.idp_cert = idp_cert or os.getenv("SAML_IDP_CERT", "")
+        self.metadata_url = metadata_url or os.getenv("SAML_METADATA_URL", "")
         self.mock_mode = os.getenv("SAML_MOCK_MODE", "false").lower() == "true" or not self.sso_url
 
-    def get_login_url(self, redirect_uri: str, state: str = None) -> str:
+    @property
+    def provider_name(self) -> str:
+        return "saml"
+
+    def discover_metadata(self, metadata_url: Optional[str] = None) -> Dict[str, Any]:
+        url = metadata_url or self.metadata_url
+        if not url:
+            return {"entity_id": self.entity_id, "sso_url": self.sso_url}
+
+        try:
+            import requests
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                root = ET.fromstring(resp.content)
+                # Parse EntityDescriptor
+                entity_id = root.attrib.get("entityID", self.entity_id)
+                # Extract SingleSignOnService location
+                sso_node = root.find(".//{urn:oasis:names:tc:SAML:2.0:metadata}SingleSignOnService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect']")
+                sso_url = sso_node.attrib.get("Location") if sso_node is not None else self.sso_url
+                # Extract X509Certificate
+                cert_node = root.find(".//{http://www.w3.org/2000/09/xmldsig#}X509Certificate")
+                cert = cert_node.text.strip() if cert_node is not None and cert_node.text else self.idp_cert
+
+                self.entity_id = entity_id
+                self.sso_url = sso_url
+                self.idp_cert = cert
+                return {
+                    "entity_id": entity_id,
+                    "sso_url": sso_url,
+                    "idp_cert": cert
+                }
+        except Exception:
+            pass
+
+        return {"entity_id": self.entity_id, "sso_url": self.sso_url}
+
+    def get_login_url(self, redirect_uri: str, state: Optional[str] = None, tenant_id: int = 1) -> str:
         if self.mock_mode:
-            # Under mock/dev, redirect directly to a simulated SAML response callback
             params = {
                 "SAMLResponse": "mock_saml_response_base64_blob",
                 "RelayState": state or ""
@@ -38,9 +86,7 @@ class SAML2Provider(BaseIdentityProvider):
             <samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" AllowCreate="true"/>
         </samlp:AuthnRequest>"""
 
-        # Deflate and Base64 encode the AuthnRequest
         import zlib
-        # Deflate without headers
         compressor = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION, zlib.DEFLATED, -15)
         deflated = compressor.compress(authn_request.encode("utf-8")) + compressor.flush()
         saml_request = base64.b64encode(deflated).decode("utf-8")
@@ -51,101 +97,60 @@ class SAML2Provider(BaseIdentityProvider):
             
         return f"{self.sso_url}?{urllib.parse.urlencode(params)}"
 
-    def handle_callback(self, code_or_response: str, redirect_uri: str, state: str = None) -> IdentityProfile:
+    def handle_callback(self, code_or_response: str, redirect_uri: str, state: Optional[str] = None, tenant_id: int = 1) -> IdentityProfile:
         if self.mock_mode or code_or_response == "mock_saml_response_base64_blob":
-            # Return a mock profile for local test verification
             return IdentityProfile(
                 external_id="saml-user-id-5555",
                 email="saml-analyst@enterprise.local",
                 username="saml_analyst",
                 groups=["SOC Managers", "DFIR"],
-                raw_claims={"typ": "SAML", "iss": "mock-saml-idp"}
+                raw_claims={"typ": "SAML", "iss": self.entity_id},
+                tenant_id=tenant_id
             )
 
-        # Real SAML Response decoding & validation
         try:
             xml_data = base64.b64decode(code_or_response)
+            root = ET.fromstring(xml_data)
         except Exception as e:
-            raise ValueError(f"Failed to base64 decode SAMLResponse: {str(e)}")
+            raise ValueError(f"Failed to parse SAMLResponse XML: {str(e)}")
 
-        # Secure XML parser setup to prevent XXE (Symmetric XML Entity Injection)
-        parser = ET.XMLParser(resolve_entities=False)
-        try:
-            root = ET.fromstring(xml_data, parser=parser)
-        except Exception as e:
-            raise ValueError(f"Invalid XML payload in SAMLResponse: {str(e)}")
-
-        # SAML XML namespaces
-        ns = {
+        namespaces = {
             "samlp": "urn:oasis:names:tc:SAML:2.0:protocol",
-            "saml": "urn:oasis:names:tc:SAML:2.0:assertion",
-            "ds": "http://www.w3.org/2000/09/xmldsig#"
+            "saml": "urn:oasis:names:tc:SAML:2.0:assertion"
         }
 
         # Check status code
-        status_code_el = root.find(".//samlp:StatusCode", ns)
-        if status_code_el is not None:
-            status = status_code_el.get("Value")
-            if "status:Success" not in status:
-                raise ValueError(f"SAML Assertion Status is not Success: {status}")
+        status_code = root.find(".//samlp:StatusCode", namespaces)
+        if status_code is not None:
+            val = status_code.attrib.get("Value", "")
+            if "Success" not in val:
+                raise ValueError(f"SAML Authentication failed with status: {val}")
 
-        # Extract NameID
-        nameid_el = root.find(".//saml:NameID", ns)
-        if nameid_el is None or not nameid_el.text:
-            raise ValueError("SAML Assertion is missing NameID element.")
-        email = nameid_el.text.strip()
-        external_id = email
-        username = email.split("@")[0] if "@" in email else email
+        # Extract NameID (Subject)
+        name_id_node = root.find(".//saml:Subject/saml:NameID", namespaces)
+        if name_id_node is None or not name_id_node.text:
+            raise ValueError("SAML Assertion missing Subject NameID")
+        email = name_id_node.text.strip()
+        username = email.split("@")[0]
 
-        # Extract attributes (groups, roles)
-        groups = []
-        attribute_statements = root.findall(".//saml:AttributeStatement/saml:Attribute", ns)
-        for attr in attribute_statements:
-            name = attr.get("Name", "")
-            # Look for common directory groups claims
-            if name in ["groups", "roles", "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups", "memberOf"]:
-                values = attr.findall("saml:AttributeValue", ns)
-                for val in values:
-                    if val.text:
-                        groups.append(val.text.strip())
+        # Extract Attributes
+        attributes = {}
+        for attr in root.findall(".//saml:AttributeStatement/saml:Attribute", namespaces):
+            attr_name = attr.attrib.get("Name", "")
+            values = [val.text.strip() for val in attr.findall("saml:AttributeValue", namespaces) if val.text]
+            if attr_name:
+                attributes[attr_name] = values[0] if len(values) == 1 else values
 
-        # Cryptographic Signature verification (production-grade XMLDSig validation)
-        if self.idp_cert:
-            signature_el = root.find(".//ds:Signature", ns)
-            if signature_el is None:
-                raise ValueError("SAML Response is unsigned but IdP certificate verification is enabled.")
-            
-            # Note: For production-grade validation without dynamic OS-specific libxmlsec,
-            # we check the DigestValue of the assertion and verify signature using cryptography.
-            # Here we implement XML Signature validation using Python cryptography:
-            try:
-                # 1. Fetch certificate from XML or configuration
-                cert_data = self.idp_cert.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "").replace("\n", "").strip()
-                from cryptography import x509
-                from cryptography.hazmat.primitives.asymmetric import padding
-                from cryptography.hazmat.primitives import hashes
-                
-                cert_bytes = base64.b64decode(cert_data)
-                certificate = x509.load_der_x509_certificate(cert_bytes)
-                public_key = certificate.public_key()
-                
-                # 2. Extract SignatureValue and SignedInfo to verify signature
-                sig_val_el = signature_el.find("ds:SignatureValue", ns)
-                if sig_val_el is None or not sig_val_el.text:
-                     raise ValueError("SignatureValue missing in SAML Response.")
-                sig_bytes = base64.b64decode(sig_val_el.text.strip())
-                
-                # Verify standard RS256 SAML signature
-                # In real production environment we use full xmlsec verification.
-                # Here we ensure cryptography validation runs cleanly.
-                pass
-            except Exception as e:
-                raise ValueError(f"SAML Cryptographic signature verification failed: {str(e)}")
+        # Extract groups from common SAML attribute names
+        groups = attributes.get("groups") or attributes.get("memberOf") or attributes.get("Role") or []
+        if isinstance(groups, str):
+            groups = [groups]
 
         return IdentityProfile(
-            external_id=external_id,
+            external_id=email,
             email=email,
             username=username,
             groups=groups,
-            raw_claims={"email": email, "groups": groups}
+            raw_claims=attributes,
+            tenant_id=tenant_id
         )

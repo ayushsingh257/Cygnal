@@ -400,6 +400,46 @@ def init_lookup_db():
             );
         """)
 
+        # 25. Enterprise Identity Providers Table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS identity_providers (
+                id TEXT PRIMARY KEY,
+                tenant_id INTEGER DEFAULT 1,
+                provider_type TEXT NOT NULL,
+                provider_name TEXT NOT NULL,
+                metadata_url TEXT,
+                client_id TEXT,
+                client_secret_reference TEXT,
+                allowed_domains TEXT,
+                enabled INTEGER DEFAULT 1,
+                created_at TEXT NOT NULL
+            );
+        """)
+
+        # 26. Directory Group Mappings Table (Group-to-Role)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS directory_group_mappings (
+                id TEXT PRIMARY KEY,
+                tenant_id INTEGER DEFAULT 1,
+                provider_group TEXT NOT NULL,
+                cygnal_role TEXT NOT NULL,
+                provider TEXT DEFAULT 'all',
+                created_at TEXT NOT NULL
+            );
+        """)
+
+        # 27. SSO Sessions Table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sso_sessions (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                tenant_id INTEGER DEFAULT 1,
+                created_at TEXT NOT NULL
+            );
+        """)
+
         # SAFE MIGRATION ROUTINE checks
         # Seed default organization
         try:
@@ -417,7 +457,8 @@ def init_lookup_db():
             "users", "cases", "evidence", "notifications", "inbound_alerts",
             "comments", "timeline", "case_indicators",
             "evidence_relations", "investigation_jobs", "tool_permissions",
-            "reports", "vector_records", "audit_log"
+            "reports", "vector_records", "audit_log",
+            "identity_providers", "directory_group_mappings", "sso_sessions"
         ]
 
         for table in tenant_tables:
@@ -471,6 +512,22 @@ def init_lookup_db():
             cursor.execute("ALTER TABLE cases ADD COLUMN assigned_to TEXT;")
         if "department" not in case_cols:
             cursor.execute("ALTER TABLE cases ADD COLUMN department TEXT;")
+
+        cursor.execute("PRAGMA table_info(directory_group_mappings);")
+        dgm_cols = [row[1] for row in cursor.fetchall()]
+        if dgm_cols:
+            if "provider_group" not in dgm_cols and "external_group_name" in dgm_cols:
+                cursor.execute("ALTER TABLE directory_group_mappings ADD COLUMN provider_group TEXT;")
+                try:
+                    cursor.execute("UPDATE directory_group_mappings SET provider_group = external_group_name WHERE provider_group IS NULL;")
+                except Exception:
+                    pass
+            if "cygnal_role" not in dgm_cols and "internal_role" in dgm_cols:
+                cursor.execute("ALTER TABLE directory_group_mappings ADD COLUMN cygnal_role TEXT;")
+                try:
+                    cursor.execute("UPDATE directory_group_mappings SET cygnal_role = internal_role WHERE cygnal_role IS NULL;")
+                except Exception:
+                    pass
 
         cursor.execute("PRAGMA table_info(evidence);")
         ev_cols = [row[1] for row in cursor.fetchall()]

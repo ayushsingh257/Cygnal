@@ -16,48 +16,68 @@ ROLE_WEIGHTS = {
     "intern": 10
 }
 
-def map_groups_to_role(provider: str, groups: list) -> str:
+DEFAULT_GROUP_MAPPINGS = {
+    "security-admins": "admin",
+    "security-admin": "admin",
+    "global-admins": "admin",
+    "soc-managers": "soc_manager",
+    "soc-manager": "soc_manager",
+    "soc-analysts": "analyst",
+    "soc-analyst": "analyst",
+    "incident-responders": "analyst",
+    "dfir": "analyst",
+    "auditors": "director"
+}
+
+def map_groups_to_role(provider: str, groups: list, tenant_id: int = 1) -> str:
     """
     Dynamically maps external identity group lists to the highest weight internal role.
+    Checks database directory_group_mappings per tenant, then standard enterprise conventions.
     Fallback role is 'analyst'.
     """
     if not groups:
         return "analyst"
 
+    matched_roles = []
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Load all mappings for this provider
+        # Load mappings for this provider or all providers for this tenant
         cursor.execute(
-            "SELECT external_group_name, internal_role FROM directory_group_mappings WHERE provider = ?;",
-            (provider,)
+            "SELECT provider_group, cygnal_role FROM directory_group_mappings WHERE tenant_id = ? AND (provider = ? OR provider = 'all');",
+            (tenant_id, provider)
         )
         mappings = cursor.fetchall()
         conn.close()
         
-        if not mappings:
-            return "analyst"
+        normalized_groups = [str(g).strip().lower() for g in groups]
 
-        matched_roles = []
         for row in mappings:
-            group_name = row[0]
+            group_name = row[0].strip().lower()
             role = row[1]
-            if group_name in groups:
+            if group_name in normalized_groups:
                 matched_roles.append(role)
-        
-        if not matched_roles:
-            return "analyst"
-
-        # Select the role with the maximum privilege level/weight
-        best_role = max(matched_roles, key=lambda r: ROLE_WEIGHTS.get(r, 0))
-        return best_role
     except Exception as e:
-        print("[ROLE MAP ERROR]", str(e))
+        print("[ROLE MAP DB LOOKUP]", str(e))
+
+    # Check standard default mappings if no DB mapping matched
+    if not matched_roles:
+        for g in groups:
+            clean_g = str(g).strip().lower().replace(" ", "-").replace("_", "-")
+            if clean_g in DEFAULT_GROUP_MAPPINGS:
+                matched_roles.append(DEFAULT_GROUP_MAPPINGS[clean_g])
+
+    if not matched_roles:
         return "analyst"
 
+    # Select the role with the maximum privilege level/weight
+    best_role = max(matched_roles, key=lambda r: ROLE_WEIGHTS.get(r, 0))
+    return best_role
 
-def create_user_session(username: str, role: str, ip_address: str, user_agent: str) -> dict:
+
+def create_user_session(username: str, role: str, ip_address: str, user_agent: str, tenant_id: int = 1) -> dict:
     """
     Generates a secure access token and rotated refresh token.
     Stores session metadata in database.
@@ -68,6 +88,31 @@ def create_user_session(username: str, role: str, ip_address: str, user_agent: s
     refresh_jti = str(uuid.uuid4())
     
     access_expiry = now + timedelta(hours=1)
+    refresh_expiry = now + timedelta(days=7)
+    
+    from jwt_utils import get_current_jwt_secret
+    jwt_key = get_current_jwt_secret()
+
+    access_payload = {
+        "username": username,
+        "role": role,
+        "tenant_id": tenant_id,
+        "jti": access_jti,
+        "iat": now,
+        "exp": access_expiry,
+        "token_type": "access"
+    }
+    access_token = jwt.encode(access_payload, jwt_key, algorithm="HS256")
+    
+    refresh_payload = {
+        "username": username,
+        "tenant_id": tenant_id,
+        "jti": refresh_jti,
+        "iat": now,
+        "exp": refresh_expiry,
+        "token_type": "refresh"
+    }
+    refresh_token = jwt.encode(refresh_payload, jwt_key, algorithm="HS256")
     refresh_expiry = now + timedelta(days=14)
 
     # Fetch tenant_id for multi-tenancy context

@@ -7,6 +7,8 @@ interface UserProfile {
   role: string;
   department?: string;
   team?: string;
+  tenant_id?: number;
+  email?: string;
 }
 
 interface AuthState {

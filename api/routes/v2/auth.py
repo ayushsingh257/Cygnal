@@ -240,96 +240,6 @@ def list_sessions(current_user):
     return jsonify({"success": True, "sessions": sessions})
 
 
-# ─── Federated SSO Integration (OIDC & SAML) ──────────────────────────────────
-
-@auth_bp.route("/auth/sso/login/<provider>", methods=["GET"])
-def sso_login(provider):
-    redirect_uri = request.args.get("redirect_uri", "").strip()
-    state = request.args.get("state", "").strip()
-    if not redirect_uri:
-        return jsonify({"success": False, "error": "redirect_uri query parameter required."}), 400
-        
-    try:
-        prov = get_identity_provider(provider)
-        url = prov.get_login_url(redirect_uri, state)
-        return jsonify({"success": True, "url": url})
-    except KeyError:
-        return jsonify({"success": False, "error": f"Identity provider '{provider}' not configured."}), 404
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-@auth_bp.route("/auth/sso/callback/<provider>", methods=["POST"])
-def sso_callback(provider):
-    data = request.get_json() or {}
-    code = data.get("code") or data.get("SAMLResponse")
-    redirect_uri = data.get("redirect_uri")
-    state = data.get("state")
-
-    if not code or not redirect_uri:
-        log_auth_event(f"sso.callback.{provider}", "failed", "unknown", request.remote_addr, {"reason": "Missing parameters"})
-        return jsonify({"success": False, "error": "code/SAMLResponse and redirect_uri required."}), 400
-
-    try:
-        prov = get_identity_provider(provider)
-        profile = prov.handle_callback(code, redirect_uri, state)
-        
-        # Map dynamic group to internal Cygnal role
-        role = map_groups_to_role(provider, profile.groups)
-        
-        # Zero Trust JIT Provisioning check
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT role, department, team FROM users WHERE username = ?;", (profile.username,))
-        user_row = cursor.fetchone()
-        
-        if not user_row:
-            # Create user dynamically
-            dept = "SSO Federated Identity"
-            team = "Enterprise Team"
-            # Prevent privilege escalation: check if they are mapped to admin, otherwise clamp
-            cursor.execute("""
-                INSERT INTO users (username, password_hash, role, department, team, created_at)
-                VALUES (?, 'SSO_FEDERATED_KEY', ?, ?, ?, ?);
-            """, (profile.username, role, dept, team, datetime.now(timezone.utc).isoformat() + "Z"))
-            
-            # Map external identity link
-            cursor.execute("""
-                INSERT INTO user_identities (id, username, provider, external_id, linked_at)
-                VALUES (?, ?, ?, ?, ?);
-            """, (str(uuid.uuid4()), profile.username, provider, profile.external_id, datetime.now(timezone.utc).isoformat() + "Z"))
-            
-            conn.commit()
-            
-            from routes.v2.admin import write_audit_log
-            write_audit_log("user.jit_provision", profile.username, target=profile.username, ip_address=request.remote_addr, details={"provider": provider, "role": role})
-        else:
-            role = user_row[0]  # if user already exists locally, preserve local DB role policies
-            
-        conn.close()
-
-        # Issue active session
-        session_data = create_user_session(profile.username, role, request.remote_addr, request.headers.get("User-Agent", ""))
-        
-        from routes.v2.admin import write_audit_log
-        write_audit_log("user.sso_login", profile.username, target=profile.username, ip_address=request.remote_addr, details={"provider": provider})
-        log_auth_event(f"sso.login.{provider}", "success", profile.username, request.remote_addr)
-
-        return jsonify({
-            "success": True,
-            "token": session_data["access_token"],
-            "refresh_token": session_data["refresh_token"],
-            "user": {
-                "username": profile.username,
-                "role": role,
-                "email": profile.email
-            }
-        })
-    except Exception as e:
-        log_auth_event(f"sso.login.{provider}", "failed", "unknown", request.remote_addr, {"error": str(e)})
-        return jsonify({"success": False, "error": f"SSO callback authentication failed: {str(e)}"}), 401
-
-
 # ─── Service Accounts (Client Credentials Flow) ───────────────────────────────
 
 @auth_bp.route("/auth/oauth/token", methods=["POST"])
@@ -551,3 +461,269 @@ def admin_create_user(current_user):
         }), 201
     except Exception as e:
         return jsonify({"success": False, "error": f"User creation failed: {str(e)}"}), 500
+
+
+# ─── Enterprise SSO Federation Endpoints (Phase 5) ───────────────────────────
+
+_sso_states: dict[str, float] = {}
+
+@auth_bp.route("/auth/sso/providers", methods=["GET"])
+def get_sso_providers():
+    """Returns the list of active Enterprise SSO providers."""
+    providers = [
+        {"id": "entra_id", "name": "Microsoft Entra ID", "type": "oidc", "icon": "windows", "enabled": True},
+        {"id": "google", "name": "Google Workspace", "type": "oidc", "icon": "google", "enabled": True},
+        {"id": "okta", "name": "Okta SSO", "type": "oidc", "icon": "shield", "enabled": True},
+        {"id": "saml", "name": "SAML 2.0 Enterprise", "type": "saml", "icon": "lock", "enabled": True}
+    ]
+    return jsonify({
+        "success": True,
+        "providers": providers
+    })
+
+
+@auth_bp.route("/auth/sso/login/<provider_name>", methods=["GET"])
+def sso_login_initiate(provider_name):
+    """Initiates Enterprise SSO login and returns the redirect URL."""
+    try:
+        provider = get_identity_provider(provider_name)
+    except KeyError:
+        return jsonify({"success": False, "error": f"Provider '{provider_name}' is not supported."}), 400
+
+    redirect_uri = request.args.get("redirect_uri") or f"{request.host_url.rstrip('/')}/sso-callback"
+    state = str(uuid.uuid4())
+    _sso_states[state] = datetime.now(timezone.utc).timestamp()
+
+    # Prune old states older than 15 minutes
+    now_ts = datetime.now(timezone.utc).timestamp()
+    for s in list(_sso_states.keys()):
+        if now_ts - _sso_states[s] > 900:
+            _sso_states.pop(s, None)
+
+    tenant_id = request.args.get("tenant_id", 1, type=int)
+    login_url = provider.get_login_url(redirect_uri=redirect_uri, state=state, tenant_id=tenant_id)
+
+    return jsonify({
+        "success": True,
+        "provider": provider.provider_name,
+        "login_url": login_url,
+        "state": state
+    })
+
+
+@auth_bp.route("/auth/sso/callback/<provider_name>", methods=["POST"])
+def sso_callback_handler(provider_name):
+    """
+    Handles SSO IdP callback with authorization code or SAMLResponse.
+    Validates identity, extracts directory groups, maps to Cygnal RBAC role,
+    auto-provisions user record, and creates a secure authenticated session.
+    """
+    try:
+        provider = get_identity_provider(provider_name)
+    except KeyError:
+        return jsonify({"success": False, "error": f"Provider '{provider_name}' is not supported."}), 400
+
+    data = request.get_json() or {}
+    code = data.get("code") or data.get("SAMLResponse") or data.get("token")
+    if not code:
+        return jsonify({"success": False, "error": "Missing authorization code or SAMLResponse in callback."}), 400
+
+    state = data.get("state")
+    redirect_uri = data.get("redirect_uri") or f"{request.host_url.rstrip('/')}/sso-callback"
+    tenant_id = data.get("tenant_id", 1)
+
+    try:
+        # 1. IdP Callback validation & Profile Extraction
+        profile = provider.handle_callback(code, redirect_uri=redirect_uri, state=state, tenant_id=tenant_id)
+        
+        # 2. RBAC Group Mapping
+        assigned_role = provider.map_roles(profile.groups, tenant_id=tenant_id)
+
+        # 3. User Upsert / Provisioning in Cygnal database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT role, department, team, tenant_id FROM users WHERE username = ?;", (profile.username,))
+        existing_user = cursor.fetchone()
+
+        now_str = datetime.now(timezone.utc).isoformat() + "Z"
+
+        if existing_user:
+            # Update user role if changed by IdP
+            user_dept = existing_user[1] or "Corporate Identity"
+            user_team = existing_user[2] or "SSO"
+            resolved_tenant = existing_user[3] or tenant_id
+            cursor.execute("""
+                UPDATE users
+                SET role = ?, department = ?, team = ?
+                WHERE username = ?;
+            """, (assigned_role, user_dept, user_team, profile.username))
+        else:
+            # Auto-provision new enterprise user
+            dummy_hash = hash_password(str(uuid.uuid4()))
+            cursor.execute("""
+                INSERT INTO users (username, password_hash, role, department, team, created_at, tenant_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?);
+            """, (profile.username, dummy_hash, assigned_role, "Corporate Identity", "SSO", now_str, tenant_id))
+            resolved_tenant = tenant_id
+
+        # 4. Record SSO session
+        session_record_id = str(uuid.uuid4())
+        cursor.execute("""
+            INSERT INTO sso_sessions (id, user_id, provider, session_id, tenant_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?);
+        """, (session_record_id, profile.username, provider.provider_name, str(uuid.uuid4()), resolved_tenant, now_str))
+
+        conn.commit()
+        conn.close()
+
+        # 5. Create authenticated session tokens
+        session_data = create_user_session(
+            username=profile.username,
+            role=assigned_role,
+            ip_address=request.remote_addr or "127.0.0.1",
+            user_agent=request.headers.get("User-Agent", "SSO-Client"),
+            tenant_id=resolved_tenant
+        )
+
+        log_auth_event(
+            f"sso.login.{provider.provider_name}",
+            "success",
+            profile.username,
+            request.remote_addr,
+            {"role": assigned_role, "groups": profile.groups, "email": profile.email}
+        )
+
+        return jsonify({
+            "success": True,
+            "token": session_data["access_token"],
+            "refresh_token": session_data["refresh_token"],
+            "user": {
+                "username": profile.username,
+                "email": profile.email,
+                "role": assigned_role,
+                "tenant_id": resolved_tenant,
+                "groups": profile.groups,
+                "provider": provider.provider_name
+            }
+        })
+    except PermissionError as perm_err:
+        log_auth_event(f"sso.login.{provider_name}", "rejected", "unknown", request.remote_addr, {"error": str(perm_err)})
+        return jsonify({"success": False, "error": str(perm_err)}), 403
+    except Exception as e:
+        log_auth_event(f"sso.login.{provider_name}", "error", "unknown", request.remote_addr, {"error": str(e)})
+        return jsonify({"success": False, "error": f"SSO Authentication failed: {str(e)}"}), 400
+
+
+# ─── SSO Admin Management Endpoints ──────────────────────────────────────────
+
+@auth_bp.route("/auth/sso/admin/providers", methods=["GET"])
+@require_auth
+@require_role("admin")
+def list_admin_sso_providers(current_user):
+    """Lists configured IdPs for the current tenant."""
+    tenant_id = current_user.get("tenant_id", 1)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, provider_type, provider_name, metadata_url, client_id, allowed_domains, enabled, created_at
+        FROM identity_providers WHERE tenant_id = ?;
+    """, (tenant_id,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    results = []
+    for r in rows:
+        results.append({
+            "id": r[0],
+            "provider_type": r[1],
+            "provider_name": r[2],
+            "metadata_url": r[3],
+            "client_id": r[4],
+            "allowed_domains": r[5],
+            "enabled": bool(r[6]),
+            "created_at": r[7]
+        })
+    return jsonify({"success": True, "providers": results})
+
+
+@auth_bp.route("/auth/sso/admin/providers", methods=["POST"])
+@require_auth
+@require_role("admin")
+def create_admin_sso_provider(current_user):
+    """Configures a new IdP for the current organization."""
+    tenant_id = current_user.get("tenant_id", 1)
+    data = request.get_json() or {}
+    
+    p_type = data.get("provider_type", "").strip().lower()
+    p_name = data.get("provider_name", "").strip()
+    meta_url = data.get("metadata_url", "").strip()
+    client_id = data.get("client_id", "").strip()
+    allowed_domains = data.get("allowed_domains", "").strip()
+
+    if not p_type or not p_name:
+        return jsonify({"success": False, "error": "Provider type and name are required."}), 400
+
+    record_id = str(uuid.uuid4())
+    now_str = datetime.now(timezone.utc).isoformat() + "Z"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO identity_providers (id, tenant_id, provider_type, provider_name, metadata_url, client_id, allowed_domains, enabled, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?);
+    """, (record_id, tenant_id, p_type, p_name, meta_url, client_id, allowed_domains, now_str))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": f"Provider '{p_name}' configured successfully.", "id": record_id})
+
+
+@auth_bp.route("/auth/sso/admin/mappings", methods=["GET"])
+@require_auth
+@require_role("admin")
+def list_admin_group_mappings(current_user):
+    """Lists directory group-to-role mappings for the current tenant."""
+    tenant_id = current_user.get("tenant_id", 1)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, provider_group, cygnal_role, provider, created_at
+        FROM directory_group_mappings WHERE tenant_id = ?;
+    """, (tenant_id,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    mappings = [{"id": r[0], "provider_group": r[1], "cygnal_role": r[2], "provider": r[3], "created_at": r[4]} for r in rows]
+    return jsonify({"success": True, "mappings": mappings})
+
+
+@auth_bp.route("/auth/sso/admin/mappings", methods=["POST"])
+@require_auth
+@require_role("admin")
+def create_admin_group_mapping(current_user):
+    """Adds a directory group-to-role mapping rule."""
+    tenant_id = current_user.get("tenant_id", 1)
+    data = request.get_json() or {}
+    
+    group = data.get("provider_group", "").strip()
+    role = data.get("cygnal_role", "analyst").strip()
+    provider = data.get("provider", "all").strip().lower()
+
+    if not group:
+        return jsonify({"success": False, "error": "Directory group name is required."}), 400
+
+    record_id = str(uuid.uuid4())
+    now_str = datetime.now(timezone.utc).isoformat() + "Z"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO directory_group_mappings (id, tenant_id, provider_group, cygnal_role, provider, created_at)
+        VALUES (?, ?, ?, ?, ?, ?);
+    """, (record_id, tenant_id, group, role, provider, now_str))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": f"Mapping created: '{group}' -> '{role}'."})
+

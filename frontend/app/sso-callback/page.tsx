@@ -14,7 +14,8 @@ function SSOCallbackComponent() {
 
   useEffect(() => {
     const code = searchParams.get("code") || searchParams.get("SAMLResponse");
-    const state = searchParams.get("state") || "";
+    const state = searchParams.get("state") || searchParams.get("RelayState") || "";
+    const provider = searchParams.get("provider") || (searchParams.get("SAMLResponse") ? "saml" : "entra_id");
 
     if (!code) {
       setErrorMsg("SSO Authorization code missing.");
@@ -24,7 +25,7 @@ function SSOCallbackComponent() {
     const exchangeCode = async () => {
       try {
         const redirectUri = `${window.location.origin}/sso-callback`;
-        const res = await fetch("/api/auth/sso/callback/entra_id", {
+        const res = await fetch(`/api/auth/sso/callback/${provider}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code, redirect_uri: redirectUri, state })
@@ -33,7 +34,7 @@ function SSOCallbackComponent() {
         const data = await res.json();
         if (data.success) {
           login(data.token, data.user);
-          toast.success("SSO Link Established!");
+          toast.success("SSO Authentication Succeeded!");
           setTimeout(() => {
             router.push("/dashboard");
           }, 800);
