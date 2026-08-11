@@ -435,10 +435,56 @@ CREATE TABLE audit_log (
     details TEXT,
     ip_address TEXT,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    tenant_id INTEGER DEFAULT 1 REFERENCES tenants(id) ON DELETE CASCADE
+    tenant_id INTEGER DEFAULT 1 REFERENCES tenants(id) ON DELETE CASCADE,
+    data_classification TEXT DEFAULT 'CONFIDENTIAL'
 );
 CREATE INDEX idx_audit_log_tenant ON audit_log(tenant_id, timestamp);
 ```
+
+---
+
+### 7. Data Governance & Automated Retention Lifecycles (Phase 6)
+
+#### `retention_policies`
+Tenant-scoped lifecycle retention rules defining automated archival and deletion schedules by resource type and sensitivity classification.
+```sql
+CREATE TABLE retention_policies (
+    id TEXT PRIMARY KEY,
+    tenant_id INTEGER DEFAULT 1 REFERENCES tenants(id) ON DELETE CASCADE,
+    resource_type TEXT NOT NULL CHECK (resource_type IN ('cases', 'evidence', 'reports', 'audit_logs', 'vector_records')),
+    classification_level TEXT NOT NULL CHECK (classification_level IN ('PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED', 'TOP_SECRET')),
+    retention_days INTEGER NOT NULL CHECK (retention_days > 0),
+    action_after_expiry TEXT NOT NULL CHECK (action_after_expiry IN ('ARCHIVE', 'DELETE', 'ANONYMIZE')),
+    enabled INTEGER DEFAULT 1,
+    created_by TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_retention_policies_tenant ON retention_policies(tenant_id, resource_type, classification_level);
+```
+
+#### `deletion_records`
+Permanent, unalterable ledger of cryptographic destruction certificates generated whenever a data object is purged.
+```sql
+CREATE TABLE deletion_records (
+    id TEXT PRIMARY KEY,
+    tenant_id INTEGER DEFAULT 1 REFERENCES tenants(id) ON DELETE CASCADE,
+    resource_type TEXT NOT NULL,
+    resource_id TEXT NOT NULL,
+    deletion_reason TEXT NOT NULL,
+    deleted_by TEXT NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    verification_hash TEXT NOT NULL
+);
+CREATE INDEX idx_deletion_records_tenant ON deletion_records(tenant_id, deleted_at);
+```
+
+#### Data Classification Schema Fields
+Every managed entity (`cases`, `evidence`, `reports`, `audit_log`, `vector_records`) includes standardized classification metadata:
+- `data_classification TEXT DEFAULT 'INTERNAL'/'CONFIDENTIAL'` (PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED, TOP_SECRET)
+- `classification_reason TEXT` (Audit justification for the assigned sensitivity)
+- `classified_by TEXT` (Username or service account that assigned the label)
+- `classified_at TEXT` (ISO 8601 UTC timestamp of classification)
 
 ---
 
@@ -449,3 +495,4 @@ The `database.py` initialization process runs idempotently on backend startup:
 2. **Dynamic Column Verification**: Inspects table metadata to verify missing columns and applies `ALTER TABLE ADD COLUMN` safely.
 3. **Index Creation**: Ensures all B-Tree indexes exist for high-frequency queries.
 4. **Seed Provisioning**: Inserts default admin credentials and tenant boundaries if the database is unpopulated.
+

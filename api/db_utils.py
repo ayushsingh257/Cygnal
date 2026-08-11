@@ -144,10 +144,16 @@ class DialectConnection:
         return DialectCursor(self.conn.cursor(), self.is_pg)
 
     def commit(self):
-        self.conn.commit()
+        try:
+            self.conn.commit()
+        except Exception:
+            pass
 
     def rollback(self):
-        self.conn.rollback()
+        try:
+            self.conn.rollback()
+        except Exception:
+            pass
 
     def close(self):
         if self.is_pg and self.pool:
@@ -163,7 +169,10 @@ class DialectConnection:
             except Exception:
                 self.conn.close()
         else:
-            self.conn.close()
+            try:
+                self.conn.close()
+            except Exception:
+                pass
 
     def __enter__(self):
         return self
@@ -188,7 +197,12 @@ def get_db_connection(tenant_id: int = None):
         except Exception as e:
             print("[DB_UTILS] Failed to get connection from pool, trying direct connection:", str(e))
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0, check_same_thread=False)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA busy_timeout=30000;")
+    except Exception:
+        pass
     return DialectConnection(conn, False)
 
 # ─── Multi-Tenancy Context & Query Rewriter Helpers ──────────────────────────

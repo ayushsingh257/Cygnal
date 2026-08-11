@@ -184,6 +184,21 @@ Error responses return standard HTTP error codes (400, 401, 403, 404, 429, 500):
 
 ---
 
+### 13. Data Governance & Automated Retention Blueprint (`governance_bp`) — `/api/governance`
+
+| Method | Route | Description | Auth Required |
+|---|---|---|---|
+| `GET` | `/api/governance/policies` | List all tenant retention policies | Yes |
+| `POST` | `/api/governance/policies` | Create or update retention lifecycle policy | Yes (`admin`, `director`) |
+| `DELETE` | `/api/governance/policies/<id>` | Delete retention lifecycle policy | Yes (`admin`, `director`) |
+| `POST` | `/api/governance/classify` | Assign or update sensitivity label for a resource | Yes |
+| `GET` | `/api/governance/retention/status` | Evaluate retention status (supports `dry_run=true`) | Yes |
+| `POST` | `/api/governance/retention/enforce` | Execute automated lifecycle purge / archive pass | Yes (`admin`, `director`) |
+| `GET` | `/api/governance/deletion/history` | Query cryptographic destruction ledger | Yes |
+| `GET` | `/api/governance/compliance/report` | Generate comprehensive regulatory compliance audit report | Yes |
+
+---
+
 ## ⚡ WebSocket Real-Time Events (Flask-SocketIO)
 
 Cygnal connects over Socket.IO (with Redis Pub/Sub multi-node scaling):

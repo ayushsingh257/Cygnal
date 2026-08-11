@@ -61,3 +61,37 @@ def log_auth_event(action: str, status: str, username: str, ip_address: str = No
         "details": details or {}
     }
     logger.info(f"Auth event: {action} - {status} for {username}", extra={"extra_fields": payload})
+
+def log_audit_event(action: str, user_id: str, tenant_id: int = 1, details: dict = None):
+    """
+    Structured audit helper for enterprise data governance and security events.
+    Records to structured logger and audit_log table.
+    """
+    logger = logging.getLogger("cygnal.audit")
+    payload = {
+        "event_type": "audit_event",
+        "action": action,
+        "user_id": user_id,
+        "tenant_id": tenant_id,
+        "details": details or {}
+    }
+    logger.info(f"Audit event: {action} by {user_id} (Tenant {tenant_id})", extra={"extra_fields": payload})
+    try:
+        from db_utils import get_db_connection
+        from datetime import datetime, timezone
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        now_str = datetime.now(timezone.utc).isoformat() + "Z"
+        log_id = str(uuid.uuid4())
+        cursor.execute(
+            """
+            INSERT INTO audit_log (id, timestamp, actor, action, details, tenant_id, data_classification)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+            """,
+            (log_id, now_str, user_id, action, json.dumps(details or {}), tenant_id, "CONFIDENTIAL")
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+

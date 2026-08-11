@@ -27,6 +27,7 @@ from routes.v2.webhooks import webhooks_bp
 from routes.v2.admin import admin_bp  # B-03/B-07: Real audit log + health endpoints
 from routes.v2.threat_intel import threat_intel_bp  # Phase 2: Threat Intelligence
 from routes.v2.collaboration import collaboration_bp  # Phase 4: Collaboration & Notifications
+from routes.v2.governance import governance_bp  # Phase 6: Data Governance & Retention
 
 
 # ========== LOGGING CONFIGURATION ==========
@@ -109,6 +110,7 @@ app.register_blueprint(webhooks_bp, url_prefix="/api")
 app.register_blueprint(admin_bp, url_prefix="/api")  # Admin + health + audit
 app.register_blueprint(threat_intel_bp, url_prefix="/api")  # Phase 2: Threat Intel
 app.register_blueprint(collaboration_bp, url_prefix="/api")  # Phase 4: Collaboration
+app.register_blueprint(governance_bp, url_prefix="/api/governance")  # Phase 6: Data Governance
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)

@@ -440,6 +440,53 @@ def init_lookup_db():
             );
         """)
 
+        # 28. Data Governance Retention Policies Table (Phase 6)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS retention_policies (
+                id TEXT PRIMARY KEY,
+                tenant_id INTEGER DEFAULT 1,
+                resource_type TEXT NOT NULL,
+                classification_level TEXT NOT NULL,
+                retention_days INTEGER NOT NULL,
+                action_after_expiry TEXT NOT NULL,
+                enabled INTEGER DEFAULT 1,
+                created_by TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+        """)
+
+        # 29. Secure Cryptographic Deletion Records Table (Phase 6)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS deletion_records (
+                id TEXT PRIMARY KEY,
+                tenant_id INTEGER DEFAULT 1,
+                resource_type TEXT NOT NULL,
+                resource_id TEXT NOT NULL,
+                deletion_reason TEXT NOT NULL,
+                deleted_by TEXT NOT NULL,
+                deleted_at TEXT NOT NULL,
+                verification_hash TEXT NOT NULL
+            );
+        """)
+
+        # 30. Enterprise Audit Log Table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id TEXT PRIMARY KEY,
+                timestamp TEXT NOT NULL,
+                actor TEXT NOT NULL,
+                action TEXT NOT NULL,
+                target TEXT,
+                details TEXT,
+                ip_address TEXT,
+                tenant_id INTEGER DEFAULT 1,
+                data_classification TEXT DEFAULT 'CONFIDENTIAL'
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_log_actor ON audit_log(actor);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_log_ts ON audit_log(timestamp);")
+
         # SAFE MIGRATION ROUTINE checks
         # Seed default organization
         try:
@@ -458,7 +505,8 @@ def init_lookup_db():
             "comments", "timeline", "case_indicators",
             "evidence_relations", "investigation_jobs", "tool_permissions",
             "reports", "vector_records", "audit_log",
-            "identity_providers", "directory_group_mappings", "sso_sessions"
+            "identity_providers", "directory_group_mappings", "sso_sessions",
+            "retention_policies", "deletion_records"
         ]
 
         for table in tenant_tables:
@@ -512,6 +560,14 @@ def init_lookup_db():
             cursor.execute("ALTER TABLE cases ADD COLUMN assigned_to TEXT;")
         if "department" not in case_cols:
             cursor.execute("ALTER TABLE cases ADD COLUMN department TEXT;")
+        if "data_classification" not in case_cols:
+            cursor.execute("ALTER TABLE cases ADD COLUMN data_classification TEXT DEFAULT 'CONFIDENTIAL';")
+        if "classification_reason" not in case_cols:
+            cursor.execute("ALTER TABLE cases ADD COLUMN classification_reason TEXT;")
+        if "classified_by" not in case_cols:
+            cursor.execute("ALTER TABLE cases ADD COLUMN classified_by TEXT;")
+        if "classified_at" not in case_cols:
+            cursor.execute("ALTER TABLE cases ADD COLUMN classified_at TEXT;")
 
         cursor.execute("PRAGMA table_info(directory_group_mappings);")
         dgm_cols = [row[1] for row in cursor.fetchall()]
@@ -545,6 +601,35 @@ def init_lookup_db():
             cursor.execute("ALTER TABLE evidence ADD COLUMN encrypted_dek TEXT;")
         if "encryption_status" not in ev_cols:
             cursor.execute("ALTER TABLE evidence ADD COLUMN encryption_status TEXT DEFAULT 'encrypted';")
+        if "data_classification" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN data_classification TEXT DEFAULT 'RESTRICTED';")
+        if "classification_reason" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN classification_reason TEXT;")
+        if "classified_by" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN classified_by TEXT;")
+        if "classified_at" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN classified_at TEXT;")
+
+        cursor.execute("PRAGMA table_info(reports);")
+        rep_cols = [row[1] for row in cursor.fetchall()]
+        if "data_classification" not in rep_cols:
+            cursor.execute("ALTER TABLE reports ADD COLUMN data_classification TEXT DEFAULT 'CONFIDENTIAL';")
+        if "classification_reason" not in rep_cols:
+            cursor.execute("ALTER TABLE reports ADD COLUMN classification_reason TEXT;")
+        if "classified_by" not in rep_cols:
+            cursor.execute("ALTER TABLE reports ADD COLUMN classified_by TEXT;")
+        if "classified_at" not in rep_cols:
+            cursor.execute("ALTER TABLE reports ADD COLUMN classified_at TEXT;")
+
+        cursor.execute("PRAGMA table_info(audit_log);")
+        audit_cols = [row[1] for row in cursor.fetchall()]
+        if "data_classification" not in audit_cols:
+            cursor.execute("ALTER TABLE audit_log ADD COLUMN data_classification TEXT DEFAULT 'CONFIDENTIAL';")
+
+        cursor.execute("PRAGMA table_info(vector_records);")
+        vec_cols = [row[1] for row in cursor.fetchall()]
+        if "data_classification" not in vec_cols:
+            cursor.execute("ALTER TABLE vector_records ADD COLUMN data_classification TEXT DEFAULT 'INTERNAL';")
 
         conn.commit()
         conn.close()

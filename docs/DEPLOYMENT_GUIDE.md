@@ -153,6 +153,41 @@ To rotate JWT signing keys without logging out active users:
 
 ---
 
+## 🗄️ Automated Data Governance & Retention Worker
+
+Cygnal v4.0 includes an automated background retention lifecycle scheduler that scans managed entities, evaluates sensitivity policies, and executes cryptographic destruction or archival.
+
+### 1. Cron / Kubernetes CronJob Deployment
+To trigger automated retention passes on a recurring schedule (e.g. daily at midnight UTC):
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cygnal-retention-worker
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: retention-worker
+            image: cygnal-backend:v4.0
+            command: ["python", "-c", "from services.governance.scheduler import RetentionScheduler; RetentionScheduler.run_lifecycle_cycle(dry_run=False)"]
+            envFrom:
+            - secretRef:
+                name: cygnal-secrets
+          restartPolicy: OnFailure
+```
+
+### 2. Environment Configurations
+- `RETENTION_SCHEDULER_ENABLED`: Enables automated cron passes (`true`/`false`, default: `true`).
+- `RETENTION_DRY_RUN`: Runs evaluation in simulation mode (`true`/`false`, default: `false`).
+- `STORAGE_PROVIDER`: Active evidence storage driver (`local`, `s3`, `gcs`) for automated object purges.
+
+---
+
 ## 🔒 Production Hardening Checklist
 
 1. **Production Startup Verification**: When `ENVIRONMENT=production`, Cygnal rejects startup if mandatory keys (`JWT_SECRET`, `CYGNAL_MASTER_KEK`) are missing or using default placeholders.
@@ -160,4 +195,6 @@ To rotate JWT signing keys without logging out active users:
 3. **Database Backups**: Schedule automated daily pg_dump backups of PostgreSQL volume `pgdata`.
 4. **Rate Limit Tuning**: Configure `api/rate_limit.py` sliding-window thresholds according to your organization's traffic capacity.
 5. **Secret Access Audit Logging**: Secret access events are tracked in runtime memory logs without ever revealing secret plaintext.
+6. **Cryptographic Proof Ledger**: Audit logs and `deletion_records` verification hashes are immutable and should be backed up with append-only permissions.
+
 

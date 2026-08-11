@@ -23,7 +23,9 @@ import {
   Database,
   Bell,
   Check,
-  AlertCircle
+  AlertCircle,
+  Lock,
+  KeyRound
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -157,6 +159,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       title: "Management & Telemetry",
       links: [
         { name: "Reports Compiler", href: "/reports", icon: FileText, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst"] },
+        { name: "Data Governance", href: "/admin/governance", icon: Database, roles: ["admin", "director", "soc_manager"] },
+        { name: "SSO Federation", href: "/admin/sso", icon: Lock, roles: ["admin", "director"] },
         { name: "Employee Analytics", href: "/analytics", icon: Search, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead"] },
         { name: "System Auditing", href: "/admin/audit", icon: FileSpreadsheet, roles: ["admin"] },
         { name: "Admin Control", href: "/admin", icon: Settings, roles: ["admin"] }
