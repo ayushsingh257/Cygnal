@@ -16,15 +16,30 @@ from dotenv import load_dotenv
 # Load environmental configs
 load_dotenv()
 
-JWT_SECRET = os.getenv("JWT_SECRET")
-if not JWT_SECRET:
-    raise RuntimeError(
-        "CRITICAL: JWT_SECRET environment variable is not set. "
-        "This is required for token signing and security. "
-        "Set JWT_SECRET in your .env file or environment before starting the application."
-    )
+def get_current_jwt_secret() -> str:
+    """Retrieves active JWT signing key via Secrets Manager."""
+    try:
+        from services.secrets import get_secret
+        sec = get_secret("JWT_SECRET_CURRENT", requesting_service="auth.jwt") or get_secret("JWT_SECRET", requesting_service="auth.jwt")
+        if sec:
+            return sec
+    except Exception:
+        pass
+    return os.getenv("JWT_SECRET_CURRENT") or os.getenv("JWT_SECRET") or "default_cygnal_jwt_secret_key_2026"
 
-JWT_EXPIRY = os.getenv("JWT_EXPIRY", "3d")
+def get_previous_jwt_secret() -> str | None:
+    """Retrieves previous JWT signing key for rotation grace period validation."""
+    try:
+        from services.secrets import get_secret
+        return get_secret("JWT_SECRET_PREVIOUS", requesting_service="auth.jwt")
+    except Exception:
+        return os.getenv("JWT_SECRET_PREVIOUS")
+
+def get_jwt_expiry() -> str:
+    return os.getenv("JWT_EXPIRY", "3d")
+
+# Backwards compatibility export
+JWT_SECRET = get_current_jwt_secret()
 
 # ─── Token Blocklist (C-03) ────────────────────────────────────────────────────
 # Redis-backed blocklist in production; in-memory fallback for dev/test.
@@ -76,11 +91,12 @@ def is_token_revoked(jti: str) -> bool:
 # ─── Expiry Helper ─────────────────────────────────────────────────────────────
 
 def get_expiry_delta() -> timedelta:
+    exp_str = get_jwt_expiry()
     try:
-        if JWT_EXPIRY.endswith("d"):
-            return timedelta(days=int(JWT_EXPIRY[:-1]))
-        elif JWT_EXPIRY.endswith("h"):
-            return timedelta(hours=int(JWT_EXPIRY[:-1]))
+        if exp_str.endswith("d"):
+            return timedelta(days=int(exp_str[:-1]))
+        elif exp_str.endswith("h"):
+            return timedelta(hours=int(exp_str[:-1]))
     except Exception:
         pass
     return timedelta(days=3)
@@ -91,7 +107,7 @@ def get_expiry_delta() -> timedelta:
 def create_token(payload: dict) -> str:
     """
     Create a signed JWT with a unique JTI for revocation support.
-    All timestamps use timezone-aware UTC to avoid deprecated datetime.utcnow().
+    Signed using the active current key from Secrets Manager.
     """
     now = datetime.now(timezone.utc)
     expiry = now + get_expiry_delta()
@@ -99,18 +115,14 @@ def create_token(payload: dict) -> str:
     full_payload["jti"] = str(uuid.uuid4())   # unique token ID for blocklist
     full_payload["iat"] = now
     full_payload["exp"] = expiry
-    return jwt.encode(full_payload, JWT_SECRET, algorithm="HS256")
+    return jwt.encode(full_payload, get_current_jwt_secret(), algorithm="HS256")
 
 
 def create_internal_service_token(service_name: str, ttl_seconds: int = 3600) -> str:
     """
-    C-02 FIX: Create a short-lived, scope-limited internal service token.
+    Create a short-lived, scope-limited internal service token.
     These tokens use scope='internal' and have NO role field, preventing
     any route decorated with @require_role from granting them elevated access.
-
-    Args:
-        service_name: identifier for the calling service (e.g. 'AutonomicAgent')
-        ttl_seconds:  lifetime in seconds (default 1 hour)
     """
     now = datetime.now(timezone.utc)
     expiry = now + timedelta(seconds=ttl_seconds)
@@ -122,24 +134,49 @@ def create_internal_service_token(service_name: str, ttl_seconds: int = 3600) ->
         "iat": now,
         "exp": expiry,
     }
-    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+    return jwt.encode(payload, get_current_jwt_secret(), algorithm="HS256")
 
 
-# ─── Token Decoding ────────────────────────────────────────────────────────────
+# ─── Token Decoding & Dual-Key Rotation ───────────────────────────────────────
 
 def decode_token(token: str) -> dict | None:
     """
     Decode and validate a JWT.
+    Supports seamless dual-key rotation (validates against current key first, then previous key within grace period).
     Rejects tokens that have been blocklisted (logged-out or revoked).
     Returns the decoded payload dict, or None on any failure.
     """
+    current_key = get_current_jwt_secret()
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        # C-03: Reject revoked tokens
+        payload = jwt.decode(token, current_key, algorithms=["HS256"])
+        # Reject revoked tokens
         jti = payload.get("jti")
         if jti and is_token_revoked(jti):
             return None
         return payload
+    except jwt.InvalidSignatureError:
+        # Check previous key during rotation grace period
+        prev_key = get_previous_jwt_secret()
+        if prev_key:
+            try:
+                payload = jwt.decode(token, prev_key, algorithms=["HS256"])
+                jti = payload.get("jti")
+                if jti and is_token_revoked(jti):
+                    return None
+                # Check rotation grace window
+                grace_hours = int(os.getenv("JWT_ROTATION_GRACE_HOURS", "24"))
+                iat = payload.get("iat")
+                if iat:
+                    if isinstance(iat, (int, float)):
+                        issued_at = datetime.fromtimestamp(iat, tz=timezone.utc)
+                    else:
+                        issued_at = datetime.now(timezone.utc)
+                    if datetime.now(timezone.utc) - issued_at > timedelta(hours=grace_hours):
+                        return None  # Grace period expired for old key
+                return payload
+            except Exception:
+                return None
+        return None
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:

@@ -33,6 +33,10 @@ from routes.v2.collaboration import collaboration_bp  # Phase 4: Collaboration &
 from log_utils import setup_structured_logging
 setup_structured_logging()
 
+# ========== PRODUCTION SECRETS VALIDATION ==========
+from services.secrets import validate_production_secrets
+validate_production_secrets()
+
 # ========== FLASK SETUP ==========
 app = Flask(__name__)
 

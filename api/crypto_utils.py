@@ -12,7 +12,11 @@ def get_encryption_key() -> bytes:
     """Returns a 32-byte url-safe base64 encoded Fernet key derived from JWT_SECRET."""
     global _encryption_key
     if not _encryption_key:
-        jwt_secret = os.getenv("JWT_SECRET", "default_cygnal_secret_fallback_key")
+        try:
+            from services.secrets import get_secret
+            jwt_secret = get_secret("JWT_SECRET", requesting_service="crypto.fernet") or "default_cygnal_secret_fallback_key"
+        except Exception:
+            jwt_secret = os.getenv("JWT_SECRET", "default_cygnal_secret_fallback_key")
         hashed = sha256(jwt_secret.encode()).digest()
         _encryption_key = base64.urlsafe_b64encode(hashed)
     return _encryption_key
@@ -21,7 +25,11 @@ def get_master_kek() -> bytes:
     """Returns a raw 32-byte Master Key Encryption Key (KEK) for AES-256-GCM DEK wrapping."""
     global _master_kek
     if not _master_kek:
-        kek_secret = os.getenv("CYGNAL_MASTER_KEK", os.getenv("JWT_SECRET", "default_cygnal_master_kek_secret_key_2026"))
+        try:
+            from services.secrets import get_secret
+            kek_secret = get_secret("CYGNAL_MASTER_KEK", requesting_service="crypto.kek") or get_secret("JWT_SECRET", requesting_service="crypto.kek") or "default_cygnal_master_kek_secret_key_2026"
+        except Exception:
+            kek_secret = os.getenv("CYGNAL_MASTER_KEK", os.getenv("JWT_SECRET", "default_cygnal_master_kek_secret_key_2026"))
         _master_kek = sha256(kek_secret.encode()).digest()  # 32 bytes (256 bits)
     return _master_kek
 

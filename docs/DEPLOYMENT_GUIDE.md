@@ -111,9 +111,53 @@ npm run dev -- -p 3001     # Starts Next.js development server on port 3001
 
 ---
 
+## 🔐 Enterprise Secrets Management (GCP Secret Manager / HashiCorp Vault)
+
+Cygnal v4.0 supports dynamic runtime secrets injection and automated rotation via pluggable providers:
+
+### 1. Provider Selection (`SECRET_PROVIDER`)
+Set `SECRET_PROVIDER` in your environment or orchestrator (Kubernetes / ECS / Cloud Run):
+- `env`: Local environment variables / `.env` files (Development / Test only).
+- `gcp`: Google Cloud Secret Manager (Production GCP / GKE).
+- `vault`: HashiCorp Vault KV v2 (Production Multi-Cloud / On-Premise).
+
+### 2. Google Cloud Secret Manager Setup
+1. Enable Secret Manager API: `gcloud services enable secretmanager.googleapis.com`
+2. Configure Service Account with `roles/secretmanager.secretAccessor`.
+3. Set environment variables:
+   ```bash
+   SECRET_PROVIDER=gcp
+   GCP_PROJECT_ID=your-gcp-project-id
+   GOOGLE_APPLICATION_CREDENTIALS=/path/to/sa-credentials.json
+   ```
+4. Create secrets in GCP Secret Manager matching required keys: `JWT_SECRET`, `JWT_SECRET_CURRENT`, `DATABASE_URL`, `CYGNAL_MASTER_KEK`.
+
+### 3. HashiCorp Vault KV v2 Setup
+1. Enable KV v2 secrets engine: `vault secrets enable -path=secret kv-v2`
+2. Store secrets: `vault kv put secret/cygnal/JWT_SECRET value="..."`
+3. Configure environment variables:
+   ```bash
+   SECRET_PROVIDER=vault
+   VAULT_ADDR=https://vault.internal.corp:8200
+   VAULT_TOKEN=s.yourProductionVaultToken
+   VAULT_MOUNT_POINT=secret
+   VAULT_PATH_PREFIX=cygnal
+   ```
+
+### 4. Zero-Downtime JWT Secret Rotation Workflow
+To rotate JWT signing keys without logging out active users:
+1. Push new key to `JWT_SECRET_CURRENT`.
+2. Move previous key to `JWT_SECRET_PREVIOUS`.
+3. Configure `JWT_ROTATION_GRACE_HOURS=24` (default: 24h).
+4. New logins receive tokens signed with `JWT_SECRET_CURRENT`; existing tokens signed with `JWT_SECRET_PREVIOUS` continue to validate for 24 hours.
+
+---
+
 ## 🔒 Production Hardening Checklist
 
-1. **Change Default Secrets**: Never deploy with example `JWT_SECRET`, `CYGNAL_WEBHOOK_SECRET`, or `CYGNAL_ADMIN_PASSWORD`.
+1. **Production Startup Verification**: When `ENVIRONMENT=production`, Cygnal rejects startup if mandatory keys (`JWT_SECRET`, `CYGNAL_MASTER_KEK`) are missing or using default placeholders.
 2. **Enforce HTTPS / TLS**: Terminate TLS at a reverse proxy (Nginx / Cloudflare / AWS ALB) with strict HSTS headers enabled.
 3. **Database Backups**: Schedule automated daily pg_dump backups of PostgreSQL volume `pgdata`.
 4. **Rate Limit Tuning**: Configure `api/rate_limit.py` sliding-window thresholds according to your organization's traffic capacity.
+5. **Secret Access Audit Logging**: Secret access events are tracked in runtime memory logs without ever revealing secret plaintext.
+
