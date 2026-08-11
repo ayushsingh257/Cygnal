@@ -22,7 +22,11 @@ import {
   Maximize,
   Filter,
   Mail,
-  Globe
+  Globe,
+  Lock,
+  Download,
+  ShieldCheck,
+  HardDrive
 } from "lucide-react";
 
 import { toast, Toaster } from "react-hot-toast";
@@ -58,6 +62,10 @@ interface EvidenceItem {
   file_type: string;
   uploaded_by: string;
   uploaded_at: string;
+  storage_provider?: string;
+  encryption_algorithm?: string;
+  encryption_status?: string;
+  integrity_status?: string;
 }
 
 export default function CasesPage() {
@@ -762,6 +770,40 @@ export default function CasesPage() {
       toast.error("Upload connection failed.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDownloadEvidence = async (evidenceId: string, filename: string) => {
+    if (!selectedCaseId) return;
+    try {
+      const res = await fetch(`/api/cases/${selectedCaseId}/evidence/${evidenceId}/download`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        let errMsg = "Download failed.";
+        try {
+          const errData = await res.json();
+          errMsg = errData.error || errMsg;
+        } catch {
+          // ignore
+        }
+        toast.error(errMsg);
+        return;
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`Evidence '${filename}' decrypted & downloaded!`);
+    } catch (err: any) {
+      toast.error("Download error: " + err.message);
     }
   };
 
@@ -1501,7 +1543,7 @@ export default function CasesPage() {
                     </label>
 
                     {/* Evidence List */}
-                    <div className="overflow-x-auto max-h-[260px]">
+                    <div className="overflow-x-auto max-h-[300px]">
                       {evidence.length === 0 ? (
                         <p className="text-[11px] font-mono text-slate-555 text-center py-6">No evidence attachments signed.</p>
                       ) : (
@@ -1510,19 +1552,48 @@ export default function CasesPage() {
                             <tr className="border-b border-white/5 text-slate-500 uppercase tracking-wider">
                               <th className="p-2">Filename</th>
                               <th className="p-2">Size</th>
-                              <th className="p-2">SHA-256 custody Seal</th>
-                              <th className="p-2">Uploaded by</th>
+                              <th className="p-2">Security Vault</th>
+                              <th className="p-2">Integrity (SHA-256)</th>
+                              <th className="p-2">Storage</th>
+                              <th className="p-2 text-right">Action</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5 text-slate-350">
                             {evidence.map((ev) => (
-                              <tr key={ev.id} className="hover:bg-white/[0.01]">
-                                <td className="p-2 text-slate-200 font-semibold">{ev.filename}</td>
-                                <td className="p-2 text-slate-400">{(ev.file_size / 1024).toFixed(1)} KB</td>
-                                <td className="p-2 text-blue-450 tracking-wider font-bold select-all" title={ev.file_hash}>
-                                  {ev.file_hash.slice(0, 16)}...
+                              <tr key={ev.id} className="hover:bg-white/[0.02] transition">
+                                <td className="p-2 text-slate-200 font-semibold flex items-center gap-1.5">
+                                  <FileText size={12} className="text-blue-400 shrink-0" />
+                                  <span className="truncate max-w-[140px]" title={ev.filename}>{ev.filename}</span>
                                 </td>
-                                <td className="p-2 text-slate-400">{ev.uploaded_by}</td>
+                                <td className="p-2 text-slate-400">{(ev.file_size / 1024).toFixed(1)} KB</td>
+                                <td className="p-2">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono">
+                                    <Lock size={9} />
+                                    {ev.encryption_algorithm || "AES-256-GCM"}
+                                  </span>
+                                </td>
+                                <td className="p-2">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-mono" title={ev.file_hash}>
+                                    <ShieldCheck size={9} />
+                                    {ev.file_hash.slice(0, 10)}...
+                                  </span>
+                                </td>
+                                <td className="p-2">
+                                  <span className="inline-flex items-center gap-1 text-slate-400 text-[10px] font-mono capitalize">
+                                    <HardDrive size={9} className="text-purple-400" />
+                                    {ev.storage_provider === "s3" ? "S3 / MinIO" : ev.storage_provider === "gcs" ? "Google Cloud Storage" : "Local Vault"}
+                                  </span>
+                                </td>
+                                <td className="p-2 text-right">
+                                  <button
+                                    onClick={() => handleDownloadEvidence(ev.id, ev.filename)}
+                                    className="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/50 rounded text-blue-300 text-[10px] font-mono inline-flex items-center gap-1 transition"
+                                    title="Decrypt & Download"
+                                  >
+                                    <Download size={10} />
+                                    Decrypt & Download
+                                  </button>
+                                </td>
                               </tr>
                             ))}
                           </tbody>

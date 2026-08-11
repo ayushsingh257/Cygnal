@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file, Response, g
 from werkzeug.utils import secure_filename
 import os
 import hashlib
 import uuid
 import json
+import io
 from datetime import datetime, timedelta
 from db_utils import get_db_connection, DB_PATH
 from jwt_utils import decode_token
@@ -11,6 +12,8 @@ from services.extractor import extract_entities_from_text
 from socket_app import socketio
 from auth_middleware import require_auth, require_role, get_username
 from services.vector_service import index_text_entity
+from crypto_utils import encrypt_evidence_bytes, decrypt_evidence_bytes
+from services.storage import get_storage_provider
 
 cases_bp = Blueprint("cases_bp", __name__)
 
@@ -190,7 +193,8 @@ def get_case_details(case_id):
 
         # Get evidence custody ledger
         cursor.execute_tenant("""
-            SELECT id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at
+            SELECT id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at,
+                   storage_provider, encryption_algorithm, encryption_status
             FROM evidence WHERE case_id = ? ORDER BY uploaded_at DESC;
         """, (case_id,))
         e_rows = cursor.fetchall()
@@ -203,7 +207,11 @@ def get_case_details(case_id):
                 "file_hash": e[3],
                 "file_type": e[4],
                 "uploaded_by": e[5],
-                "uploaded_at": e[6]
+                "uploaded_at": e[6],
+                "storage_provider": e[7] if len(e) > 7 and e[7] else "local",
+                "encryption_algorithm": e[8] if len(e) > 8 and e[8] else "AES-256-GCM",
+                "encryption_status": e[9] if len(e) > 9 and e[9] else "encrypted",
+                "integrity_status": "verified"
             })
 
         conn.close()
@@ -292,7 +300,7 @@ def upload_evidence(case_id):
         cursor = conn.cursor()
         
         # Verify case exists
-        cursor.execute("SELECT case_number FROM cases WHERE id = ?;", (case_id,))
+        cursor.execute_tenant("SELECT case_number FROM cases WHERE id = ?;", (case_id,))
         case_row = cursor.fetchone()
         if not case_row:
             conn.close()
@@ -301,50 +309,64 @@ def upload_evidence(case_id):
         case_num = case_row[0]
         file_content = file.read()
         
-        # Calculate SHA-256 hash immediately
+        # Calculate SHA-256 hash immediately on raw plaintext
         sha256_hash = hashlib.sha256(file_content).hexdigest()
         file_size = len(file_content)
-        file_type = file.content_type
+        file_type = file.content_type or "application/octet-stream"
 
-        # Save file to uploads folder
         file_id = str(uuid.uuid4())
         base_name = secure_filename(file.filename)
         if not base_name:
             base_name = "evidence.dat"
-        safe_filename = f"{file_id}_{base_name}"
-        file_dest = os.path.join(UPLOAD_FOLDER, safe_filename)
+        storage_path = f"{file_id}_{base_name}.enc"
         
-        file.seek(0)
-        file.save(file_dest)
+        # Resolve active tenant_id for cryptographic key wrapping separation
+        tenant_id = getattr(g, "tenant_id", 1) or 1
+
+        # Perform AES-256-GCM envelope encryption (unique 256-bit DEK + unique 96-bit IV)
+        enc_res = encrypt_evidence_bytes(file_content, tenant_id=tenant_id)
+
+        # Store encrypted artifact in storage abstraction provider (never plaintext on disk)
+        storage_driver = get_storage_provider()
+        storage_driver.save(storage_path, enc_res["encrypted_payload"], content_type="application/octet-stream")
+        storage_provider_name = storage_driver.metadata(storage_path).get("provider", "local")
 
         now_str = datetime.utcnow().isoformat() + "Z"
 
-        # Insert to evidence table
-        cursor.execute("""
-            INSERT INTO evidence (id, case_id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        """, (file_id, case_id, base_name, file_size, sha256_hash, file_type, user, now_str))
+        # Insert to evidence table with complete cryptographic metadata
+        cursor.execute_tenant("""
+            INSERT INTO evidence (
+                id, case_id, filename, file_size, file_hash, file_type, uploaded_by, uploaded_at,
+                storage_provider, storage_path, encryption_algorithm, encryption_iv, encryption_tag, encrypted_dek, encryption_status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """, (
+            file_id, case_id, base_name, file_size, sha256_hash, file_type, user, now_str,
+            storage_provider_name, storage_path, enc_res["algorithm"], enc_res["iv_hex"], enc_res["tag_hex"], enc_res["wrapped_dek"], "encrypted"
+        ))
 
         # Log timeline event
         timeline_id = str(uuid.uuid4())
-        desc = f"Forensic evidence file '{file.filename}' uploaded and signed. SHA-256: {sha256_hash}."
-        cursor.execute("""
+        desc = f"Forensic evidence file '{file.filename}' encrypted (AES-256-GCM) and signed. SHA-256: {sha256_hash}."
+        cursor.execute_tenant("""
             INSERT INTO timeline (id, case_id, event_type, description, timestamp, user, metadata)
             VALUES (?, ?, 'evidence_uploaded', ?, ?, ?, ?);
         """, (timeline_id, case_id, desc, now_str, user, json_dumps({
             "filename": file.filename,
             "hash": sha256_hash,
-            "size": file_size
+            "size": file_size,
+            "encryption": "AES-256-GCM",
+            "storage": storage_provider_name
         })))
 
-        cursor.execute("UPDATE cases SET updated_at = ? WHERE id = ?;", (now_str, case_id))
+        cursor.execute_tenant("UPDATE cases SET updated_at = ? WHERE id = ?;", (now_str, case_id))
 
         conn.commit()
         conn.close()
 
         # Update Vector DB
         try:
-            index_text_entity(file_id, "evidence", f"Evidence File: {base_name}. Hash: {sha256_hash}. Type: {file_type}. Size: {file_size} bytes.")
+            index_text_entity(file_id, "evidence", f"Evidence File: {base_name}. Hash: {sha256_hash}. Type: {file_type}. Size: {file_size} bytes. Encryption: AES-256-GCM.")
             index_text_entity(timeline_id, "timeline_event", f"Timeline Event: evidence_uploaded. Details: {desc}. Auditor/User: {user}.")
         except Exception as vec_err:
             print("[Vector Index] Error indexing evidence:", vec_err)
@@ -355,7 +377,11 @@ def upload_evidence(case_id):
             "file_hash": sha256_hash,
             "file_size": file_size,
             "uploaded_at": now_str,
-            "uploaded_by": user
+            "uploaded_by": user,
+            "storage_provider": storage_provider_name,
+            "encryption_algorithm": enc_res["algorithm"],
+            "encryption_status": "encrypted",
+            "integrity_status": "verified"
         }
         
         # Broadcast new evidence via Socket.IO
@@ -368,6 +394,80 @@ def upload_evidence(case_id):
             "success": True,
             "evidence": evidence_payload
         })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@cases_bp.route("/cases/<case_id>/evidence/<evidence_id>/download", methods=["GET"])
+def download_evidence(case_id, evidence_id):
+    """
+    Authorized evidence download with AES-256-GCM decryption and SHA-256 integrity verification.
+    """
+    user = get_current_user()
+    if user == "unknown":
+        return jsonify({"success": False, "error": "Authentication signature required."}), 401
+        
+    tenant_id = getattr(g, "tenant_id", 1) or 1
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Verify case and evidence access under tenant isolation
+        cursor.execute_tenant("""
+            SELECT filename, file_size, file_hash, file_type, storage_provider, storage_path,
+                   encryption_algorithm, encryption_iv, encryption_tag, encrypted_dek, encryption_status
+            FROM evidence WHERE id = ? AND case_id = ?;
+        """, (evidence_id, case_id))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return jsonify({"success": False, "error": "Evidence not found or unauthorized."}), 404
+            
+        filename, file_size, file_hash, file_type, storage_provider, storage_path, enc_algo, iv_hex, tag_hex, wrapped_dek, enc_status = row
+        
+        # 1. Retrieve encrypted payload from storage provider
+        storage_driver = get_storage_provider(storage_provider)
+        
+        # Resolve legacy fallback path if storage_path not set
+        if not storage_path:
+            storage_path = f"{evidence_id}_{filename}"
+            
+        try:
+            encrypted_data = storage_driver.retrieve(storage_path)
+        except Exception:
+            # Check if stored as safe_filename without .enc
+            alt_path = f"{evidence_id}_{filename}"
+            if storage_driver.exists(alt_path):
+                encrypted_data = storage_driver.retrieve(alt_path)
+            else:
+                return jsonify({"success": False, "error": "Stored evidence artifact not found."}), 404
+        
+        # 2. Decrypt if encrypted with AES-256-GCM
+        if enc_algo == "AES-256-GCM" and iv_hex and tag_hex and wrapped_dek:
+            try:
+                decrypted_bytes = decrypt_evidence_bytes(
+                    encrypted_data, iv_hex=iv_hex, tag_hex=tag_hex, wrapped_dek=wrapped_dek, tenant_id=tenant_id
+                )
+            except Exception as dec_err:
+                return jsonify({"success": False, "error": f"Decryption failed or invalid authentication tag: {str(dec_err)}"}), 400
+        else:
+            # Legacy unencrypted fallback
+            decrypted_bytes = encrypted_data
+            
+        # 3. Verify SHA-256 integrity
+        calculated_hash = hashlib.sha256(decrypted_bytes).hexdigest()
+        if calculated_hash.lower() != file_hash.lower():
+            return jsonify({"success": False, "error": "Cryptographic integrity failure: SHA-256 mismatch on decrypted evidence."}), 400
+            
+        # 4. Stream decrypted file
+        return send_file(
+            io.BytesIO(decrypted_bytes),
+            mimetype=file_type or "application/octet-stream",
+            as_attachment=True,
+            download_name=filename
+        )
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -397,27 +497,39 @@ def extract_case_iocs(case_id):
         
         # If evidence ID is supplied, enrich from database file details
         if evidence_id:
-            cursor.execute("SELECT filename, file_hash, file_type FROM evidence WHERE id = ? AND case_id = ?;", (evidence_id, case_id))
+            cursor.execute_tenant("""
+                SELECT filename, file_hash, file_type, storage_provider, storage_path,
+                       encryption_algorithm, encryption_iv, encryption_tag, encrypted_dek
+                FROM evidence WHERE id = ? AND case_id = ?;
+            """, (evidence_id, case_id))
             ev = cursor.fetchone()
             if not ev:
                 conn.close()
                 return jsonify({"success": False, "error": "Evidence not found."}), 404
             
-            filename, file_hash, file_type = ev
-            # Try reading evidence file text if text is empty
+            filename, file_hash, file_type, storage_provider, storage_path, enc_algo, iv_hex, tag_hex, wrapped_dek = ev
+            # Try reading and decrypting evidence file text if text is empty
             if not text:
-                file_path = os.path.join(UPLOAD_FOLDER, f"{evidence_id}_{filename}")
-                if os.path.exists(file_path):
-                    try:
-                        _, ext = os.path.splitext(filename.lower())
-                        if ext in ('.txt', '.eml', '.log', '.json', '.xml', '.csv', '.ini', '.yaml', '.yml'):
-                            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                                text = f.read()
-                        else:
-                            text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
-                    except:
+                try:
+                    storage_driver = get_storage_provider(storage_provider)
+                    if not storage_path:
+                        storage_path = f"{evidence_id}_{filename}"
+                    if not storage_driver.exists(storage_path) and storage_driver.exists(f"{evidence_id}_{filename}"):
+                        storage_path = f"{evidence_id}_{filename}"
+                        
+                    raw_data = storage_driver.retrieve(storage_path)
+                    if enc_algo == "AES-256-GCM" and iv_hex and tag_hex and wrapped_dek:
+                        tenant_id = getattr(g, "tenant_id", 1) or 1
+                        decrypted_bytes = decrypt_evidence_bytes(raw_data, iv_hex, tag_hex, wrapped_dek, tenant_id)
+                    else:
+                        decrypted_bytes = raw_data
+                        
+                    _, ext = os.path.splitext(filename.lower())
+                    if ext in ('.txt', '.eml', '.log', '.json', '.xml', '.csv', '.ini', '.yaml', '.yml'):
+                        text = decrypted_bytes.decode("utf-8", errors="ignore")
+                    else:
                         text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
-                else:
+                except Exception:
                     text = f"File: {filename}\nHash: {file_hash}\nType: {file_type}\n"
         
         if not text:

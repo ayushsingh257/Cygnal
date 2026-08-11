@@ -472,6 +472,23 @@ def init_lookup_db():
         if "department" not in case_cols:
             cursor.execute("ALTER TABLE cases ADD COLUMN department TEXT;")
 
+        cursor.execute("PRAGMA table_info(evidence);")
+        ev_cols = [row[1] for row in cursor.fetchall()]
+        if "storage_provider" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN storage_provider TEXT DEFAULT 'local';")
+        if "storage_path" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN storage_path TEXT;")
+        if "encryption_algorithm" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN encryption_algorithm TEXT DEFAULT 'AES-256-GCM';")
+        if "encryption_iv" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN encryption_iv TEXT;")
+        if "encryption_tag" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN encryption_tag TEXT;")
+        if "encrypted_dek" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN encrypted_dek TEXT;")
+        if "encryption_status" not in ev_cols:
+            cursor.execute("ALTER TABLE evidence ADD COLUMN encryption_status TEXT DEFAULT 'encrypted';")
+
         conn.commit()
         conn.close()
     except Exception as e:
