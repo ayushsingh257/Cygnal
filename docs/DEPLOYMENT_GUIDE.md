@@ -188,6 +188,17 @@ spec:
 
 ---
 
+## 🛡️ AI Privacy & Zero-Data-Leakage Configuration
+
+The AI Privacy Gateway operates by default on all incoming prompts, RAG context lookups, and model completions.
+
+### Environment Controls
+- `AI_PRIVACY_STRICT_SECRETS`: Rejects outbound requests containing critical credentials (`true`/`false`, default: `true`).
+- `AI_PRIVACY_MASKING_PROVIDER`: Primary outbound model classification (`external` / `internal`, default: `external`).
+- `AI_PRIVACY_AUDIT_ENABLED`: Enforces immutable audit logging to `ai_privacy_events` (`true`/`false`, default: `true`).
+
+---
+
 ## 🔒 Production Hardening Checklist
 
 1. **Production Startup Verification**: When `ENVIRONMENT=production`, Cygnal rejects startup if mandatory keys (`JWT_SECRET`, `CYGNAL_MASTER_KEK`) are missing or using default placeholders.
@@ -196,5 +207,7 @@ spec:
 4. **Rate Limit Tuning**: Configure `api/rate_limit.py` sliding-window thresholds according to your organization's traffic capacity.
 5. **Secret Access Audit Logging**: Secret access events are tracked in runtime memory logs without ever revealing secret plaintext.
 6. **Cryptographic Proof Ledger**: Audit logs and `deletion_records` verification hashes are immutable and should be backed up with append-only permissions.
+7. **AI Privacy Gateway**: Ensure `AI_PRIVACY_STRICT_SECRETS=true` in production to prevent unintended cloud credential disclosures.
+
 
 

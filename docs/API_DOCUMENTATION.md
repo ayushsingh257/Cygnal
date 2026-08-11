@@ -199,6 +199,17 @@ Error responses return standard HTTP error codes (400, 401, 403, 404, 429, 500):
 
 ---
 
+### 14. AI Privacy & Zero-Data-Leakage Blueprint (`ai_privacy_bp`) — `/api/ai-privacy`
+
+| Method | Route | Description | Auth Required |
+|---|---|---|---|
+| `GET` | `/api/ai-privacy/events` | Query tenant AI privacy audit trail events | Yes |
+| `GET` | `/api/ai-privacy/stats` | Retrieve aggregate telemetry and tenant privacy posture score | Yes |
+| `POST` | `/api/ai-privacy/sanitize` | Interactive prompt sanitization & PII/credential masking | Yes |
+| `POST` | `/api/ai-privacy/test-leakage` | Scan simulated AI responses for accidental leakage | Yes |
+
+---
+
 ## ⚡ WebSocket Real-Time Events (Flask-SocketIO)
 
 Cygnal connects over Socket.IO (with Redis Pub/Sub multi-node scaling):

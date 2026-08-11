@@ -487,6 +487,23 @@ def init_lookup_db():
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_log_actor ON audit_log(actor);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_log_ts ON audit_log(timestamp);")
 
+        # 31. AI Privacy & Zero-Data-Leakage Events Table (Phase 7)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ai_privacy_events (
+                id TEXT PRIMARY KEY,
+                tenant_id INTEGER DEFAULT 1,
+                user_id TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                detected_category TEXT NOT NULL,
+                severity TEXT NOT NULL,
+                action_taken TEXT NOT NULL,
+                details TEXT,
+                timestamp TEXT NOT NULL
+            );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_ai_privacy_events_tenant ON ai_privacy_events(tenant_id, timestamp);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_ai_privacy_events_type ON ai_privacy_events(event_type);")
+
         # SAFE MIGRATION ROUTINE checks
         # Seed default organization
         try:
@@ -506,7 +523,7 @@ def init_lookup_db():
             "evidence_relations", "investigation_jobs", "tool_permissions",
             "reports", "vector_records", "audit_log",
             "identity_providers", "directory_group_mappings", "sso_sessions",
-            "retention_policies", "deletion_records"
+            "retention_policies", "deletion_records", "ai_privacy_events"
         ]
 
         for table in tenant_tables:
@@ -630,6 +647,12 @@ def init_lookup_db():
         vec_cols = [row[1] for row in cursor.fetchall()]
         if "data_classification" not in vec_cols:
             cursor.execute("ALTER TABLE vector_records ADD COLUMN data_classification TEXT DEFAULT 'INTERNAL';")
+        if "privacy_filtered" not in vec_cols:
+            cursor.execute("ALTER TABLE vector_records ADD COLUMN privacy_filtered INTEGER DEFAULT 0;")
+        if "masking_applied" not in vec_cols:
+            cursor.execute("ALTER TABLE vector_records ADD COLUMN masking_applied INTEGER DEFAULT 0;")
+        if "original_hash" not in vec_cols:
+            cursor.execute("ALTER TABLE vector_records ADD COLUMN original_hash TEXT;")
 
         conn.commit()
         conn.close()

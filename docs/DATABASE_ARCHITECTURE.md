@@ -488,6 +488,34 @@ Every managed entity (`cases`, `evidence`, `reports`, `audit_log`, `vector_recor
 
 ---
 
+### 8. AI Privacy & Zero-Data-Leakage Masking (Phase 7)
+
+#### `ai_privacy_events`
+Tenant-scoped immutable ledger tracking intercepted secrets, masked PII, prompt sanitizations, and model response redactions.
+```sql
+CREATE TABLE ai_privacy_events (
+    id TEXT PRIMARY KEY,
+    tenant_id INTEGER DEFAULT 1 REFERENCES tenants(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN ('PROMPT_SANITIZED', 'SECRET_BLOCKED', 'PII_MASKED', 'RESPONSE_REDACTED', 'EMBEDDING_SANITIZED')),
+    detected_category TEXT NOT NULL,
+    severity TEXT NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+    action_taken TEXT NOT NULL,
+    details TEXT,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_ai_privacy_events_tenant ON ai_privacy_events(tenant_id, timestamp);
+CREATE INDEX idx_ai_privacy_events_type ON ai_privacy_events(event_type);
+```
+
+#### `vector_records` Privacy Protection Fields
+The `vector_records` table incorporates pre-embedding sanitization metadata:
+- `privacy_filtered INTEGER DEFAULT 0` (1 if passed through AI Privacy Gateway)
+- `masking_applied INTEGER DEFAULT 0` (1 if PII or credentials were masked)
+- `original_hash TEXT` (SHA-256 fingerprint of original text prior to sanitization)
+
+---
+
 ## 🔄 Schema Migration Engine
 
 The `database.py` initialization process runs idempotently on backend startup:
@@ -495,4 +523,5 @@ The `database.py` initialization process runs idempotently on backend startup:
 2. **Dynamic Column Verification**: Inspects table metadata to verify missing columns and applies `ALTER TABLE ADD COLUMN` safely.
 3. **Index Creation**: Ensures all B-Tree indexes exist for high-frequency queries.
 4. **Seed Provisioning**: Inserts default admin credentials and tenant boundaries if the database is unpopulated.
+
 

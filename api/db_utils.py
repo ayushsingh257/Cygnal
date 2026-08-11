@@ -233,7 +233,9 @@ def rewrite_query(sql: str, params: Any, tenant_id: int) -> tuple[str, Any]:
         "users", "cases", "evidence", "notifications", "inbound_alerts",
         "comments", "timeline", "case_indicators",
         "evidence_relations", "investigation_jobs", "tool_permissions",
-        "reports", "vector_records", "audit_log"
+        "reports", "vector_records", "audit_log",
+        "identity_providers", "directory_group_mappings", "sso_sessions",
+        "retention_policies", "deletion_records", "ai_privacy_events"
     }
     
     words = set(re.findall(r"\b\w+\b", sql.lower()))

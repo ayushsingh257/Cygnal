@@ -25,7 +25,8 @@ import {
   Check,
   AlertCircle,
   Lock,
-  KeyRound
+  KeyRound,
+  EyeOff
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -159,6 +160,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       title: "Management & Telemetry",
       links: [
         { name: "Reports Compiler", href: "/reports", icon: FileText, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead", "analyst"] },
+        { name: "AI Privacy Controls", href: "/admin/ai-privacy", icon: EyeOff, roles: ["admin", "director", "soc_manager"] },
         { name: "Data Governance", href: "/admin/governance", icon: Database, roles: ["admin", "director", "soc_manager"] },
         { name: "SSO Federation", href: "/admin/sso", icon: Lock, roles: ["admin", "director"] },
         { name: "Employee Analytics", href: "/analytics", icon: Search, roles: ["admin", "director", "soc_manager", "red_lead", "blue_lead"] },

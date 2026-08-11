@@ -28,6 +28,7 @@ from routes.v2.admin import admin_bp  # B-03/B-07: Real audit log + health endpo
 from routes.v2.threat_intel import threat_intel_bp  # Phase 2: Threat Intelligence
 from routes.v2.collaboration import collaboration_bp  # Phase 4: Collaboration & Notifications
 from routes.v2.governance import governance_bp  # Phase 6: Data Governance & Retention
+from routes.v2.ai_privacy import ai_privacy_bp  # Phase 7: AI Privacy & Zero-Data-Leakage Masking
 
 
 # ========== LOGGING CONFIGURATION ==========
@@ -111,6 +112,7 @@ app.register_blueprint(admin_bp, url_prefix="/api")  # Admin + health + audit
 app.register_blueprint(threat_intel_bp, url_prefix="/api")  # Phase 2: Threat Intel
 app.register_blueprint(collaboration_bp, url_prefix="/api")  # Phase 4: Collaboration
 app.register_blueprint(governance_bp, url_prefix="/api/governance")  # Phase 6: Data Governance
+app.register_blueprint(ai_privacy_bp, url_prefix="/api/ai-privacy")  # Phase 7: AI Privacy & Masking
 
 # ========== GLOBAL ERROR HANDLERS ==========
 @app.errorhandler(500)

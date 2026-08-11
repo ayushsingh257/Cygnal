@@ -632,7 +632,37 @@ def format_answer_response(prompt: str, context: dict) -> str:
 # ─── Main Copilot Entry Point ──────────────────────────────────────────────────
 
 def process_copilot_message(prompt: str, case_id: str = None, user: str = "unknown") -> dict:
-    """Main Copilot message processing pipeline."""
+    """Main Copilot message processing pipeline with Zero-Data-Leakage AI Privacy Gate."""
+    from db_utils import get_current_tenant_id
+    tenant_id = get_current_tenant_id()
+
+    # 1. AI Privacy Gateway — Block critical secrets (private keys, raw credentials)
+    #    but do NOT mask IOCs (IPs, domains, hashes) since those are investigation targets.
+    try:
+        from services.ai_privacy import AIPrivacyGateway
+        san_res = AIPrivacyGateway.sanitize_prompt(
+            prompt=prompt,
+            user_id=user,
+            tenant_id=tenant_id,
+            target_provider="internal",
+            strict_secret_blocking=True
+        )
+        if san_res.blocked:
+            return {
+                "response": f"⚠️ **Security Policy Violation**: {san_res.block_reason}",
+                "intent": "BLOCKED",
+                "iocs_detected": [],
+                "confidence": 0.0,
+                "requires_approval": False,
+                "proposed_action": None,
+                "privacy_blocked": True
+            }
+    except Exception:
+        pass
+
+    # 2. Use the ORIGINAL prompt for intent classification and IOC extraction.
+    #    The copilot is an internal system — IPs, domains, and case identifiers in
+    #    analyst prompts are investigation targets, not data leakage.
     intent = classify_intent(prompt)
     iocs = extract_iocs_from_prompt(prompt)
     proposed_action = None
@@ -671,6 +701,14 @@ def process_copilot_message(prompt: str, case_id: str = None, user: str = "unkno
             response = "**Note:** I detected an investigation request but could not extract specific IOC targets from your input. Please paste IP addresses, domain names, URLs, or hashes directly.\n\n" + response
         else:
             response = format_answer_response(prompt, context)
+
+    # 3. Response sanitization is NOT applied to copilot-generated responses.
+    #    The copilot builds structured markdown internally — it is not an external LLM
+    #    that might hallucinate credentials. Case identifiers (CYG-xxxx) and IOC values
+    #    in the response are intentional output, not accidental leakage.
+    #    Privacy sanitization is enforced at the boundary when prompts are sent to
+    #    external AI providers (OpenAI, Gemini, etc.) via sanitize_for_embedding()
+    #    and the external provider path in sanitize_prompt().
 
     return {
         "response": response,

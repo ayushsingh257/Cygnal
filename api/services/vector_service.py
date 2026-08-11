@@ -102,15 +102,28 @@ def _utcnow() -> str:
 # ─── Synchronization Functions ───────────────────────────────────────────────
 
 def index_text_entity(entity_id: str, entity_type: str, text_content: str) -> None:
-    """Save or update the vector representation of a text entity in database."""
+    """Save or update the vector representation of a text entity in database with AI privacy protection."""
     if not text_content or not text_content.strip():
         return
 
-    vector = vectorize_text(text_content)
-    vector_json = json.dumps(vector)
-
     from db_utils import get_current_tenant_id
     tenant_id = get_current_tenant_id()
+
+    # Pass through AI Privacy Gateway for Zero-Data-Leakage Masking
+    try:
+        from services.ai_privacy import AIPrivacyGateway
+        clean_text, priv_meta = AIPrivacyGateway.sanitize_for_embedding(
+            text=text_content,
+            user_id="vector_service",
+            tenant_id=tenant_id
+        )
+    except Exception as e:
+        logger.warning(f"AI Privacy Gateway fallback during embedding: {str(e)}")
+        clean_text = text_content
+        priv_meta = {"privacy_filtered": 0, "masking_applied": 0, "original_hash": None}
+
+    vector = vectorize_text(clean_text)
+    vector_json = json.dumps(vector)
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -125,15 +138,29 @@ def index_text_entity(entity_id: str, entity_type: str, text_content: str) -> No
         if row:
             cursor.execute_tenant("""
                 UPDATE vector_records
-                SET text_content = ?, vector_data = ?, created_at = ?
+                SET text_content = ?, vector_data = ?, created_at = ?,
+                    privacy_filtered = ?, masking_applied = ?, original_hash = ?
                 WHERE entity_id = ? AND entity_type = ?;
-            """, (text_content, vector_json, _utcnow(), entity_id, entity_type))
+            """, (
+                clean_text, vector_json, _utcnow(),
+                priv_meta.get("privacy_filtered", 1),
+                priv_meta.get("masking_applied", 0),
+                priv_meta.get("original_hash"),
+                entity_id, entity_type
+            ))
         else:
             rec_id = str(uuid.uuid4())
             cursor.execute_tenant("""
-                INSERT INTO vector_records (id, entity_id, entity_type, text_content, vector_data, created_at)
-                VALUES (?, ?, ?, ?, ?, ?);
-            """, (rec_id, entity_id, entity_type, text_content, vector_json, _utcnow()))
+                INSERT INTO vector_records (
+                    id, entity_id, entity_type, text_content, vector_data, created_at,
+                    privacy_filtered, masking_applied, original_hash
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (
+                rec_id, entity_id, entity_type, clean_text, vector_json, _utcnow(),
+                priv_meta.get("privacy_filtered", 1),
+                priv_meta.get("masking_applied", 0),
+                priv_meta.get("original_hash"),
+            ))
         conn.commit()
         
         # Invalidate vector search cache for this tenant
