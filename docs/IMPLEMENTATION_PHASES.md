@@ -1,49 +1,49 @@
-# Implementation Phases & Gating Strategy
+# Implementation Phases & Quality Gating Strategy (v4.0)
 
-Cygnal v1.0 is built incrementally in five development eras. Each era must be fully implemented, tested, and pushed before the next begins.
+Cygnal follows a rigorous engineering era and phase lifecycle where each milestone must be verified and tested before progressing to the next phase.
 
-## 📅 Era Coding Schedule
+---
+
+## 📅 Version Milestones Overview
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  Era 1: Core Documentation & System Design Specifications│
+│  v1.0 - Foundation & 10 Sensor Scanners Engine        │
 └──────────┬─────────────────────────────────────────────┘
            │
            ▼
 ┌────────────────────────────────────────────────────────┐
-│  Era 2: Secure Identity, RBAC Registry, & Auth Root Paths│
+│  v1.5 - Autonomous Investigations & AI Copilot Workspace│
 └──────────┬─────────────────────────────────────────────┘
            │
            ▼
 ┌────────────────────────────────────────────────────────┐
-│  Era 3: Case Ledger Workspace & Chronological Timeline │
+│  v2.0 / v2.5 - Hardening, MFA & Real-Time Collaboration│
 └──────────┬─────────────────────────────────────────────┘
            │
            ▼
 ┌────────────────────────────────────────────────────────┐
-│  Era 4: Scanners Multi-Sensor Engine & Policy Overrides │
+│  v3.0 / v3.5 - SIEM Inbound Gateway & Autonomic Loops  │
 └──────────┬─────────────────────────────────────────────┘
            │
            ▼
 ┌────────────────────────────────────────────────────────┐
-│  Era 5: Dashboard Analytics, A4 Reports, & AI RAG Chat │
+│  v4.0 - Enterprise Infrastructure, Vector DB & Identity│
+└──────────┬─────────────────────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────────────────────────────────┐
+│  v4.5 / v5.0 - Plugin SDK & Commercial Enterprise SaaS │
 └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚦 Gate Quality Checks
+## 🚦 Mandatory Quality Gates for Every Phase
 
-### Verification Steps
-For every development era, developers must run the following verification steps:
-1. **Frontend Compilation:** Verify that the frontend compiles cleanly:
-   ```bash
-   npm run build
-   ```
-2. **Backend Tests:** Run the Python test suite:
-   ```bash
-   pytest
-   ```
-3. **Run Dev Servers:** Confirm both servers launch and run correctly.
-4. **Browser Verification:** Manually test layout renders and workflow states.
-5. **VCS Commit & Push:** Commit modifications and push the completed era to the GitHub repository before starting the next era.
+Every development phase must pass the following quality gating sequence:
+1. **Implementation Verification**: Code review against architecture specifications.
+2. **Backend Unit & Integration Tests**: Complete Pytest test suite must pass 100% (172+ tests).
+3. **Frontend Production Build**: `npm run build` in `frontend/` must complete with zero TypeScript or bundling errors across all 40 routes.
+4. **Git Commit**: Descriptive, atomic commit message.
+5. **Git Push & CI Verification**: GitHub Actions CI workflow must turn green before starting the next phase.

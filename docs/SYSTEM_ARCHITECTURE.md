@@ -1,59 +1,59 @@
-# System Architecture Specification
+# Cygnal System Architecture Specification (v4.0)
 
-This document maps the architectural design and system components interaction within Cygnal v4.0.
-
-## 🧱 Component Block Design
-
-```
-                     ┌────────────────────────┐
-                     │   Next.js Client UI    │
-                     └──────────┬─────────────┘
-                                │ (HTTP REST / WebSockets)
-                                ▼
-                     ┌────────────────────────┐
-                     │    Flask Web API       │ <─── [Health Metrics API]
-                     │  (Blueprints Router)   │
-                     └────┬──────────────┬────┘
-                          │              │
-       (Sync CRUD)        ▼              ▼  (Async Celery Task / SocketIO PubSub)
-             ┌──────────────┐          ┌───────────────────────────┐
-             │ SQLite / PG  │          │   Celery Broker (Redis)   │
-             │ (Data Store) │          │  (with In-Memory Fallback)│
-             └──────────────┘          └─────────────┬─────────────┘
-                                                     │
-                                                     ▼
-                                       ┌───────────────────────────┐
-                                       │   Task Worker Processes   │
-                                       │ (Autonomic Agent Engine)  │
-                                       └─────────────┬─────────────┘
-                                                     │
-                                                     ▼
-                                       ┌───────────────────────────┐
-                                       │   IOC Extraction Pipeline │
-                                       │  (Unified Extractor Registry)│
-                                       └───────────────────────────┘
-```
-
-## 🔄 Enterprise Lifecycle Workflows
-
-### 1. Webhook Alert Ingestion & Agent Loop
-1. **SIEM Webhook:** External alerts from Splunk or Sentinel POST raw payloads to `/api/webhooks/siem` signed with a secure `X-Cygnal-Webhook-Key`.
-2. **Payload Hash & Ingestion:** The gateway computes a SHA-256 hash (`payload_hash`), stores it in `inbound_alerts`, and schedules a background Celery/Thread worker.
-3. **Autonomic Agent Loop:** The worker creates an investigation case, parses data, runs the unified `ioc_pipeline` to extract Indicators of Compromise, triggers security scanners, and updates the live workspace via WebSockets.
-4. **Analyst Take-Over:** An analyst can halt active autonomic loops via `/api/webhooks/alerts/<id>/take-over` to assume manual triage.
-
-### 2. Multi-Tenancy & Data Isolation
-- **Tenant Context:** Flask request middleware extracts `tenant_id` from JWT validation payloads and binds it to Flask's `g` context.
-- **Query Rewriting:** Database interactions automatically rewrite SQL statements via `rewrite_query` to scope table records by the active `tenant_id`.
-- **Preemption & SSO:** Strict registration mappings match users automatically to pre-onboarded domains (e.g., enterprise domain or invite code validation) instead of creating self-defined organizations.
-
-### 3. High Availability Redis Synchronisation & L1/L2 Caching
-- **Redis Pub/Sub Sync:** Active WebSocket events (cases, chats, notifications, agent logs) broadcast across multiple nodes utilizing Redis Pub/Sub synchronization.
-- **Circuit Breaker Caching:** Employs L1 Redis Cache and L2 SQLite/PG fallback. Built-in socket timeouts (500ms) and error latching temporarily bypass Redis to maintain zero-stall request cycles when Redis is down.
-
-### 4. Continuous Health & Metrics Monitoring
-- **Metrics Ingress:** Endpoint `/api/health/metrics` computes CPU and Memory usage, tracking active DB connections and active Redis statuses for dashboard metrics.
+Cygnal is an AI-powered cybersecurity investigation cockpit engineered to eliminate investigator cognitive friction and accelerate Mean Time to Investigate (MTTI).
 
 ---
-See [ARCHITECTURE_V2.md](file:///c:/Users/Ayush/OneDrive/Desktop/Cygnal/ARCHITECTURE_V2.md) for full architecture blueprints.
 
+## 🏛️ High-Level System Topology
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   PRESENTATION LAYER (Next.js 16)                               │
+│  - 40 App Router Routes (React 19 / TypeScript 5 / TailwindCSS 4)                               │
+│  - Interactive SVG Force-Directed Knowledge Graph & 7-Stage Chronological Timeline Narrator     │
+│  - Split-Panel AI Copilot Workspace & Live Case Lease Locking Banner                            │
+└────────────────────────────────────────────────┬────────────────────────────────────────────────┘
+                                                 │ HTTPS / WebSocket (Socket.IO)
+┌────────────────────────────────────────────────▼────────────────────────────────────────────────┐
+│                                   API GATEWAY & MIDDLEWARE LAYER                                │
+│  - Flask 3.x with Gevent Async WSGI Server & Strict Security Headers (CSP, HSTS, X-Frame-Options)│
+│  - Centralized Auth Middleware (@require_auth, @require_role, JTI Session Revocation Ledger)    │
+│  - Sliding-Window Rate Limiting (Redis Sorted Sets) & Correlation ID Tracing                    │
+└──────────────────┬─────────────────────────────┬────────────────────────────┬───────────────────┘
+                   │                             │                            │
+┌──────────────────▼──────────┐   ┌──────────────▼──────────┐   ┌─────────────▼───────────────────┐
+│     SECURITY SENSORS        │   │    COGNITIVE AI ENGINE  │   │     INTEGRATIONS & WEBHOOKS     │
+│  - 10 Sensor Scanners       │   │  - 128-D TF-IDF Vector  │   │  - Pluggable SIEM Gateway       │
+│    (WHOIS, DNS, Headers,    │   │    Database (Pure Py)   │   │    (Splunk, Sentinel, Generic)  │
+│     Email, IP Rep, Malware, │   │  - Cosine-Similarity RAG│   │  - 9 Threat Intel Connectors    │
+│     Screenshot, Metadata)   │   │  - 5-Intent Classifier  │   │    (VT, AbuseIPDB, Shodan, etc.)│
+│  - 14-Entity IOC Extractor  │   │  - Multi-Agent Planner  │   │  - STIX 2.1 / TAXII 2.1 Feeds   │
+└──────────────────┬──────────┘   └──────────────┬──────────┘   └─────────────┬───────────────────┘
+                   │                             │                            │
+┌──────────────────▼─────────────────────────────▼────────────────────────────▼───────────────────┐
+│                                   DATA & ASYNC EXECUTION LAYER                                  │
+│  - Unified Database Abstractor (`db_utils.py`): PostgreSQL 15 Pool + SQLite 3 Fallback          │
+│  - Celery 5 Worker Pool with Redis 7 Broker & ThreadPool Dynamic Fallback                       │
+│  - Redis Pub/Sub WebSocket Broadcast Scaling & L1 Cache with 500ms Circuit Breaker              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🧩 Core Architectural Components
+
+### 1. Ingestion Gateway & Autonomic Agent Loop
+- **SIEM Ingestion**: Inbound JSON alerts are received via `/api/webhooks/siem`, verified with an HMAC `X-Cygnal-Webhook-Key`, and hashed with SHA-256 for forensic integrity.
+- **Pluggable Parsers**: Concrete parsers (`SplunkParser`, `SentinelParser`, `GenericParser`) map raw provider payloads into standardized event schemas.
+- **Autonomous Agent Loop**: A background Celery worker parses IOCs, triggers parallel scans, correlates threat intelligence, and logs reasoning chains in real time.
+- **Analyst Take-Over Gate**: Analysts can intervene at any step via `/api/webhooks/alerts/<id>/take-over` to transition control from autonomic agents to manual investigation.
+
+### 2. Cognitive AI & 128-D Vector Database
+- **Zero-Data-Leakage Guarantee**: 100% pure-Python execution without external cloud LLM API dependencies.
+- **128-D TF-IDF Vectorizer**: Indexes case summaries, evidence profiles, and timeline events against a security vocabulary vector space.
+- **Cosine-Similarity RAG**: Retrieves historical incident context and surfaces similar past attack vectors to the AI Copilot.
+- **Multi-Agent Planner**: Formulates structured, multi-step investigation action plans with verification checks.
+
+### 3. Collaboration & Real-Time Presence
+- **Lease Locking**: Exclusive 30-second locks prevent multi-analyst write collisions during active evidence examination.
+- **Redis Pub/Sub Sync**: Broadcasts presence, typing indicators, comments, and agent logs across distributed backend nodes.

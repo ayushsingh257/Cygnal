@@ -1,28 +1,47 @@
-# User Roles & Workspace Authorities
+# User Roles & Provisioning Security Specification (v4.0)
 
-Cygnal v3.5 implements a role-based access control (RBAC) rank registry to define platform capability thresholds.
+Cygnal enforces a strict Role-Based Access Control (RBAC) rank registry to maintain zero-trust privilege boundaries across all investigation workspaces.
 
-## 🎖️ User Rank Hierarchy Registry
-The roles matrix maps authority levels to ranks from 10 to 70:
+---
 
-| Role | Authority Rank | Target Users | Dashboard Mode |
-|---|---|---|---|
-| **admin** | 70 | Platform Administrators | Full Admin Telemetry Panel |
-| **director** | 60 | Executive Leadership | Global Compliance Analytics |
-| **soc_manager** | 50 | Security Team Managers | Manager Command Console |
-| **red_lead** | 40 | Offensive Operations Leads | Operations Command Console |
-| **blue_lead** | 40 | Defensive Investigations Leads | Operations Command Console |
-| **analyst** | 20 | Tier 1/2 Investigators | Analyst Command Workspace |
-| **intern** | 10 | Junior Operators / Viewers | Analyst Command Workspace |
+## 🎖️ User Role Specifications
 
-## 🚀 Registration & Provisioning Flow Security
-To prevent unauthorized privilege escalation:
-- **Self-Registration (`POST /api/register`):** Restricted strictly to low-privilege ranks (`analyst`, `intern`). High-privilege roles cannot self-register.
-- **Administrative Provisioning (`POST /api/admin/users/create`):** High-privilege accounts (e.g. `admin`, `director`, `soc_manager`, etc.) must be explicitly provisioned by an authenticated administrator.
+### 1. `admin` (Rank 70)
+- Full administrative access to the platform.
+- Can create/provision high-privilege users (`POST /api/admin/users/create`).
+- Can onboard new organizational tenants (`POST /api/admin/tenants`).
+- Can query cryptographic system audit logs (`GET /api/admin/audit`).
+- Can configure threat intelligence connector API keys and policy overrides.
 
-## 👁️ Interface Layout Control
-The sidebar navigation maps links dynamically by parsing the active user role:
-- **`admin` Only:** Displays "System Auditing" and "Admin Control".
-- **Rank >= 50 (Managers/Directors/Admins):** Displays "Employee Analytics" and "Reports Compiler".
-- **Rank >= 20 (Analysts and higher):** Displays "Incident Cases" and "Multi-Agent AI".
-- **All Logged Nodes:** Displays "Operations Hub", "Scanners Directory", "RAG AI Assistant", and "My Profile".
+### 2. `director` (Rank 60)
+- Strategic and executive oversight of security posture.
+- Access to high-level compliance analytics, executive report generators, and cross-team triage trends.
+
+### 3. `soc_manager` (Rank 50)
+- Operational management of the Security Operations Center.
+- Assigns cases to analysts (`POST /api/cases/<id>/assign`).
+- Monitors investigation queue workloads, agent loop statuses, and team rosters.
+
+### 4. `red_lead` / `blue_lead` (Rank 40)
+- Specialized tactical leads for offensive penetration testing and defensive incident response.
+- Access to deep forensic modules, threat intelligence fusion, and evidence correlation graphs.
+
+### 5. `analyst` (Rank 20)
+- Primary investigator persona.
+- Creates and updates incident cases, uploads evidence files, runs 10 security sensor scanners, interacts with AI Copilot, and compiles sealed forensic reports.
+
+### 6. `intern` (Rank 10)
+- Read-only trainee / viewer persona.
+- Can view published reports, public dashboards, and execute basic OSINT lookups without modifying case ledgers.
+
+---
+
+## 🔒 Account Provisioning Rules
+
+1. **Self-Registration (`POST /api/register`)**:
+   - Strictly restricted to low-privilege roles (`analyst`, `intern`).
+   - Any attempt to self-register with elevated roles (`admin`, `director`, `soc_manager`, `red_lead`, `blue_lead`) is rejected with HTTP 403 Forbidden.
+
+2. **Administrative Provisioning (`POST /api/admin/users/create`)**:
+   - Elevated accounts must be provisioned by an authenticated `admin`.
+   - Generates a cryptographically strong initial credential requiring immediate MFA configuration.

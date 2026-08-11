@@ -26,3 +26,5 @@ build/
 # Upload folders and temporary files
 api/routes/uploads/
 uploads/
+*-backup.git/
+*.backup/

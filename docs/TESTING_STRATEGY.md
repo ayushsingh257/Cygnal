@@ -1,34 +1,58 @@
-# Testing Strategy
+# Cygnal Automated Testing & Quality Assurance Strategy (v4.0)
 
-This document specifies the testing plan, coverage requirements, and verification checklists for Cygnal v4.0.
+Cygnal enforces a multi-tier testing strategy to ensure 100% regression safety across backend APIs, identity integrations, AI engines, and frontend rendering.
 
-## 🧪 1. Backend Unit Testing (`pytest`)
-Backend API endpoints are tested using the Pytest framework:
-- **Test File Location:** `api/tests/`.
-- **Target Areas:**
-  - `test_endpoints.py`: Validates authorization middleware, registration payloads, and scanner dispatches.
-  - `test_validators.py`: Checks URL, domain name, and IP address sanitization inputs.
-  - `test_task_manager.py`: Tests the background thread executor and progress key updates.
-  - `test_auth.py`: Validates session authentication, token creation, MFA setup/TOTP verify, and logout blocklists.
-  - `test_webhooks.py`: Covers pluggable SIEM parsers (Splunk, Azure Sentinel, Generic), webhook secrets validation, payload hashing, and analyst takeover gates.
-  - `test_audit_health.py`: Verifies administrative audit logging operations and system health/readiness endpoints.
-  - `test_phase5_enterprise.py`: Validates tenant isolation query rewrites, tenant onboarding constraints, Redis L1 caching, circuit breaker timeout failures, and systems health metrics.
+---
 
-## 🖥️ 2. Frontend Local Compilation Gates
-Before files are pushed, developers must run the production compiler:
+## 🧪 Testing Pyramid
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│             Frontend Production Build (Next.js)             │
+│                40/40 Routes Prerendered Cleanly             │
+├─────────────────────────────────────────────────────────────┤
+│             Integration & API Route Test Suite              │
+│                15 Test Modules (172 Pytest Items)           │
+├─────────────────────────────────────────────────────────────┤
+│             Core Algorithms & Unit Tests                    │
+│   (128-D TF-IDF, Regex IOC Extractor, Dialect Translators)  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📋 Backend Test Suite Catalog (`api/tests/` — 172 Items)
+
+| Test Suite | Items | Focus Area |
+|---|---|---|
+| `test_ai.py` | 3 | Heuristic RAG engine & vector stats endpoint |
+| `test_ai_phase3.py` | 11 | 128-D TF-IDF vector database, cosine similarity, case indexing |
+| `test_audit_health.py` | 7 | `/api/health`, `/api/ready`, and database-backed audit log query |
+| `test_auth.py` | 7 | Registration, login, MFA TOTP challenge, and JTI session revocation |
+| `test_cases.py` | 4 | Case CRUD, evidence SHA-256 hashing, timeline, and lease locking |
+| `test_collaboration_phase4.py` | 5 | User notifications, read status flags, roster, and Socket presence |
+| `test_copilot.py` | 33 | 5-intent classifier, plan builder, validation checks, structured format |
+| `test_extractor.py` | 5 | 14-entity regex extraction accuracy, SVG graph, and timeline stages |
+| `test_identity_phase1.py` | 4 | Microsoft Entra ID, SAML 2.0, Service Accounts, Session Manager |
+| `test_orchestrator.py` | 4 | Target classification, parallel execution loops, and status polling |
+| `test_phase5_enterprise.py` | 4 | Tenant isolation, onboarding, metrics, and circuit breaker cache |
+| `test_reports.py` | 1 | Sealed forensic report lifecycle and public share token resolution |
+| `test_scanners.py` | 26 | 10 security sensor dispatches (WHOIS, DNS, Headers, etc.) |
+| `test_threat_intel_phase2.py` | 50 | Multi-provider enrichment, STIX/TAXII parser, and connector config |
+| `test_webhooks.py` | 8 | SIEM webhook ingestion, SHA-256 payload integrity, analyst takeover |
+
+---
+
+## 🚀 Running Automated Tests
+
+### Run Full Pytest Suite
 ```bash
-# Navigate to the frontend directory and compile
+cd api
+pytest tests/ -v
+```
+
+### Run Frontend Production Build Verification
+```bash
+cd frontend
 npm run build
 ```
-This ensures there are no TypeScript type errors, missing components, or broken relative imports.
-
-## 🚶‍♂️ 3. Manual Interactive UI Checklist
-Verify the following user flows in the browser:
-1. **Unauthenticated Redirects:** Open `/dashboard` directly without logging in and confirm it redirects to `/login`.
-2. **Setup Sequence:** Register a new account at `/register`, verify the email gate, select a department, and click through the welcome screen.
-3. **Scanner Perms Check:** Verify that analysts cannot run tools that have policy override blocks configured.
-4. **Timeline Validation:** File a case, upload evidence, and verify that the timeline updates with a valid SHA-256 seal.
-5. **Print Styles:** Open a report and verify that headers and sidebar components are hidden in print previews.
-6. **Multi-Tenant Isolation:** Verify that users logged into different tenant organizations cannot view or search each other's cases, timeline logs, or evidence documents.
-7. **Infrastructure Health Metrics:** Access `/api/health/metrics` or the administrative monitoring dashboard to verify system resource and connection statuses.
-
