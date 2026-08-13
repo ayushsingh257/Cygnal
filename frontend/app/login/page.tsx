@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Shield, Key, Eye, EyeOff, User } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import { apiUrl } from "@/lib/utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const redirectUri = `${window.location.origin}/sso-callback`;
-      const res = await fetch(`/api/auth/sso/login/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`);
+      const res = await fetch(apiUrl(`/api/auth/sso/login/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`));
       const data = await res.json();
       if (data.success && (data.login_url || data.url)) {
         window.location.href = data.login_url || data.url;
@@ -47,7 +48,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch(apiUrl("/api/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -92,7 +93,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/mfa/verify", {
+      const res = await fetch(apiUrl("/api/auth/mfa/verify"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, code: totpCode })

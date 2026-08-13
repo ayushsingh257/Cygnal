@@ -12,3 +12,10 @@ export function cn(...classes: (string | undefined | null | boolean | Record<str
   }
   return result.join(" ");
 }
+
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
+
+export function apiUrl(path: string): string {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE_URL ? `${API_BASE_URL}${cleanPath}` : cleanPath;
+}
