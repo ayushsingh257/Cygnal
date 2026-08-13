@@ -9,8 +9,32 @@ import threading
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from jwt_utils import decode_token
 
+# Default allowed CORS origins (Production Vercel frontend + local development)
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "https://cygnal-erj2y01ol-ayushs-projects-ffd48c05.vercel.app",
+    "https://cygnal.cygnalai.com",
+    "https://api.cygnal.cygnalai.com"
+]
+
+def get_cors_origins():
+    origins = list(DEFAULT_CORS_ORIGINS)
+    env_origins = os.getenv("CORS_ORIGINS", "")
+    frontend_url = os.getenv("FRONTEND_URL", "")
+    if env_origins:
+        for o in env_origins.split(","):
+            cleaned = o.strip()
+            if cleaned and cleaned not in origins:
+                origins.append(cleaned)
+    if frontend_url and frontend_url.strip() and frontend_url.strip() not in origins:
+        origins.append(frontend_url.strip())
+    return origins
+
 # Initialize socketio instance with configurable CORS origins
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+cors_origins = get_cors_origins()
 redis_url = os.getenv("REDIS_URL")
 
 if redis_url:

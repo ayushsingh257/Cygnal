@@ -82,9 +82,34 @@ def set_security_headers(response):
     )
     return response
 
+# Default allowed CORS origins (Production Vercel frontend + local development)
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "https://cygnal-erj2y01ol-ayushs-projects-ffd48c05.vercel.app",
+    "https://cygnal.cygnalai.com",
+    "https://api.cygnal.cygnalai.com"
+]
+
+def get_cors_origins():
+    origins = list(DEFAULT_CORS_ORIGINS)
+    env_origins = os.getenv("CORS_ORIGINS", "")
+    frontend_url = os.getenv("FRONTEND_URL", "")
+    if env_origins:
+        for o in env_origins.split(","):
+            cleaned = o.strip()
+            if cleaned and cleaned not in origins:
+                origins.append(cleaned)
+    if frontend_url and frontend_url.strip() and frontend_url.strip() not in origins:
+        origins.append(frontend_url.strip())
+    return origins
+
 # Enable CORS for configured origins (not wildcard in production)
-CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")}})
-socketio.init_app(app, cors_allowed_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","))
+cors_origins = get_cors_origins()
+CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=True)
+socketio.init_app(app, cors_allowed_origins=cors_origins)
 
 # Resolve and bind tenant ID to request context
 from flask import g
