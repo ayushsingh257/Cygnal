@@ -1,12 +1,13 @@
 flask
 flask-cors
+flask-socketio
 requests
 pillow
 python-whois
 python-docx
 PyMuPDF
 selenium
-bs4
+beautifulsoup4
 lxml
 python-dotenv
 werkzeug
@@ -20,7 +21,11 @@ psycopg2-binary
 celery
 redis
 pyotp
-flask-socketio
 gevent-websocket
 flask-limiter
 cryptography
+google-cloud-secret-manager
+hvac
+psutil
+gunicorn
+eventlet
