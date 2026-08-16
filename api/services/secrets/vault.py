@@ -122,9 +122,15 @@ class VaultSecretsProvider(BaseSecretsProvider):
 
     def health_check(self) -> Dict[str, Any]:
         client = self._get_client()
+        auth_ok = False
+        if client:
+            try:
+                auth_ok = client.is_authenticated()
+            except Exception:
+                auth_ok = False
         return {
             "provider": self.provider_name,
             "vault_url": self.vault_url,
-            "authenticated": client is not None and client.is_authenticated() if client else False,
+            "authenticated": auth_ok,
             "status": "healthy"
         }
