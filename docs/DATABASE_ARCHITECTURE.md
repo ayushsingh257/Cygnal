@@ -1,6 +1,6 @@
 # Cygnal Enterprise Database Architecture Specification (v4.0)
 
-Cygnal utilizes a unified, enterprise-grade database architecture engineered to operate seamlessly with both **PostgreSQL 15+** (production default with connection pooling) and **SQLite 3** (embedded development fallback) via the `db_utils.py` dialect abstractor.
+Cygnal utilizes a unified, enterprise-grade database architecture engineered to operate seamlessly with **Supabase-hosted PostgreSQL** (managed production default with connection pooling, native Row-Level Security, and automated backups) as well as self-hosted PostgreSQL and **SQLite 3** (embedded zero-setup development fallback) via the `db_utils.py` dialect abstractor.
 
 ---
 
@@ -20,8 +20,8 @@ Database access is abstracted through `api/db_utils.py`, providing:
                              │
             ┌────────────────┴────────────────┐
             ▼                                 ▼
-   [ PostgreSQL 15 Pool ]             [ SQLite 3 Local ]
-   (Production / Docker)              (Development / CI)
+   [ Supabase Managed PostgreSQL ]    [ SQLite 3 Local ]
+   (Production / Cloud Run / Pooler)  (Development / CI)
 ```
 
 ---

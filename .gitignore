@@ -6,6 +6,8 @@ __pycache__/
 
 # Databases and runtime data
 *.db
+*.db-shm
+*.db-wal
 *.log
 session_logs/
 screenshots/

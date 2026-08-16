@@ -4,25 +4,25 @@ This guide details the deployment architecture, configuration parameters, and or
 
 ---
 
-## 🏗️ Production Topology (Docker Compose)
+## 🏗️ Production Multi-Cloud Architecture (Supabase + GCP + Vercel)
 
-Cygnal is organized as a multi-container architecture using Docker Compose:
+Cygnal v4.5 utilizes a high-availability, fully managed cloud topology:
 
 ```
                           [ Client Browser / SIEM Webhooks ]
                                           │
                    ┌──────────────────────┴──────────────────────┐
-                   ▼ (Port 3001)                                 ▼ (Port 5000)
+                   ▼ (Vercel Edge)                               ▼ (GCP Cloud Run / Port 5000)
         ┌─────────────────────┐                       ┌─────────────────────┐
-        │  cygnal_frontend    │                       │   cygnal_backend    │
-        │  (Next.js 16 Node)  │ ──(API Proxy Rewrites)─► (Flask Gevent WSGI)│
+        │   Cygnal Frontend   │                       │   Cygnal Backend    │
+        │  (Next.js 16 Edge)  │ ──(REST / WebSockets)─► (Flask + SocketIO)  │
         └─────────────────────┘                       └──────────┬──────────┘
                                                                  │
                                      ┌───────────────────────────┼───────────────────────────┐
                                      ▼                           ▼                           ▼
                           ┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
-                          │      cygnal_db      │     │    cygnal_redis     │     │cygnal_celery_worker │
-                          │   (PostgreSQL 15)   │     │    (Redis 7 PubSub) │     │ (Background Scans)  │
+                          │ Supabase PostgreSQL │     │  GCP Memorystore    │     │ Cloud Storage Vault │
+                          │ (Managed RLS DB)    │     │  (Redis 7 PubSub)   │     │ (AES-256 Evidence)  │
                           └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
 ```
 
@@ -33,11 +33,11 @@ Cygnal is organized as a multi-container architecture using Docker Compose:
 Copy `.env.example` to `.env` in the root workspace directory before starting:
 
 ```ini
-# --- Database Configuration ---
-POSTGRES_USER=cygnal_admin
-POSTGRES_PASSWORD=your_super_secret_postgres_password_here
-POSTGRES_DB=cygnal_prod
-DATABASE_URL=postgresql://cygnal_admin:your_super_secret_postgres_password_here@db:5432/cygnal_prod
+# --- Database Configuration (Supabase Managed PostgreSQL) ---
+# Direct / Session Mode (Port 5432) or Pooler / Transaction Mode (Port 6543):
+SUPABASE_DATABASE_URL=postgresql://postgres.yourprojectref:your_password@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+# Fallback / Local Development (optional):
+DATABASE_URL=postgresql://cygnal_admin:password@localhost:5432/cygnal_prod
 
 # --- Redis & Celery Background Queue ---
 REDIS_URL=redis://redis:6379/0

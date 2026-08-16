@@ -2,37 +2,162 @@ import os
 import re
 import sqlite3
 import threading
-from typing import Any
-from urllib.parse import urlparse
+from typing import Any, Dict, Optional
+from urllib.parse import urlparse, parse_qs
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+# ─── Database Configuration & Supabase Resolution ────────────────────────────
+def resolve_db_config() -> Dict[str, Any]:
+    """
+    Resolves PostgreSQL / Supabase connection parameters from environment.
+    Priority:
+    1. SUPABASE_DATABASE_URL
+    2. DATABASE_URL
+    3. Discrete SUPABASE_DB_* variables:
+       - SUPABASE_DB_HOST
+       - SUPABASE_DB_PORT (default: 5432 or 6543)
+       - SUPABASE_DB_NAME (default: postgres)
+       - SUPABASE_DB_USER (default: postgres)
+       - SUPABASE_DB_PASSWORD
+       - SUPABASE_DB_SSLMODE (default: require)
+    """
+    db_url = os.getenv("SUPABASE_DATABASE_URL") or os.getenv("DATABASE_URL") or ""
+    
+    if db_url.strip():
+        parsed = urlparse(db_url.strip())
+        qs = parse_qs(parsed.query)
+        
+        username = parsed.username or ""
+        password = parsed.password or ""
+        database = parsed.path[1:] if parsed.path.startswith("/") else parsed.path
+        hostname = parsed.hostname or ""
+        port = parsed.port or 5432
+        
+        # Determine SSL mode: default to 'require' for cloud Supabase
+        sslmode = qs.get("sslmode", [None])[0]
+        if not sslmode:
+            if hostname and ("supabase.co" in hostname or "supabase.com" in hostname):
+                sslmode = "require"
+            else:
+                sslmode = "prefer"
+                
+        is_supabase = bool(hostname and ("supabase.co" in hostname or "supabase.com" in hostname))
+        is_pooler = bool(port == 6543 or "pgbouncer=true" in db_url.lower() or "pooler.supabase.com" in (hostname or ""))
+        
+        return {
+            "is_pg": True,
+            "is_supabase": is_supabase,
+            "is_pooler": is_pooler,
+            "host": hostname,
+            "port": port,
+            "database": database,
+            "user": username,
+            "password": password,
+            "sslmode": sslmode,
+            "raw_url": db_url
+        }
+        
+    # Discrete parameters fallback
+    host = os.getenv("SUPABASE_DB_HOST")
+    if host and host.strip():
+        port = int(os.getenv("SUPABASE_DB_PORT", "5432").strip() or 5432)
+        database = os.getenv("SUPABASE_DB_NAME", "postgres").strip()
+        user = os.getenv("SUPABASE_DB_USER", "postgres").strip()
+        password = os.getenv("SUPABASE_DB_PASSWORD", "").strip()
+        sslmode = os.getenv("SUPABASE_DB_SSLMODE", "require").strip()
+        
+        is_supabase = bool("supabase.co" in host or "supabase.com" in host)
+        is_pooler = bool(port == 6543 or "pooler.supabase.com" in host)
+        
+        return {
+            "is_pg": True,
+            "is_supabase": is_supabase,
+            "is_pooler": is_pooler,
+            "host": host.strip(),
+            "port": port,
+            "database": database,
+            "user": user,
+            "password": password,
+            "sslmode": sslmode,
+            "raw_url": f"postgresql://{user}:{password}@{host}:{port}/{database}?sslmode={sslmode}"
+        }
+        
+    return {
+        "is_pg": False,
+        "is_supabase": False,
+        "is_pooler": False,
+        "host": None,
+        "port": None,
+        "database": "cygnal.db",
+        "user": None,
+        "password": None,
+        "sslmode": None,
+        "raw_url": ""
+    }
+
+DB_CONFIG = resolve_db_config()
+DATABASE_URL = DB_CONFIG.get("raw_url", "")
 DB_PATH = os.path.join(os.path.dirname(__file__), "cygnal.db")
 
-is_pg = bool(DATABASE_URL)
+is_pg = DB_CONFIG["is_pg"]
 pg_pool = None
 
-if is_pg:
+def init_pg_pool():
+    """Initializes PostgreSQL connection pool with cloud keepalives and SSL."""
+    global pg_pool, is_pg
+    if not is_pg:
+        return None
     try:
-        from psycopg2.pool import SimpleConnectionPool
-        result = urlparse(DATABASE_URL)
-        username = result.username
-        password = result.password
-        database = result.path[1:]
-        hostname = result.hostname
-        port = result.port or 5432
+        from psycopg2.pool import ThreadedConnectionPool
         
-        pg_pool = SimpleConnectionPool(
-            1, 20,
-            user=username,
-            password=password,
-            host=hostname,
-            port=port,
-            database=database
-        )
-        print("[DB_UTILS] Initialized PostgreSQL connection pool successfully.")
+        connect_kwargs = {
+            "user": DB_CONFIG["user"],
+            "password": DB_CONFIG["password"],
+            "host": DB_CONFIG["host"],
+            "port": DB_CONFIG["port"],
+            "database": DB_CONFIG["database"],
+            "connect_timeout": 15,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5
+        }
+        
+        if DB_CONFIG["sslmode"]:
+            connect_kwargs["sslmode"] = DB_CONFIG["sslmode"]
+            
+        pg_pool = ThreadedConnectionPool(1, 20, **connect_kwargs)
+        provider_name = "Supabase Managed PostgreSQL" if DB_CONFIG["is_supabase"] else "PostgreSQL"
+        pool_mode = "Supavisor/PgBouncer Pooler" if DB_CONFIG["is_pooler"] else "Direct Session"
+        print(f"[DB_UTILS] Initialized {provider_name} ({pool_mode}) connection pool successfully.")
+        return pg_pool
     except Exception as e:
         print("[DB_UTILS] Failed to initialize PostgreSQL connection pool, falling back to SQLite:", str(e))
         is_pg = False
+        return None
+
+if is_pg:
+    init_pg_pool()
+
+def get_db_config_info() -> Dict[str, Any]:
+    """Returns a sanitized summary of database engine and connection status."""
+    if is_pg and pg_pool:
+        return {
+            "engine": "supabase" if DB_CONFIG["is_supabase"] else "postgresql",
+            "provider": "Supabase Managed PostgreSQL" if DB_CONFIG["is_supabase"] else "PostgreSQL",
+            "host": DB_CONFIG["host"],
+            "port": DB_CONFIG["port"],
+            "database": DB_CONFIG["database"],
+            "ssl": bool(DB_CONFIG["sslmode"]),
+            "sslmode": DB_CONFIG["sslmode"],
+            "is_pooler": DB_CONFIG["is_pooler"],
+            "pool_active": True
+        }
+    return {
+        "engine": "sqlite",
+        "provider": "SQLite Embedded",
+        "path": DB_PATH,
+        "pool_active": False
+    }
 
 class DialectCursor:
     def __init__(self, cursor, is_pg_mode):
@@ -167,7 +292,10 @@ class DialectConnection:
                     pass
                 self.pool.putconn(self.conn)
             except Exception:
-                self.conn.close()
+                try:
+                    self.conn.close()
+                except Exception:
+                    pass
         else:
             try:
                 self.conn.close()

@@ -1,17 +1,17 @@
 version: '3.8'
 
-# C-05 FIX: All credentials and secrets are sourced from environment variables.
-# Copy .env.example to .env and fill in all required values before running.
-# NEVER commit .env to version control.
+# Cygnal Enterprise Docker Compose Configuration
+# Supports both managed Supabase PostgreSQL (Production / Cloud Dev) and local Postgres container (Offline Dev)
 
 services:
+  # Optional local database service (used when SUPABASE_DATABASE_URL is unset)
   db:
     image: postgres:15-alpine
     container_name: cygnal_db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:-cygnal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cygnal_password}
+      POSTGRES_DB: ${POSTGRES_DB:-cygnal_prod}
     ports:
       - "5432:5432"
     volumes:
@@ -39,19 +39,19 @@ services:
       dockerfile: Dockerfile
     container_name: cygnal_backend
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:?error}:${POSTGRES_PASSWORD:?error}@db:5432/${POSTGRES_DB:?error}
+      - SUPABASE_DATABASE_URL=${SUPABASE_DATABASE_URL:-}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-cygnal}:${POSTGRES_PASSWORD:-cygnal_password}@db:5432/${POSTGRES_DB:-cygnal_prod}}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - USE_CELERY=${USE_CELERY:-true}
+      - USE_CELERY=${USE_CELERY:-false}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - CYGNAL_WEBHOOK_SECRET=${CYGNAL_WEBHOOK_SECRET:?CYGNAL_WEBHOOK_SECRET is required}
-      - CYGNAL_ADMIN_USERNAME=${CYGNAL_ADMIN_USERNAME}
-      - CYGNAL_ADMIN_PASSWORD=${CYGNAL_ADMIN_PASSWORD}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - CYGNAL_MASTER_KEK=${CYGNAL_MASTER_KEK:-}
+      - CYGNAL_ADMIN_USERNAME=${CYGNAL_ADMIN_USERNAME:-admin}
+      - CYGNAL_ADMIN_PASSWORD=${CYGNAL_ADMIN_PASSWORD:-admin123}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:3001,https://cygnal-erj2y01ol-ayushs-projects-ffd48c05.vercel.app}
     ports:
       - "5000:5000"
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
@@ -64,14 +64,14 @@ services:
     container_name: cygnal_celery_worker
     command: celery -A celery_app.celery worker --loglevel=info --pool=threads
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:?error}:${POSTGRES_PASSWORD:?error}@db:5432/${POSTGRES_DB:?error}
+      - SUPABASE_DATABASE_URL=${SUPABASE_DATABASE_URL:-}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-cygnal}:${POSTGRES_PASSWORD:-cygnal_password}@db:5432/${POSTGRES_DB:-cygnal_prod}}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - USE_CELERY=${USE_CELERY:-true}
+      - USE_CELERY=${USE_CELERY:-false}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - CYGNAL_WEBHOOK_SECRET=${CYGNAL_WEBHOOK_SECRET:?CYGNAL_WEBHOOK_SECRET is required}
+      - CYGNAL_MASTER_KEK=${CYGNAL_MASTER_KEK:-}
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
@@ -84,6 +84,7 @@ services:
     container_name: cygnal_frontend
     environment:
       - BACKEND_URL=http://backend:5000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000}
     ports:
       - "3000:3000"
     depends_on:
