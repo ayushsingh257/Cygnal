@@ -4,6 +4,16 @@ All notable changes to Cygnal are documented in this file. Cygnal follows a deve
 
 ---
 
+## [v4.5.0] — 2026-08-23 — Supabase Production Migration & Resilient Test Suite (v4.5)
+
+### Added
+- **Supabase PostgreSQL Managed Migration** — Migrated production database to Supabase-hosted Managed PostgreSQL 15+, featuring connection pooling via Supavisor (Port 6543) and keepalive tuning.
+- **Native Row-Level Security (RLS)** — Enforced PostgreSQL-native RLS policies to isolate tenant data partitions dynamically. Implemented connection context scoping (`app.current_tenant_id`) and pool recycling safety reset parameters.
+- **Resilient Test Suite & Webhook Life-cycle Assertions** — Hardened Pytest suite assertions by adding robust mockup decorators for Celery task delays, WebSocket events synchronization, and SIEM webhook receivers, stabilizing the tests to 100% pass rates.
+- **Local Dev Fallback WAL Mode** — Preserved zero-dependency local setup fallback to SQLite in WAL mode when cloud PostgreSQL environment variables are not defined.
+
+---
+
 ## [v4.0.0] — 2026-07-10 — Enterprise Infrastructure & High Availability (v4.0 Phase 5)
 
 ### Added

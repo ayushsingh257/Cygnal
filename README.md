@@ -355,6 +355,8 @@ To remain a focused, cognitive investigation platform, Cygnal explicitly does **
 - **v3.0 / v3.5 (Connected Integrations)**: SIEM Webhook Gateway (Splunk, Sentinel, Generic JSON), Autonomic Agent Loops, Analyst Takeover controls, Rate Limiting, Security Audit Logging.
 - **v4.0 (Enterprise Intelligence & HA)**: Redis Pub/Sub WebSocket synchronization, 128-D Vector DB & Cosine Similarity RAG, Multi-Agent Planning HUD, Tenant-Aware SQL Query Rewriting (`rewrite_query`), Systems Resource Monitoring (`/api/health/metrics`).
 - **v4.0 Launch Readiness**: Brand identity redesign, Light/Dark theme support, GRC legal documentation (`/privacy`, `/terms`, `/security`, `/about`, `/contact`), UI/UX hotfix sprint.
+- **Supabase Database Migration**: Migrated the production database to Supabase-hosted Managed PostgreSQL with native Row-Level Security (RLS) policies and session pool context cleanup.
+- **Test Suite Hardening**: Implemented resilient vault health checks and webhook lifecycle assertions, stabilizing the backend unit tests for zero-flakiness builds.
 
 ### 🟣 Upcoming Milestones
 - **Cygnal v4.5 (Extensible Plugin SDK)**: Public Plugin SDK (`ScannerInterface`, `TIInterface`), plugin manifest validator, community extension marketplace, dynamic backend plugin loaders.

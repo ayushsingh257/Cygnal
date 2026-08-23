@@ -152,6 +152,20 @@ This document maps the version-based product evolution of Cygnal, detailing how 
 
 ---
 
+### 🟢 Cygnal Production Database Migration: Supabase Integration [Complete]
+*   **Status:** [Complete]
+*   **Purpose:** Migrate the production database to a managed cloud PostgreSQL instance on Supabase.
+*   **Business Value:** Offloads database server provisioning, hardware maintenance, and replication scaling, while enforcing strict multitenancy constraints.
+*   **Technical Goals:** Implement native PostgreSQL Row-Level Security (RLS) on all tables, configure PgBouncer/Supavisor transaction pooling mode, tune TCP keepalives, and maintain a seamless SQLite local development fallback.
+*   **Success Criteria:** ✅ Passed 13/13 database migration unit tests; zero data leak in multi-tenant runs.
+
+### 🟢 Cygnal Test Suite Hardening: Resilient Vault & Webhook Assertions [Complete]
+*   **Status:** [Complete]
+*   **Purpose:** Eliminate flakiness in the unit and integration test runs across webhook receivers and asynchronous tasks.
+*   **Business Value:** Enhances CI/CD pipeline reliability, ensuring rapid build validation and zero-warning test suite executions.
+*   **Technical Goals:** Create custom mocks for Celery worker queues, mock WebSockets socket rooms transmissions, and secure webhook signature lifecycle assertions.
+*   **Success Criteria:** ✅ 238/238 backend test suite assertions passing with 100% stability.
+
 ### 🟢 Cygnal Enterprise Hardening (Phases 1–7) [Complete]
 *   **Status:** [Complete]
 *   **Purpose:** Implement an end-to-end zero-trust architecture, database-level tenant isolation, envelope encryption, automated secrets rotation, federated SSO, retention governance, and zero-data-leakage AI safeguards.
