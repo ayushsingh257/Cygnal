@@ -2,9 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
-import { FooterBackgroundGradient, TextHoverEffect } from "@/components/ui/hover-footer";
+import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
+import { LazySection } from "@/components/ui/lazy-section";
+
+const TextHoverEffect = dynamic(
+  () => import("@/components/ui/hover-footer").then((mod) => mod.TextHoverEffect),
+  { ssr: false }
+);
 
 export default function MarketingFooter() {
   // Footer link data
@@ -143,10 +150,14 @@ export default function MarketingFooter() {
         </div>
       </div>
 
-      {/* Text hover effect - mapped to Cygnal text */}
-      <div className="lg:flex hidden h-[22rem] -mt-36 -mb-24 relative z-10">
+      {/* Text hover effect - mapped to Cygnal text (lazy-mounted near viewport) */}
+      <LazySection
+        rootMargin="200px"
+        minHeight="22rem"
+        className="lg:flex hidden h-[22rem] -mt-36 -mb-24 relative z-10 w-full"
+      >
         <TextHoverEffect text="Cygnal" className="z-50" />
-      </div>
+      </LazySection>
 
       <FooterBackgroundGradient />
     </footer>

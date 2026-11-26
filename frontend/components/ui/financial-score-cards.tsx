@@ -175,12 +175,16 @@ function FinancialScoreCard({ children }: FinancialScoreCardProps) {
     }
   }, [])
 
-  if (!appearing) return null
-
   return (
-    <LiquidCard className="w-full max-w-sm border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:border-[var(--border-blue)] transition-all duration-500 rounded-2xl">
-      <CardContent className="p-7">{children}</CardContent>
-    </LiquidCard>
+    <div
+      className={`transition-all duration-500 ${
+        appearing ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+      }`}
+    >
+      <LiquidCard className="w-full max-w-sm border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] hover:border-[var(--border-blue)] transition-all duration-500 rounded-2xl">
+        <CardContent className="p-7">{children}</CardContent>
+      </LiquidCard>
+    </div>
   )
 }
 

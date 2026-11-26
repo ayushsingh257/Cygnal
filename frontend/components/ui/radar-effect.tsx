@@ -1,15 +1,17 @@
 "use client";
 import { motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
-import React from "react";
+import React, { useRef } from "react";
+import { useViewportVisibility } from "@/components/ui/lazy-section";
 
 export const Circle = ({ className, children, idx, ...rest }: any) => {
   return (
     <motion.div
       {...rest}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: idx * 0.1, duration: 0.2 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ delay: idx * 0.08, duration: 0.25 }}
       className={twMerge(
         "absolute inset-0 left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform rounded-full border border-neutral-800",
         className
@@ -20,8 +22,12 @@ export const Circle = ({ className, children, idx, ...rest }: any) => {
 
 export const Radar = ({ className }: { className?: string }) => {
   const circles = new Array(8).fill(1);
+  const radarRef = useRef<HTMLDivElement>(null);
+  const isVisible = useViewportVisibility(radarRef, "100px");
+
   return (
     <div
+      ref={radarRef}
       className={twMerge(
         "relative flex h-20 w-20 items-center justify-center rounded-full",
         className
@@ -38,7 +44,10 @@ export const Radar = ({ className }: { className?: string }) => {
       `}</style>
       {/* Rotating sweep line */}
       <div
-        style={{ transformOrigin: "right center" }}
+        style={{
+          transformOrigin: "right center",
+          animationPlayState: isVisible ? "running" : "paused",
+        }}
         className="animate-radar-spin absolute right-1/2 top-1/2 z-45 flex h-[5px] w-[300px] items-end justify-center overflow-hidden bg-transparent pointer-events-none"
       >
         <div className="relative z-45 h-[1.5px] w-full bg-gradient-to-r from-transparent via-[#408A71]/50 to-transparent" />
@@ -71,8 +80,9 @@ export const IconContainer = ({
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2, delay: delay ?? 0 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.25, delay: delay ?? 0 }}
       className="relative z-50 flex flex-col items-center justify-center space-y-1.5"
     >
       <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#408A71]/20 bg-[#0f2422]/60 shadow-[0_0_12px_rgba(64,138,113,0.1)] hover:border-[#408A71] transition-colors duration-300">

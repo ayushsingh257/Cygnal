@@ -4,6 +4,7 @@ import { ArrowRight, Link, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/liquid-glass-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useViewportVisibility } from "@/components/ui/lazy-section";
 
 interface TimelineItem {
   id: number;
@@ -40,6 +41,7 @@ export default function RadialOrbitalTimeline({
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const isViewportVisible = useViewportVisibility(containerRef, "100px");
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === containerRef.current || e.target === orbitRef.current) {
@@ -86,11 +88,11 @@ export default function RadialOrbitalTimeline({
     });
   };
 
-  // Automated step-by-step loop
+  // Automated step-by-step loop (paused when scrolled offscreen or tab hidden)
   useEffect(() => {
     let rotationTimer: NodeJS.Timeout;
 
-    if (autoRotate && viewMode === "orbital" && timelineData.length > 0) {
+    if (autoRotate && isViewportVisible && viewMode === "orbital" && timelineData.length > 0) {
       // Walk through each node: pause for 2.5s, then rotate to the next
       rotationTimer = setInterval(() => {
         setActiveStepIndex((prevIndex) => {
@@ -115,7 +117,7 @@ export default function RadialOrbitalTimeline({
         clearInterval(rotationTimer);
       }
     };
-  }, [autoRotate, viewMode, timelineData]);
+  }, [autoRotate, isViewportVisible, viewMode, timelineData]);
 
   const centerViewOnNode = (nodeId: number) => {
     if (viewMode !== "orbital" || !nodeRefs.current[nodeId]) return;

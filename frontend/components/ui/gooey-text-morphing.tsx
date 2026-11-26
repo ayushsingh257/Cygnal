@@ -18,6 +18,7 @@ export function GooeyText({
   className,
   textClassName
 }: GooeyTextProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const text1Ref = React.useRef<HTMLSpanElement>(null);
   const text2Ref = React.useRef<HTMLSpanElement>(null);
 
@@ -61,9 +62,19 @@ export function GooeyText({
       setMorph(fraction);
     };
 
-    let animationFrameId: number;
+    let animationFrameId = 0;
+    let isVisible = true;
+    let isTabVisible = typeof document === "undefined" ? true : !document.hidden;
+
+    if (text1Ref.current && text2Ref.current && texts.length > 0) {
+      text2Ref.current.textContent = texts[0];
+    }
 
     function animate() {
+      if (!isVisible || !isTabVisible) {
+        animationFrameId = 0;
+        return;
+      }
       animationFrameId = requestAnimationFrame(animate);
       const newTime = new Date();
       const shouldIncrementIndex = cooldown > 0;
@@ -86,15 +97,51 @@ export function GooeyText({
       }
     }
 
-    animate();
+    const start = () => {
+      if (!animationFrameId && isVisible && isTabVisible) {
+        time = new Date();
+        animate();
+      }
+    };
+
+    const stop = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    };
+
+    const handleVisibility = () => {
+      isTabVisible = !document.hidden;
+      if (isVisible && isTabVisible) start();
+      else stop();
+    };
+
+    let observer: IntersectionObserver | null = null;
+    if (containerRef.current && typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible && isTabVisible) start();
+          else stop();
+        },
+        { rootMargin: "100px" }
+      );
+      observer.observe(containerRef.current);
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    start();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibility);
+      stop();
     };
   }, [texts, morphTime, cooldownTime]);
 
   return (
-    <div className={cn("relative", className)}>
+    <div ref={containerRef} className={cn("relative", className)}>
       <svg className="absolute h-0 w-0" aria-hidden="true" focusable="false">
         <defs>
           <filter id="threshold">

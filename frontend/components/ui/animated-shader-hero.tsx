@@ -284,6 +284,9 @@ void main(){gl_Position=position;}`;
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
     const dpr = Math.max(1, 0.5 * window.devicePixelRatio);
     
     rendererRef.current = new WebGLRenderer(canvas, dpr);
@@ -297,16 +300,60 @@ void main(){gl_Position=position;}`;
     if (rendererRef.current.test(defaultShaderSource) === null) {
       rendererRef.current.updateShader(defaultShaderSource);
     }
-    
-    loop(0);
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let isVisible = true;
+    let isTabVisible = typeof document === 'undefined' ? true : !document.hidden;
+
+    const startLoop = () => {
+      if (prefersReducedMotion) {
+        rendererRef.current?.render(0);
+        return;
+      }
+      if (!animationFrameRef.current && isVisible && isTabVisible) {
+        animationFrameRef.current = requestAnimationFrame(loop);
+      }
+    };
+
+    const stopLoop = () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = 0;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isVisible && isTabVisible) startLoop();
+      else stopLoop();
+    };
+
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible && isTabVisible) startLoop();
+          else stopLoop();
+        },
+        { rootMargin: '100px' }
+      );
+      observer.observe(canvas);
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    startLoop();
     
     window.addEventListener('resize', resize);
     
     return () => {
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', resize);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      stopLoop();
       if (rendererRef.current) {
         rendererRef.current.reset();
       }

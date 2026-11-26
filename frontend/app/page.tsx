@@ -2,23 +2,70 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
-  Shield, ArrowRight, Activity, Terminal, Lock, CheckCircle,
+  Shield, Activity, Lock, CheckCircle,
   Database, AlertCircle, Compass, Globe, Mail, FileText, Eye,
   Binary, Camera, Cpu, BarChart2, HardDrive, Layers, RefreshCw,
   Key, Fingerprint, Network, Radar, Search, Zap, Server,
   ShieldCheck, Users, GitBranch, FlaskConical, BookOpen
 } from "lucide-react";
-import Hero from "@/components/ui/animated-shader-hero";
 import ParticleLoader from "@/components/ui/particle-loader";
-import { Sparkles } from "@/components/ui/sparkles";
-import { GooeyText } from "@/components/ui/gooey-text-morphing";
-import { FinancialScoreCards } from "@/components/ui/financial-score-cards";
-import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
-import { Radar as RadarEffect, IconContainer } from "@/components/ui/radar-effect";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import MarketingFooter from "@/components/MarketingFooter";
+import { LazySection } from "@/components/ui/lazy-section";
+
+const Hero = dynamic(() => import("@/components/ui/animated-shader-hero"), {
+  ssr: false,
+  loading: () => <div className="w-full h-screen bg-black" />,
+});
+
+const GooeyText = dynamic(
+  () => import("@/components/ui/gooey-text-morphing").then((mod) => mod.GooeyText),
+  {
+    ssr: false,
+    loading: () => <div className="h-24" />,
+  }
+);
+
+const RadialOrbitalTimeline = dynamic(
+  () => import("@/components/ui/radial-orbital-timeline"),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-[690px]" />,
+  }
+);
+
+const FinancialScoreCards = dynamic(
+  () => import("@/components/ui/financial-score-cards").then((mod) => mod.FinancialScoreCards),
+  {
+    ssr: false,
+    loading: () => <div className="h-96" />,
+  }
+);
+
+const RadarEffect = dynamic(
+  () => import("@/components/ui/radar-effect").then((mod) => mod.Radar),
+  { ssr: false }
+);
+
+const IconContainer = dynamic(
+  () => import("@/components/ui/radar-effect").then((mod) => mod.IconContainer),
+  { ssr: false }
+);
+
+const Sparkles = dynamic(
+  () => import("@/components/ui/sparkles").then((mod) => mod.Sparkles),
+  { ssr: false }
+);
+
+const MarketingFooter = dynamic(
+  () => import("@/components/MarketingFooter"),
+  {
+    ssr: false,
+    loading: () => <div className="h-80 bg-[#0F0F11]/90 border-t border-[var(--border-subtle)]" />,
+  }
+);
 
 export default function MarketingLandingPage() {
   const router = useRouter();
@@ -34,6 +81,10 @@ export default function MarketingLandingPage() {
   ];
 
   useEffect(() => {
+    // Preload only the above-the-fold Hero shader right before loader finishes
+    const preloadTimer = setTimeout(() => {
+      import("@/components/ui/animated-shader-hero");
+    }, 1500);
     const stepInterval = setInterval(() => {
       setLoadingStep((prev) =>
         prev < loadingMessages.length - 1 ? prev + 1 : prev
@@ -41,6 +92,7 @@ export default function MarketingLandingPage() {
     }, 900);
     const timer = setTimeout(() => setLoading(false), 5000);
     return () => {
+      clearTimeout(preloadTimer);
       clearInterval(stepInterval);
       clearTimeout(timer);
     };
@@ -313,12 +365,14 @@ export default function MarketingLandingPage() {
       {/* ─── GOOEY TEXT FOCUSED INTRO ────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center relative z-10 select-none">
         <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#ea580c] mb-6">Automated Incident Triage</p>
-        <GooeyText
-          texts={["RECON & OSINT", "MALWARE SWEEP", "IDENTITY AUDIT", "EVIDENCE CUSTODY", "AI COPILOT"]}
-          morphTime={1.2}
-          cooldownTime={0.4}
-          className="font-bold font-mono text-[#ea580c] dark:text-orange-400"
-        />
+        <LazySection rootMargin="200px" minHeight="6rem">
+          <GooeyText
+            texts={["RECON & OSINT", "MALWARE SWEEP", "IDENTITY AUDIT", "EVIDENCE CUSTODY", "AI COPILOT"]}
+            morphTime={1.2}
+            cooldownTime={0.4}
+            className="font-bold font-mono text-[#ea580c] dark:text-orange-400"
+          />
+        </LazySection>
       </section>
 
       {/* ─── SECTION 1: WHY CYGNAL EXISTS (THE PAIN) ────────────────────── */}
@@ -383,7 +437,9 @@ export default function MarketingLandingPage() {
           </p>
         </div>
 
-        <RadialOrbitalTimeline timelineData={orbitalTimelineData} />
+        <LazySection rootMargin="250px" minHeight="690px">
+          <RadialOrbitalTimeline timelineData={orbitalTimelineData} />
+        </LazySection>
       </section>
 
       {/* ─── SECTION 3: PLATFORM ARCHITECTURE ───────────────────────────── */}
@@ -480,7 +536,9 @@ export default function MarketingLandingPage() {
           </span>
           <h2 className="text-2xl font-bold text-[var(--text-primary)] uppercase font-sans">Active Security Posture Audits</h2>
         </div>
-        <FinancialScoreCards />
+        <LazySection rootMargin="250px" minHeight="24rem">
+          <FinancialScoreCards />
+        </LazySection>
       </section>
 
       {/* ─── SECTION 6: WHO CYGNAL IS BUILT FOR ─────────────────────────── */}
@@ -551,7 +609,11 @@ export default function MarketingLandingPage() {
             </div>
 
             {/* Radar Panel */}
-            <div className="md:col-span-5 relative flex h-64 w-full flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <LazySection
+              rootMargin="250px"
+              minHeight="16rem"
+              className="md:col-span-5 relative flex h-64 w-full flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]"
+            >
               {/* Floating indicators */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <RadarEffect className="scale-[0.8]" />
@@ -570,7 +632,7 @@ export default function MarketingLandingPage() {
               <div className="absolute bottom-4 right-4">
                 <IconContainer text="Case Memory" delay={0.8} icon={<Database className="h-4 w-4 text-[#ea580c]" />} />
               </div>
-            </div>
+            </LazySection>
           </div>
         </div>
       </section>
@@ -639,14 +701,16 @@ export default function MarketingLandingPage() {
           <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-[#ea580c]/30 bg-neutral-950 hover:border-[#ea580c]/60 hover:shadow-[0_0_20px_rgba(234,88,12,0.15)] flex flex-col justify-center items-center group transition-all duration-500">
             <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent pointer-events-none z-10" />
             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[120%] h-36 rounded-full bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.06)_0%,transparent_75%)] blur-xl pointer-events-none group-hover:bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.15)_0%,transparent_75%)] transition-all duration-500" />
-            <Sparkles
-              density={400}
-              speed={0.6}
-              size={1.1}
-              color="#ea580c"
-              hover={true}
-              className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80"
-            />
+            <LazySection rootMargin="250px" className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80">
+              <Sparkles
+                density={400}
+                speed={0.6}
+                size={1.1}
+                color="#ea580c"
+                hover={true}
+                className="w-full h-full"
+              />
+            </LazySection>
 
             {/* Badges */}
             <div className="z-10 flex flex-wrap justify-center items-center gap-6 sm:gap-10 opacity-65 group-hover:opacity-95 transition-opacity duration-500 px-6">
@@ -668,7 +732,9 @@ export default function MarketingLandingPage() {
       </section>
 
       {/* ─── FOOTER ─────────────────────────────────────────────────────── */}
-      <MarketingFooter />
+      <LazySection rootMargin="300px" minHeight="20rem">
+        <MarketingFooter />
+      </LazySection>
 
     </div>
   );

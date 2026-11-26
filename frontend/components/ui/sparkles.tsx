@@ -41,6 +41,8 @@ export function Sparkles({
 }: SparklesProps) {
   const id = useId();
 
+  const effectiveDensity = Math.min(density, 120);
+
   const defaultOptions = {
     background: {
       color: {
@@ -51,7 +53,9 @@ export function Sparkles({
       enable: false,
       zIndex: 1,
     },
-    fpsLimit: 300,
+    fpsLimit: 60,
+    pauseOnBlur: true,
+    pauseOnOutsideViewport: true,
     interactivity: {
       events: {
         onClick: {
@@ -67,7 +71,9 @@ export function Sparkles({
             smooth: 10,
           },
         },
-        resize: true as any,
+        resize: {
+          enable: true,
+        } as any,
       },
       modes: {
         push: {
@@ -113,7 +119,7 @@ export function Sparkles({
         },
       },
       number: {
-        value: density,
+        value: effectiveDensity,
       },
       opacity: {
         value: {
